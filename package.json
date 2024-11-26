@@ -26,6 +26,7 @@
     "@grammyjs/parse-mode": "^1.10.0",
     "@grammyjs/ratelimiter": "^1.2.0",
     "@grammyjs/runner": "^2.0.3",
+    "@grammyjs/storage-free": "^2.4.2",
     "@grammyjs/transformer-throttler": "^1.2.1",
     "@prisma/client": "^5.22.0",
     "@telegraf/session": "^2.0.0-beta.7",
