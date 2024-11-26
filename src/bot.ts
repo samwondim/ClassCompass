@@ -1,11 +1,9 @@
-import { Bot, Context, InlineKeyboard, session } from "grammy";
+import { Bot, session } from "grammy";
 import {
   conversations,
   createConversation,
 } from "@grammyjs/conversations";
-import mKeyboard from "./menus/managerMenu";
 import MyContext from "./models/Context";
-import { run } from "@grammyjs/runner";
 import registerTeacher from "./middlewares/registerTeacher";
 import optKeyboard from "./menus/subTeachers";
 import getTeachers from "./middlewares/getTeachers";
@@ -77,11 +75,7 @@ export default async function runApp() {
     await ctx.reply(res);
   });
 
-  console.log("Hello")
   bot.catch(console.error);
-  // await bot.init();
-  // run(bot);
   bot.start();
   // console.info(`Bot ${bot.botInfo.username} us up and running`);
-  console.log("started")
 }
