@@ -30,6 +30,15 @@ app.post('/teacher/create', async (req, res) => {
   res.json(result);
 });
 
+app.post('/schedule/create', async (req, res) => {
+
+});
+
+app.get('/schedule/get', async (req, res) => {
+  const schedules = await prisma.schedule.findMany();
+  res.json(schedules);
+});
+
 export const startAPI = () => {
   const PORT = process.env.API_PORT || 3000;
   app.listen(PORT, () => {

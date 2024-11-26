@@ -1,37 +1,48 @@
+import { Bot, Context, InlineKeyboard, session } from "grammy";
+import {
+  conversations,
+  createConversation,
+} from "@grammyjs/conversations";
+import mKeyboard from "./menus/managerMenu";
+import MyContext from "./models/Context";
+import greetings from "./middlewares/greetUser";
+import { run } from "@grammyjs/runner";
 
-import { Telegraf, Context, session } from 'telegraf';
+export default async function runApp() {
 
-interface SessionData {
-  customProp: number;
-}
+  const bot = new Bot<MyContext>(process.env.BOT_TOKEN as string);
 
-interface MyContext extends Context {
-  session?: SessionData;
-}
+  //register middlewares
+  bot.use(session({ initial: () => ({}) })).
+    use(conversations()).
+    use(createConversation(greetings));
 
-const setUpBotConfigs = () => {
-  const bot = new Telegraf<MyContext>(process.env.BOT_TOKEN as string);
-  bot.use(session());
-
-  // Start command
-  bot.start((ctx) => ctx.reply('Hello! Welcome to my Telegram bot!'));
-
-  // Echo back any text message sent by users
-  bot.on('message', async (ctx) => {
-    ctx.session ??= { customProp: 1 }
-    await ctx.reply('' + ctx.session.customProp);
+  //commands
+  bot.command("start", async (ctx) => {
+    await ctx.reply("Welcome to the bot mister", { reply_markup: mKeyboard })
   });
 
-  return bot;
-}
-export const startBot = () => {
-  // Launch the bot
-  setUpBotConfigs().launch()
-    .then(() => console.log('Bot started successfully'))
-    .catch((err) => console.error('Error starting bot:', err));
-}
+  bot.callbackQuery("teacher-pl", async (ctx) => {
+    await ctx.conversation.enter("greetings");
+  })
 
-// Enable graceful stop
-// process.once('SIGINT', () => bot.stop('SIGINT'));
-// process.once('SIGTERM', () => bot.stop('SIGTERM'));
+  bot.callbackQuery("schedule-pl", async (ctx) => {
+    await ctx.answerCallbackQuery("same process")
+  })
 
+  bot.callbackQuery("request-pl", async (ctx) => {
+    await ctx.answerCallbackQuery("third payload requested here")
+  })
+
+  bot.on("message", (ctx) => {
+    ctx.reply("Hello there")
+  })
+
+  console.log("Hello")
+  bot.catch(console.error);
+  // await bot.init();
+  // run(bot);
+  bot.start();
+  // console.info(`Bot ${bot.botInfo.username} us up and running`);
+  console.log("started")
+}
