@@ -1,4 +1,3 @@
-import { startAPI } from "./api";
 import runApp from "./bot";
 
 import * as dotenv from "dotenv";
