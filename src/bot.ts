@@ -7,7 +7,6 @@ import MyContext from "./models/Context";
 import registerTeacher from "./middlewares/registerTeacher";
 import optKeyboard from "./menus/subTeachers";
 import getTeachers from "./middlewares/getTeachers";
-import greetUser from "./middlewares/greetUser";
 import { PrismaClient } from "@prisma/client";
 
 import { PsqlAdapter } from '@grammyjs/storage-psql';
@@ -41,8 +40,7 @@ export default async function runApp() {
     ).
     use(conversations()).
     use(createConversation(registerTeacher)).
-    use(createConversation(getTeachers)).
-    use(createConversation(greetUser));
+    use(createConversation(getTeachers));
 
   //commands
   bot.command("start", async (ctx) => {
