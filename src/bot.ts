@@ -12,6 +12,9 @@ import { PrismaClient } from "@prisma/client";
 import { PsqlAdapter } from '@grammyjs/storage-psql';
 import { Client } from "pg";
 import tKeyboard from "./menus/teacherMenu";
+import axios from "axios";
+import fs from "fs";
+import processExcel from "./utils/processExcel";
 
 const prisma = new PrismaClient();
 
@@ -85,29 +88,65 @@ I am created @triviosa to help you manage your Sunday School Schedules.`,
   bot.callbackQuery("t-schedule-pl", async (ctx) => {
     const phone_number = ctx.session.phone_number;
     console.log(ctx.session);
-    const schedule = await prisma.schedule.findMany({
-      where: {
-        teacher: {
-          phone_number: phone_number
-        }
-      },
-      include: {
-        course: true,
-        section: true
+    // const schedule = await prisma.schedule.findMany({
+    //   where: {
+    //     teacher: {
+    //       phone_number: phone_number
+    //     }
+    //   },
+    //   include: {
+    //     course: true,
+    //     section: true
+    //   }
+    // });
+    //
+    // if (schedule.length === 0) {
+    //   await ctx.reply(`You don't have any schedules yet for user ${phone_number}`);
+    //   return;
+    // }
+    //
+    // let res = `Schedules for ${ctx.from?.first_name + ctx.from?.last_name}\n`;
+    // schedule.forEach((scdl) => {
+    //   res += `Course ${scdl.course?.course_name}, Section ${scdl.section?.section_name}`;
+    // })
+    //
+    // await ctx.reply(res);
+  });
+
+  bot.on("message:document", async (ctx) => {
+    const file = ctx.message.document;
+
+    if (file) {
+      const fileId = file.file_id;
+      const fileInfo = await ctx.api.getFile(fileId);
+      const fileLink = `https://api.telegram.org/file/bot${bot.token}/${fileInfo.file_path}`;
+
+      try {
+        // Await the axios response before accessing `data`
+        const response = await axios.get(fileLink, { responseType: "stream" });
+
+        // Save the file locally
+        const filePath = `./uploads/${file.file_name}`;
+        const writer = fs.createWriteStream(filePath);
+
+        response.data.pipe(writer);
+
+        writer.on("finish", async () => {
+          await ctx.reply(`File saved`);
+          await processExcel(filePath);
+
+        });
+        writer.on("error", (err) => {
+          console.error(err);
+          ctx.reply("Error saving the file.");
+        });
+      } catch (error) {
+        console.error("Error downloading file:", error);
+        ctx.reply("Failed to download the file.");
       }
-    });
-
-    if (schedule.length === 0) {
-      await ctx.reply(`You don't have any schedules yet for user ${phone_number}`);
-      return;
+    } else {
+      await ctx.reply("No document found in your message.");
     }
-
-    let res = `Schedules for ${ctx.from?.first_name + ctx.from?.last_name}\n`;
-    schedule.forEach((scdl) => {
-      res += `Course ${scdl.course?.course_name}, Section ${scdl.section?.section_name}`;
-    })
-
-    await ctx.reply(res);
   });
 
   bot.catch(console.error);
