@@ -1,4 +1,5 @@
-import { Bot, session } from "grammy";
+import { Bot, Keyboard, session } from "grammy";
+import * as path from "path";
 import {
   conversations,
   createConversation,
@@ -7,7 +8,7 @@ import MyContext from "./models/Context";
 import registerTeacher from "./middlewares/registerTeacher";
 import optKeyboard from "./menus/subTeachers";
 import getTeachers from "./middlewares/getTeachers";
-import { PrismaClient } from "@prisma/client";
+import prisma from "./models/Client";
 
 import { PsqlAdapter } from '@grammyjs/storage-psql';
 import { Client } from "pg";
@@ -15,8 +16,12 @@ import tKeyboard from "./menus/teacherMenu";
 import axios from "axios";
 import fs from "fs";
 import processExcel from "./utils/processExcel";
+import mKeyboard from "./menus/managerMenu";
+import mScheduleMenu from "./menus/managerScheduleMenu";
+import getSchedules from "./middlewares/getSchedules";
+import addSchedules from "./middlewares/addSchedules";
+import attachUserRole from "./middlewares/attachUserRole";
 
-const prisma = new PrismaClient();
 
 export default async function runApp() {
   const client = new Client({
@@ -43,38 +48,25 @@ export default async function runApp() {
     ).
     use(conversations()).
     use(createConversation(registerTeacher)).
-    use(createConversation(getTeachers));
-
-  //commands
-  bot.command("start", async (ctx) => {
-    await ctx.reply(`Welcome to Class Compass!\n
-I am created @triviosa to help you manage your Sunday School Schedules.`,
-      {
-        reply_markup: {
-          keyboard: [
-            [{ text: "Share Phone Number", request_contact: true }],
-          ],
-          resize_keyboard: true,
-          one_time_keyboard: true,
-        },
-      });
-  });
-  bot.on("message:contact", async (ctx) => {
-    const phone_number = ctx.message.contact?.phone_number;
-    const telegramId = ctx.from?.id.toString();
-
-    if (phone_number) {
-      ctx.session.phone_number = phone_number;
-      ctx.session.telegramId = telegramId;
-      await ctx.reply("Your phone number has been saved. \nWhat would you like to do?", { reply_markup: tKeyboard });
-    } else {
-      await ctx.reply("Your phone number has not been saved");
-    }
-  });
+    use(createConversation(getTeachers)).
+    use(createConversation(getSchedules)).
+    use(createConversation(addSchedules));
 
   bot.callbackQuery("teacher-pl", async (ctx) => {
     await ctx.reply("What would you like to do?", { reply_markup: optKeyboard });
   })
+
+  bot.callbackQuery("schedule-pl", async (ctx) => {
+    await ctx.reply("What would you like to do?", { reply_markup: mScheduleMenu });
+  })
+
+  bot.callbackQuery("add-schedule-pl", async (ctx) => {
+    await ctx.conversation.enter("addSchedules");
+  });
+
+  bot.callbackQuery("view-schedule-pl", async (ctx) => {
+    await ctx.conversation.enter("getSchedules");
+  });
 
   bot.callbackQuery("add-pl", async (ctx) => {
     await ctx.conversation.enter("registerTeacher");
@@ -84,34 +76,36 @@ I am created @triviosa to help you manage your Sunday School Schedules.`,
     await ctx.conversation.enter("getTeachers");
   })
 
+
+
   //teacher's commands
-  bot.callbackQuery("t-schedule-pl", async (ctx) => {
-    const phone_number = ctx.session.phone_number;
-    console.log(ctx.session);
-    // const schedule = await prisma.schedule.findMany({
-    //   where: {
-    //     teacher: {
-    //       phone_number: phone_number
-    //     }
-    //   },
-    //   include: {
-    //     course: true,
-    //     section: true
-    //   }
-    // });
-    //
-    // if (schedule.length === 0) {
-    //   await ctx.reply(`You don't have any schedules yet for user ${phone_number}`);
-    //   return;
-    // }
-    //
-    // let res = `Schedules for ${ctx.from?.first_name + ctx.from?.last_name}\n`;
-    // schedule.forEach((scdl) => {
-    //   res += `Course ${scdl.course?.course_name}, Section ${scdl.section?.section_name}`;
-    // })
-    //
-    // await ctx.reply(res);
-  });
+  // bot.callbackQuery("t-schedule-pl", async (ctx) => {
+  //   const phone_number = ctx.session.phone_number;
+  //   console.log(ctx.session);
+  //   const schedule = await prisma.schedule.findMany({
+  //     where: {
+  //       teacher: {
+  //         phone_number: phone_number
+  //       }
+  //     },
+  //     include: {
+  //       course: true,
+  //       section: true
+  //     }
+  //   });
+  //
+  //   if (schedule.length === 0) {
+  //     await ctx.reply(`You don't have any schedules yet for user ${phone_number}`);
+  //     return;
+  //   }
+  //
+  //   let res = `Schedules for ${ctx.from?.first_name + ctx.from?.last_name}\n`;
+  //   schedule.forEach((scdl) => {
+  //     res += `Course ${scdl.course?.course_name}, Section ${scdl.section?.section_name}`;
+  //   })
+  //
+  //   await ctx.reply(res);
+  // });
 
   bot.on("message:document", async (ctx) => {
     const file = ctx.message.document;
@@ -128,13 +122,14 @@ I am created @triviosa to help you manage your Sunday School Schedules.`,
         // Save the file locally
         const filePath = `./uploads/${file.file_name}`;
         const writer = fs.createWriteStream(filePath);
+        console.log("Filename: ", path.basename(filePath))
+        const fileBaseName: string = path.basename(filePath);
 
         response.data.pipe(writer);
 
         writer.on("finish", async () => {
-          await ctx.reply(`File saved`);
-          await processExcel(filePath);
-
+          await ctx.reply(`File successfully saved`);
+          await processExcel(filePath, fileBaseName);
         });
         writer.on("error", (err) => {
           console.error(err);
@@ -149,6 +144,49 @@ I am created @triviosa to help you manage your Sunday School Schedules.`,
     }
   });
 
+  bot.on("message:contact", async (ctx) => {
+    const contact = ctx.message.contact;
+    const senderId = ctx.from?.id;
+
+    if (!contact || !contact.user_id || contact.user_id !== senderId) {
+      return ctx.reply("❌ Please share your own contact.");
+    }
+    await ctx.reply("Contact received!");
+    await attachUserRole(ctx, contact.phone_number);
+  })
+
+  //commands
+  bot.command("start", async (ctx) => {
+    const keyboard = new Keyboard()
+      .requestContact("📞 Share Your Contact")
+      .oneTime()
+      .resized();
+
+    await ctx.reply("Please share your phone number to continue:", {
+      reply_markup: keyboard,
+    });
+  });
+
+  bot.command("manage", async (ctx) => {
+    if (ctx.session.user?.is_manager) {
+      await ctx.reply(`Welcome to Class Compass!\n
+I am created to help you manage your Sunday School Schedules.
+You can use these buttons below to manage your schedules and teachers.`,
+        {
+          reply_markup: mKeyboard
+        });
+    } else {
+      await ctx.reply('You are not a manager :(')
+    }
+  });
+
+  // bot.command("teach", async(ctx) => {
+  //   // if()
+  // });
+
+  bot.command("teach", async (ctx) => {
+
+  })
   bot.catch(console.error);
   bot.start();
   // console.info(`Bot ${bot.botInfo.username} us up and running`);

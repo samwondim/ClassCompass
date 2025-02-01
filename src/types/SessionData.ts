@@ -1,7 +1,10 @@
 
 interface SessionData {
-  telegramId: string | undefined;
-  phone_number: string | undefined;
+  user: {
+    telegramId: number | undefined;
+    phone_number: string | undefined;
+    is_manager: boolean | undefined;
+  }
 }
 
 export default SessionData;
