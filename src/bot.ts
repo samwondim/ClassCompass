@@ -162,6 +162,10 @@ export default async function runApp() {
       .oneTime()
       .resized();
 
+    await ctx.reply(`Welcome to Class Compass!\n
+I am created to help you manage your Sunday School Schedules.
+You can use these buttons below to manage your schedules and teachers.`)
+
     await ctx.reply("Please share your phone number to continue:", {
       reply_markup: keyboard,
     });
@@ -169,9 +173,7 @@ export default async function runApp() {
 
   bot.command("manage", async (ctx) => {
     if (ctx.session.user?.is_manager) {
-      await ctx.reply(`Welcome to Class Compass!\n
-I am created to help you manage your Sunday School Schedules.
-You can use these buttons below to manage your schedules and teachers.`,
+      await ctx.reply(``,
         {
           reply_markup: mKeyboard
         });
@@ -179,10 +181,6 @@ You can use these buttons below to manage your schedules and teachers.`,
       await ctx.reply('You are not a manager :(')
     }
   });
-
-  // bot.command("teach", async(ctx) => {
-  //   // if()
-  // });
 
   bot.command("teach", async (ctx) => {
 
