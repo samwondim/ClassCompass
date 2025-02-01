@@ -76,36 +76,34 @@ export default async function runApp() {
     await ctx.conversation.enter("getTeachers");
   })
 
+  // teacher's commands
+  bot.callbackQuery("t-schedule-pl", async (ctx) => {
+    const phone_number = ctx.session.user.phone_number;
+    console.log(ctx.session);
+    const schedule = await prisma.schedule.findMany({
+      where: {
+        teacher: {
+          phone_number: phone_number
+        }
+      },
+      include: {
+        course: true,
+        section: true
+      }
+    });
 
+    if (schedule.length === 0) {
+      await ctx.reply(`You don't have any schedules yet for user ${phone_number}`);
+      return;
+    }
 
-  //teacher's commands
-  // bot.callbackQuery("t-schedule-pl", async (ctx) => {
-  //   const phone_number = ctx.session.phone_number;
-  //   console.log(ctx.session);
-  //   const schedule = await prisma.schedule.findMany({
-  //     where: {
-  //       teacher: {
-  //         phone_number: phone_number
-  //       }
-  //     },
-  //     include: {
-  //       course: true,
-  //       section: true
-  //     }
-  //   });
-  //
-  //   if (schedule.length === 0) {
-  //     await ctx.reply(`You don't have any schedules yet for user ${phone_number}`);
-  //     return;
-  //   }
-  //
-  //   let res = `Schedules for ${ctx.from?.first_name + ctx.from?.last_name}\n`;
-  //   schedule.forEach((scdl) => {
-  //     res += `Course ${scdl.course?.course_name}, Section ${scdl.section?.section_name}`;
-  //   })
-  //
-  //   await ctx.reply(res);
-  // });
+    let res = `Schedules for ${ctx.from?.first_name + ctx.from?.last_name}\n`;
+    schedule.forEach((scdl) => {
+      res += `Course ${scdl.course?.course_name}, Section ${scdl.section?.section_name}`;
+    })
+
+    await ctx.reply(res);
+  });
 
   bot.on("message:document", async (ctx) => {
     const file = ctx.message.document;
@@ -173,7 +171,7 @@ You can use these buttons below to manage your schedules and teachers.`)
 
   bot.command("manage", async (ctx) => {
     if (ctx.session.user?.is_manager) {
-      await ctx.reply(``,
+      await ctx.reply(`Please choose an option to manage:`,
         {
           reply_markup: mKeyboard
         });
@@ -183,8 +181,12 @@ You can use these buttons below to manage your schedules and teachers.`)
   });
 
   bot.command("teach", async (ctx) => {
+    await ctx.reply("Choose an option to manage your schedules", {
+      reply_markup: tKeyboard
+    });
 
   })
+
   bot.catch(console.error);
   bot.start();
   // console.info(`Bot ${bot.botInfo.username} us up and running`);
