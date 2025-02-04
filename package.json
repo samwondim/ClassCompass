@@ -4,9 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsc-watch --skipLibCheck --onSuccess 'node dist/index.js'",
-    "build-ts": "tsc skipLibCheck"
+    "dev": "nodemon --ext ts --exec ts-node src/index.ts",
+    "build": "tsc --skipLibCheck"
   },
   "keywords": [],
   "author": "",
@@ -14,8 +13,8 @@
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.1",
+    "@types/node-cron": "^3.0.11",
     "nodemon": "^3.1.7",
-    "prisma": "^5.22.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
   },
@@ -29,6 +28,7 @@
     "@grammyjs/storage-free": "^2.4.2",
     "@grammyjs/storage-psql": "^2.4.2",
     "@grammyjs/transformer-throttler": "^1.2.1",
+    "@prisma/adapter-pg": "^6.2.1",
     "@prisma/client": "^5.22.0",
     "@telegraf/session": "^2.0.0-beta.7",
     "@types/pg": "^8.11.10",
@@ -39,6 +39,7 @@
     "fs": "^0.0.1-security",
     "grammy": "^1.32.0",
     "grammy-middlewares": "^1.0.11",
+    "node-cron": "^3.0.3",
     "pg": "^8.13.1",
     "pg-mem": "^3.0.3",
     "read-excel-file": "^5.8.6",
