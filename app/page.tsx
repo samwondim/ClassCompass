@@ -1,18 +1,12 @@
+// app/page.tsx
 import { redirect } from 'next/navigation'
 import prisma from '@/models/client'
 import { getSession } from '@/utils/session'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
+import { Shield } from 'lucide-react'
+import { LoginScreen } from '@/components/login-screen'
 
 export default async function Home() {
-  const session = await getSession()
-  if (!session) redirect('/login')
-
-  const user = await prisma.user.findUnique({
-    where: { tg_username: session.user.tg_username },
-  })
-
-  if (user?.user_role === 'ADMIN') redirect('/admin')
-  else if (user?.user_role === 'MANAGER') redirect('/manager')
-  else if (user?.user_role === 'TEACHER') redirect('/teacher')
-
-  return <div>Redirecting...</div>
+  return <LoginScreen />
 }

@@ -56,6 +56,7 @@
     "@radix-ui/react-tabs": "^1.1.13",
     "@radix-ui/react-toast": "^1.2.15",
     "@radix-ui/react-visually-hidden": "^1.2.3",
+    "@tanstack/react-table": "^8.21.3",
     "@telegraf/session": "^2.0.0-beta.7",
     "@telegram-apps/init-data-node": "^2.0.10",
     "@telegram-apps/sdk-react": "^3.3.9",

@@ -5,11 +5,6 @@ import { NextRequest, NextResponse } from "next/server";
 // GET /api/sections - Get all sections
 export async function GET(request: NextRequest) {
   try {
-    // const user = await getUserRole();
-    //
-    // if (!["MANAGER", "ADMIN"].includes(user?.user_role)) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    // }
 
     const sections = await prisma.section.findMany({
       select: {
@@ -22,11 +17,6 @@ export async function GET(request: NextRequest) {
             last_name: true
           }
         },
-        // _count: {
-        //   select: {
-        //     schedules: true
-        //   }
-        // }
       },
       orderBy: {
         section_name: 'asc'
@@ -43,12 +33,6 @@ export async function GET(request: NextRequest) {
 // POST /api/sections - Create new section (manager only)
 export async function POST(request: NextRequest) {
   try {
-
-    const user = await getUserRole();
-
-    if (!["MANAGER", "ADMIN"].includes(user?.user_role)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     const { section_name } = await request.json()
 

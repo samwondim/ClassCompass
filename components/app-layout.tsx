@@ -1,11 +1,9 @@
 "use client"
-
-import type React from "react"
-
+import React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Calendar, Home, BookOpen, Settings, LogOut, User, Bell } from "lucide-react"
+import { Calendar, Home, BookOpen, Settings, LogOut, User, Bell, LayoutDashboard, BrainCog } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -14,7 +12,7 @@ import { VisuallyHidden } from "@/components/ui/visually-hidden"
 
 interface AppLayoutProps {
   children: React.ReactNode
-  userRole: "manager" | "teacher" | "admin"
+  userRole: string | null
 }
 
 export function AppLayout({ children, userRole }: AppLayoutProps) {
@@ -33,12 +31,34 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
     return pathname?.startsWith(path)
   }
 
-  const navItems =
-    userRole === "manager"
-      ? [
+  let navItems: { label: string; href: string; icon: React.ComponentType<{ className?: string }> }[] = []
+
+  switch (userRole) {
+    case "ADMIN":
+      navItems = [
+        { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+        { label: "Teachers", href: "/admin/teachers", icon: User },
+        { label: "Managers", href: "/admin/managers", icon: User },
+        { label: "Schedules", href: "/admin/schedules", icon: Calendar },
+        { label: "Courses", href: "/admin/courses", icon: BrainCog },
       ]
-      : [
+      break
+    case "MANAGER":
+      navItems = [
+
+        { label: "Dashboard", href: "/manager", icon: LayoutDashboard },
+        { label: "Teachers", href: "/teachers", icon: User },
+        { label: "Schedules", href: "/schedules", icon: Calendar },
       ]
+      break
+    case "TEACHER":
+      navItems = [
+        { label: "Dashboard", href: "/teacher", icon: LayoutDashboard },
+        { label: "My Schedules", href: "/schedule-details", icon: Calendar },
+        { label: "Lessons", href: "/lesson-details", icon: BookOpen },
+      ]
+      break
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
@@ -76,7 +96,7 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
                   <div className="rounded-full bg-sky-100 p-1">
                     <Calendar className="h-5 w-5 text-sky-600" />
                   </div>
-                  <span className="text-lg font-bold text-sky-700">ClassCompass</span>
+                  <span className="text-lg font-bold text-sky-700">Priscila</span>
                 </Link>
               </div>
               <nav className="mt-4 flex flex-col gap-2">
@@ -94,15 +114,13 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
               </nav>
             </SheetContent>
           </Sheet>
-
           <Link href="/" className="flex items-center gap-2">
             <div className="rounded-full bg-sky-100 p-1">
               <Calendar className="h-5 w-5 text-sky-600" />
             </div>
-            <span className="text-lg font-bold text-sky-700 hidden md:inline-block">ClassCompass</span>
+            <span className="text-lg font-bold text-sky-700 hidden md:inline-block">Priscila</span>
           </Link>
         </div>
-
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="h-5 w-5" />
@@ -110,13 +128,12 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
               3
             </span>
           </Button>
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Avatar className="h-8 w-8">
                   <AvatarFallback className="bg-sky-100 text-sky-700">
-                    {userRole === "manager" ? "MG" : "TC"}
+                    {userRole === "admin" ? "AD" : userRole === "manager" ? "MG" : "TC"}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -138,7 +155,6 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
           </DropdownMenu>
         </div>
       </header>
-
       {/* Main Content */}
       <div className="flex flex-1">
         {/* Side Navigation (desktop only) */}
@@ -157,11 +173,9 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
             ))}
           </div>
         </nav>
-
         {/* Content */}
         <main className="flex-1">{children}</main>
       </div>
-
       {/* Bottom Navigation (mobile only) */}
       <div className="md:hidden border-t bg-white">
         <nav className="flex items-center justify-around">

@@ -55,16 +55,8 @@ export function TeacherManagement() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const userPhone = localStorage.getItem('userPhone')
-      if (!userPhone) {
-        throw new Error('User not authenticated')
-      }
 
-      const response = await fetch('/api/representative/teachers', {
-        headers: {
-          'x-phone-number': userPhone
-        }
-      })
+      const response = await fetch('/api/representative/teachers')
       const result = await response.json()
       if (response.ok) {
         setData(result)
@@ -85,16 +77,7 @@ export function TeacherManagement() {
 
   const fetchAvailableTeachers = async () => {
     try {
-      const userPhone = localStorage.getItem('userPhone')
-      if (!userPhone) {
-        throw new Error('User not authenticated')
-      }
-
-      const response = await fetch('/api/teachers', {
-        headers: {
-          'x-phone-number': userPhone
-        }
-      })
+      const response = await fetch('/api/teachers')
       const result = await response.json()
       if (response.ok) {
         // Filter out teachers who are already assigned to this representative or are class reps
@@ -123,20 +106,13 @@ export function TeacherManagement() {
   }, [showAssignForm, data])
 
   const handleAssignTeacher = async () => {
-    if (!selectedTeacherId) return
-
     setActionLoading(true)
     try {
-      const userPhone = localStorage.getItem('userPhone')
-      if (!userPhone) {
-        throw new Error('User not authenticated')
-      }
 
       const response = await fetch('/api/representative/teachers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-phone-number': userPhone
         },
         body: JSON.stringify({ teacher_id: selectedTeacherId })
       })
@@ -176,7 +152,6 @@ export function TeacherManagement() {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'x-phone-number': userPhone
         },
         body: JSON.stringify({ teacher_id: teacherId })
       })

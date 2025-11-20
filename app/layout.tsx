@@ -9,11 +9,12 @@ export const metadata: Metadata = {
   generator: 'ClassCompass',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -21,10 +22,10 @@ export default function RootLayout({
         <script src="https://telegram.org/js/telegram-web-app.js" async></script>
       </head>
       <body>
-        <TelegramProvider>
-          {children}
-          <Toaster />
-        </TelegramProvider>
+        {/* <TelegramProvider> */}
+        {children}
+        <Toaster />
+        {/* </TelegramProvider> */}
       </body>
     </html>
   )
