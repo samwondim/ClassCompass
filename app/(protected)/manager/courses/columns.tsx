@@ -54,15 +54,15 @@ export const columns: ColumnDef<Course>[] = [
       );
     },
   },
-  {
-    accessorKey: "created_by_user",
-    header: "Created By",
-    cell: ({ row }) => {
-      const creator = row.original.created_by_user;
-      if (!creator) return <div>Unknown</div>;
-      return <div>{`${creator.first_name} ${creator.last_name}`}</div>;
-    },
-  },
+  // {
+  //   accessorKey: "created_by_user",
+  //   header: "Created By",
+  //   cell: ({ row }) => {
+  //     const creator = row.original.created_by_user;
+  //     if (!creator) return <div>Unknown</div>;
+  //     return <div>{`${creator.first_name} ${creator.last_name}`}</div>;
+  //   },
+  // },
   {
     id: "actions",
     cell: ({ row }) => (

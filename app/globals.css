@@ -6,7 +6,9 @@
 * {
   box-sizing: border-box;
 }
-
+.font-ethiopic {
+  font-family: 'Noto Sans Ethiopic', sans-serif;
+}
 body {
   margin: 0;
   padding: 0;

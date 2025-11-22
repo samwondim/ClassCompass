@@ -41,11 +41,6 @@ export async function GET(request: NextRequest) {
 // POST /api/teachers - Create new teacher (manager, and admin only)
 export async function POST(request: NextRequest) {
   try {
-    const user = await getUserRole();
-
-    if (!["MANAGER", "ADMIN"].includes(user?.user_role)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
 
     const { first_name, last_name, phone_number, user_role, tg_username, section_id } = await request.json()
 
