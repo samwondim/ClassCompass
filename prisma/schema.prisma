@@ -24,7 +24,7 @@ enum UserRole {
 model User {
   user_id          String           @id @default(uuid())
   user_role        UserRole?        @default(TEACHER)
-  tg_id            Int?             @unique
+  tg_id            Float?           @unique
   tg_username      String           @unique
   first_name       String?
   last_name        String?
@@ -36,6 +36,7 @@ model User {
   teacher_sections TeacherSection[]
   schedules        Schedule[]
   courses_created  Course[]         @relation("CreatedCourses")
+  ManagerSection   ManagerSection[]
 }
 
 model Section {
@@ -44,6 +45,7 @@ model Section {
   manager_id       String?
   manager          User?            @relation("ManagerSections", fields: [manager_id], references: [user_id], onDelete: SetNull)
   teacher_sections TeacherSection[]
+  ManagerSection   ManagerSection[]
 }
 
 model TeacherSection {
@@ -54,6 +56,16 @@ model TeacherSection {
   section    Section @relation(fields: [section_id], references: [section_id], onDelete: Cascade)
 
   @@unique([teacher_id, section_id])
+}
+
+model ManagerSection {
+  id         String  @id @default(uuid())
+  manager_id String
+  section_id String
+  manager    User    @relation(fields: [manager_id], references: [user_id], onDelete: Cascade)
+  section    Section @relation(fields: [section_id], references: [section_id], onDelete: Cascade)
+
+  @@unique([manager_id, section_id])
 }
 
 model Schedule {
