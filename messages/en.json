@@ -1,0 +1,23 @@
+{
+  "Login": "Login",
+  "Dashboard": "Dashboard",
+  "AddManager": "Add Manager",
+  "AddTeacher": "Add Teacher",
+  "AddSchedule": "Add Schedule",
+  "AddCourse": "Add Course",
+  "Save": "Save",
+  "Cancel": "Cancel",
+  "Name": "Name",
+  "Email": "Email",
+  "Role": "Role",
+  "Date": "Date",
+  "Time": "Time",
+  "Description": "Description",
+  "Objectives": "Objectives",
+  "Teachers": "Teachers",
+  "Managers": "Managers",
+  "Schedules": "Schedules",
+  "Courses": "Courses",
+  "NoDataFound": "No {type} found.",
+  "Welcome": "Welcome, {name} ({role})"
+}
