@@ -1,75 +1,100 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
-import { getSession, getUserRole } from '@/utils/session'
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
-export async function middleware(request: NextRequest) {
-  const pathname = request.nextUrl.pathname
-  console.log("PATH NAME", pathname)
+import createMiddleware from 'next-intl/middleware';
+import { getSession, getUserRole } from '@/utils/session';
 
-  // Skip static/API
-  if (
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/api')
-  ) {
-    return NextResponse.next()
-  }
+// -------------------------
+// 1. next-intl middleware
+// -------------------------
+const intlMiddleware = createMiddleware({
+  locales: ['en', 'am'],
+  defaultLocale: 'en',
+  localePrefix: 'always', // ensures /en/* and /am/* both exist
+});
 
-  // Optional: Skip/redirect /login if separate (but since merged to root, not needed)
-  // if (pathname === '/login') return NextResponse.redirect(new URL('/', request.url))
+// -------------------------
+// 2. Auth middleware
+// -------------------------
+async function authMiddleware(request: NextRequest) {
+  const url = request.nextUrl;
+  const locale = url.locale;
+  const pathname = url.pathname;
 
-  const session = await getSession()
+  // Remove locale prefix for routing checks
+  const cleanPath =
+    pathname.startsWith(`/${locale}`)
+      ? pathname.replace(`/${locale}`, '') || '/'
+      : pathname;
+
+  // Skip static/API routes
+  if (cleanPath.startsWith('/_next') || cleanPath.startsWith('/api'))
+    return NextResponse.next();
+
+  // Load session using request
+  const session = await getSession();
+
   console.log("SESSION", session)
   if (!session) {
-    // Unauthed: Redirect to root (shows login) unless already there
-    if (pathname !== '/') {
-      console.log(`[Middleware] No session on ${pathname} → Redirect to /`)
-      return NextResponse.redirect(new URL('/', request.url))
+    // Not logged in
+    if (cleanPath !== '/') {
+      return NextResponse.redirect(new URL(`/${locale}/`, request.url));
     }
-    return NextResponse.next() // Show landing on /
+    return NextResponse.next();
   }
 
-  const role = session.fetched_user.user_role
+  // Logged in → get role
+  const role = session.fetched_user.user_role;
+  console.log("ROLE", role)
+
   if (!role) {
-    console.log(`[Middleware] Invalid role from session on ${pathname}`)
-    return NextResponse.redirect(new URL('/', request.url))
+    return NextResponse.redirect(new URL(`/${locale}/`, request.url));
   }
 
-  console.log(`[Middleware] Session valid, role: ${role} on ${pathname}`)
-
-  // Root /: Redirect authed to role dashboard
-  if (pathname === '/') {
-    const rolePath = `/${role.toLowerCase()}`
-    console.log(`[Middleware] Redirecting from / to ${rolePath}`)
-    return NextResponse.redirect(new URL(rolePath, request.url))
+  // If visiting root: redirect to role dashboard
+  if (cleanPath === '/') {
+    const rolePath = `${locale}/${role.toLowerCase()}`;
+    console.log("redirecting to", rolePath)
+    return NextResponse.redirect(new URL(rolePath, request.url));
   }
 
-  // Skip non-protected
-  if (
-    !pathname.startsWith('/admin') &&
-    !pathname.startsWith('/manager') &&
-    !pathname.startsWith('/teacher')
-  ) {
-    return NextResponse.next()
+  // Role-protected routes
+  const protectedRole =
+    cleanPath.startsWith('/admin')
+      ? 'ADMIN'
+      : cleanPath.startsWith('/manager')
+        ? 'MANAGER'
+        : cleanPath.startsWith('/teacher')
+          ? 'TEACHER'
+          : null;
+
+  if (protectedRole && protectedRole !== role) {
+    const redirectPath = `/${locale}/${role.toLowerCase()}`;
+    return NextResponse.redirect(new URL(redirectPath, request.url));
   }
 
-  // Protect role routes
-  let requiredRole: string | null = null
-  if (pathname.startsWith('/admin')) requiredRole = 'ADMIN'
-  else if (pathname.startsWith('/manager')) requiredRole = 'MANAGER'
-  else if (pathname.startsWith('/teacher')) requiredRole = 'TEACHER'
-
-  if (requiredRole && role !== requiredRole) {
-    const rolePath = `/${role.toLowerCase()}`
-    console.log(`[Middleware] Wrong role ${role} for ${pathname} → Redirect to ${rolePath}`)
-    return NextResponse.redirect(new URL(rolePath, request.url))
-  }
-
-  console.log(`[Middleware] Access granted to ${pathname} for role ${role}`)
-  return NextResponse.next()
+  return NextResponse.next();
 }
 
+// ------------------------------
+// 3. Combined i18n + auth logic
+// ------------------------------
+export default async function middleware(request: NextRequest) {
+  // First apply next-intl
+  const intlResponse = intlMiddleware(request);
+
+  // If intl generated a redirect, return immediately
+  if (intlResponse && intlResponse.redirected) return intlResponse;
+
+  // Continue with custom auth
+  return authMiddleware(request);
+}
+
+// ------------------------------
+// 4. Route matcher
+// ------------------------------
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)', // Adds image file exclusions
+    '/((?!_next/static|_next/image|favicon.ico|api|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
-}
+};
