@@ -1,6 +1,6 @@
 // src/components/login-screen.tsx
 'use client';
-
+import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ export function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
+  const t = useTranslations();
 
   async function authenticateUser() {
     setIsLoading(true);
@@ -58,45 +59,31 @@ export function LoginScreen() {
     }
   }
 
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 p-6">
-      <Card className="w-full max-w-md shadow-lg border-0 bg-white">
-        <CardHeader className="text-center space-y-2">
-          <Shield className="mx-auto h-12 w-12 text-indigo-600" />
-          <CardTitle className="text-2xl font-semibold text-gray-800">ClassCompass</CardTitle>
-          <CardDescription className="text-gray-600">
-            Secure access for Sunday School management. Log in with your Telegram account.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {/* Featured Bible Verse */}
-          <div className="bg-white rounded-lg shadow-md p-6 border-l-4 border-indigo-500">
-            <blockquote className="text-xl italic text-gray-700 mb-2">
-              "Your word is a lamp for my feet, a light on my path."
-            </blockquote>
-            <cite className="text-sm text-gray-500 not-italic">— Psalm 119:105</cite>
-          </div>
-
-          <Button
-            onClick={authenticateUser}
-            disabled={isLoading}
-            className="w-full"
-            size="lg"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Authenticating...
-              </>
-            ) : (
-              <>
-                Login
-                <ChevronRight className="ml-auto h-4 w-4" />
-              </>
-            )}
-          </Button>
-        </CardContent>
-      </Card>
-    </div>
+  return (<div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 p-6">
+    <Card className="w-full max-w-md shadow-lg border-0 bg-white">
+      <CardHeader className="text-center space-y-2">
+        <Shield className="mx-auto h-12 w-12 text-indigo-600" />
+        <CardTitle className="text-2xl font-semibold text-gray-800">{t('Dashboard')} {/* Translates dynamically */}</CardTitle>
+        <CardDescription className="text-gray-600">
+          {t('Log in with your Telegram account')}
+        </CardDescription>
+      </CardHeader>
+      {/* ... */}
+      <Button onClick={authenticateUser} disabled={isLoading} className="w-full" size="lg">
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            {t('Authenticating')}
+          </>
+        ) : (
+          <>
+            {t('Login with Telegram')}
+            <ChevronRight className="ml-auto h-4 w-4" />
+          </>
+        )}
+      </Button>
+      {/* ... */}
+    </Card>
+  </div>
   );
 }

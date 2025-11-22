@@ -102,7 +102,7 @@ export function AddTeacherForm({ onSuccess, onCancel }: AddTeacherFormProps) {
 
     if (formData.user_role === 'MANAGER') {
       try {
-        const response = await fetch('/api/user', {
+        const response = await fetch('/api/managers/', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)

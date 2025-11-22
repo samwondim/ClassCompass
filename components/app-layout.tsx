@@ -3,7 +3,7 @@ import React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Calendar, Home, BookOpen, Settings, LogOut, User, Bell, LayoutDashboard, BrainCog } from "lucide-react"
+import { Calendar, Home, BookOpen, Settings, LogOut, User, Bell, LayoutDashboard, BrainCog, LayoutDashboardIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -36,7 +36,8 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
   switch (userRole) {
     case "ADMIN":
       navItems = [
-        { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+
+        { label: "Dashboard", href: "/admin/", icon: LayoutDashboardIcon },
         { label: "Teachers", href: "/admin/teachers", icon: User },
         { label: "Managers", href: "/admin/managers", icon: User },
         { label: "Schedules", href: "/admin/schedules", icon: Calendar },
@@ -45,17 +46,16 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
       break
     case "MANAGER":
       navItems = [
-
-        { label: "Dashboard", href: "/manager", icon: LayoutDashboard },
-        { label: "Teachers", href: "/teachers", icon: User },
-        { label: "Schedules", href: "/schedules", icon: Calendar },
+        { label: "Dashboard", href: "/manager/", icon: LayoutDashboardIcon },
+        { label: "Teachers", href: "/manager/teachers", icon: User },
+        { label: "Courses", href: "/manager/courses", icon: BrainCog },
+        { label: "Schedules", href: "/manager/schedules", icon: Calendar },
       ]
       break
     case "TEACHER":
       navItems = [
-        { label: "Dashboard", href: "/teacher", icon: LayoutDashboard },
-        { label: "My Schedules", href: "/schedule-details", icon: Calendar },
-        { label: "Lessons", href: "/lesson-details", icon: BookOpen },
+        { label: "Dashboard", href: "/teacher/", icon: LayoutDashboardIcon },
+        { label: "My Schedules", href: "/teacher/my-schedules", icon: Calendar },
       ]
       break
   }
