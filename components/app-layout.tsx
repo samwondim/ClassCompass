@@ -9,12 +9,15 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 import { VisuallyHidden } from "@/components/ui/visually-hidden"
-import { logout } from "../utils/session"
 
 
 interface AppLayoutProps {
   children: React.ReactNode
   userRole: string | null
+}
+
+async function logout() {
+  fetch("/api/logout", { method: "GET" });
 }
 
 export function AppLayout({ children, userRole }: AppLayoutProps) {
