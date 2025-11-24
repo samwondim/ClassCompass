@@ -7,4 +7,6 @@ export async function GET(request: NextRequest) {
   const cookieStore = await cookies();
   cookieStore.delete("session");
   redirect('/')
+
+  return NextResponse.json({ message: "Done!" })
 }
