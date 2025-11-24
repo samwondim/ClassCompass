@@ -2,7 +2,7 @@
 import React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { redirect, usePathname } from "next/navigation"
 import { Calendar, Home, BookOpen, Settings, LogOut, User, Bell, LayoutDashboard, BrainCog, LayoutDashboardIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -10,6 +10,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 import { VisuallyHidden } from "@/components/ui/visually-hidden"
 import { logout } from "../utils/session"
+
 
 interface AppLayoutProps {
   children: React.ReactNode
@@ -152,7 +153,7 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>
                   <form action={logout}>
-                    <button>LogOut</button>
+                    <button className="nav-link">LogOut</button>
                   </form>
                 </span>
               </DropdownMenuItem>

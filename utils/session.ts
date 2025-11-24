@@ -1,6 +1,6 @@
 import prisma from "@/models/client";
 import { jwtVerify, SignJWT } from "jose";
-import { cookies } from "next/headers";
+import { cookies, cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -55,6 +55,7 @@ export async function getUserRole() {
 
 export async function logout() {
   const cookieStore = await cookies();
+
   cookieStore.delete("session");
-  redirect('/login')
+  redirect('/');
 }
