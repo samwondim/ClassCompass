@@ -19,6 +19,7 @@ const nextConfig = {
   allowedDevOrigins: [
     'localhost:3000', // Your local dev origin
     '.*\\.ngrok-free\\.app', // Regex to allow all ngrok-free subdomains
+    "https://snooty-sherwood-ophicleidean.ngrok-free.dev"
   ],
 };
 
