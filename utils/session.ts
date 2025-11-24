@@ -1,6 +1,6 @@
 import prisma from "@/models/client";
 import { jwtVerify, SignJWT } from "jose";
-import { cookies, cookies } from "next/headers";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
 
