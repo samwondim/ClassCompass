@@ -3,7 +3,6 @@ import type { NextRequest } from 'next/server';
 
 import createMiddleware from 'next-intl/middleware';
 import { getSession, getUserRole } from '@/utils/session';
-
 // -------------------------
 // 1. next-intl middleware
 // -------------------------
@@ -28,7 +27,7 @@ async function authMiddleware(request: NextRequest) {
       : pathname;
 
   // Skip static/API routes
-  if (cleanPath.startsWith('/_next') || cleanPath.startsWith('/api'))
+  if (cleanPath.startsWith('/_next') || cleanPath.startsWith('/__next') || cleanPath.startsWith('/api'))
     return NextResponse.next();
 
   // Load session using request
