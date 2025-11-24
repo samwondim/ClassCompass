@@ -17,7 +17,9 @@ interface AppLayoutProps {
 }
 
 async function logout() {
-  const res = await fetch("http://localhost:3000/api/auth/logout");
+  const res = await fetch("http://localhost:3000/api/auth/logout", { method: "POST" });
+  console.log(res)
+  window.location.href = "/";
 }
 
 export function AppLayout({ children, userRole }: AppLayoutProps) {
