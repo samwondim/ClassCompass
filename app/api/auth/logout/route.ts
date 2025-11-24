@@ -1,11 +1,14 @@
-
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { NextResponse, NextRequest } from "next/server";
+import { NextResponse } from "next/server";
 
-export async function POST(request: NextRequest) {
-  const cookieStore = await cookies();
-  cookieStore.delete("session");
+export async function POST() {
+  const res = NextResponse.json({ message: "Done!" });
 
-  return NextResponse.json({ message: "Done!" })
+  // Delete the cookie on the RESPONSE, so the browser actually removes it.
+  res.cookies.set("session", "", {
+    expires: new Date(0),
+    path: "/",
+  });
+
+  return res;
 }
