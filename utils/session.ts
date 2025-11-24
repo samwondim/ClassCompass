@@ -1,6 +1,7 @@
 import prisma from "@/models/client";
 import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
 
 const key = new TextEncoder().encode(process.env.JWT_SECRET);
@@ -50,4 +51,10 @@ export async function getUserRole() {
   console.log("Inside getUserRole", user)
 
   return user;
+}
+
+export async function logout() {
+  const cookieStore = await cookies();
+  cookieStore.delete("session");
+  redirect('/login')
 }
