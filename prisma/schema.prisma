@@ -78,8 +78,6 @@ model Schedule {
   // Relations
   course        Course   @relation(fields: [course_id], references: [course_id], onDelete: Cascade)
   teacher       User     @relation(fields: [teacher_id], references: [user_id], onDelete: Cascade)
-
-  @@unique([teacher_id, course_id])
 }
 
 model Course {
