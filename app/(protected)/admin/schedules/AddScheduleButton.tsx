@@ -67,6 +67,11 @@ export function AddScheduleButton() {
     if (res.ok) {
       toast({ title: "Schedule added" });
       setOpen(false);
+      setFormData({
+        course_id: '',
+        teacher_id: '',
+        schedule_date: ''
+      });
       router.refresh();
     } else if (res.status === 400) {
       toast({ title: "Schedule data already exists!" });
