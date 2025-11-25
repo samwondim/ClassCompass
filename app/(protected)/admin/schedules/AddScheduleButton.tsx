@@ -88,7 +88,7 @@ export function AddScheduleButton() {
 
           <Label>Date</Label>
           <Input
-            type="datetime"
+            type="datetime-local"
             value={formData.schedule_date}
             onChange={(e) => setFormData({ ...formData, schedule_date: e.target.value })}
           />
