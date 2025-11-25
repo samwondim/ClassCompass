@@ -31,8 +31,8 @@ export default function EditManagerForm({ manager, onClose }: any) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
+    <form onSubmit={handleSubmit} className="space-y-4 p-4 w-full max-w-md mx-auto sm:max-w-lg">
+      <div className="flex flex-col space-y-2">
         <label className="text-sm font-medium">First Name</label>
         <input
           className="border p-2 w-full rounded"
@@ -41,7 +41,7 @@ export default function EditManagerForm({ manager, onClose }: any) {
         />
       </div>
 
-      <div>
+      <div className="flex flex-col space-y-2">
         <label className="text-sm font-medium">Last Name</label>
         <input
           className="border p-2 w-full rounded"
@@ -50,7 +50,7 @@ export default function EditManagerForm({ manager, onClose }: any) {
         />
       </div>
 
-      <div>
+      <div className="flex flex-col space-y-2">
         <label className="text-sm font-medium">Phone Number</label>
         <input
           className="border p-2 w-full rounded"
@@ -58,7 +58,7 @@ export default function EditManagerForm({ manager, onClose }: any) {
           onChange={e => setPhoneNumber(e.target.value)}
         />
       </div>
-      <div>
+      <div className="flex flex-col space-y-2">
         <label className="text-sm font-medium">Telegram Username</label>
         <input
           className="border p-2 w-full rounded"
