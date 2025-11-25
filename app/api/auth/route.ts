@@ -13,7 +13,6 @@ export async function POST(request: NextRequest) {
 
   if (validationRes.validatedData) {
     const user = { tg_username: validationRes.user.username };
-    console.log("VALIDATION DATA", validationRes.validatedData)
 
     await prisma.user.update({
       where: {

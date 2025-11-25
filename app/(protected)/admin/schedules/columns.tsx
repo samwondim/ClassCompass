@@ -27,7 +27,7 @@ export const columns: ColumnDef<Schedule>[] = [
   {
     accessorKey: "course.course_description",
     header: "Course",
-    cell: ({ row }) => <Badge>{row.original.course.course_description || 'Untitled'}</Badge>,
+    cell: ({ row }) => <Badge variant="outline">{row.original.course.course_description || 'Untitled'}</Badge>,
   },
   {
     accessorKey: "teacher.first_name",

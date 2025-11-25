@@ -31,3 +31,25 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
 }
 
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+
+  try {
+
+    const { id } = params;
+
+    const deletedUser = await prisma.user.delete({
+      where: { user_id: id },
+    });
+
+    return NextResponse.json({ message: "User deleted successfully" }, { status: 200 });
+  } catch (error) {
+
+    console.error('Error updating user:', error);
+
+    return NextResponse.json(
+      { error: 'Failed to delete user', details: error.message },
+      { status: 500 }
+    );
+  }
+
+}

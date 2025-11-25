@@ -68,6 +68,8 @@ export function AddScheduleButton() {
       toast({ title: "Schedule added" });
       setOpen(false);
       router.refresh();
+    } else if (res.status === 400) {
+      toast({ title: "Schedule data already exists!" });
     }
   };
 
@@ -86,7 +88,7 @@ export function AddScheduleButton() {
 
           <Label>Date</Label>
           <Input
-            type="datetime-local"
+            type="datetime"
             value={formData.schedule_date}
             onChange={(e) => setFormData({ ...formData, schedule_date: e.target.value })}
           />
