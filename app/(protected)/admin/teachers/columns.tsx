@@ -4,6 +4,7 @@
 import { ColumnDef } from "@tanstack/react-table"
 import { Teacher } from "@/app/models/models"
 import { deleteUser } from "@/app/actions/users";
+import { useState } from "react";
 
 
 export const columns: ColumnDef<Teacher>[] = [
@@ -24,6 +25,18 @@ export const columns: ColumnDef<Teacher>[] = [
     id: "actions",
     cell: ({ row }) => {
       const schedule = row.original;
+      const [formData, setFormData] = useState({ user_id: "" });
+
+      const handleSubmit = async (e: any) => {
+        e.preventDefault();
+
+        const res = await fetch("/api/user", {
+          method: "POST",
+          body: JSON.stringify(formData),
+          headers: { "Content-Type": "application/json" },
+        });
+
+      }
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -33,7 +46,7 @@ export const columns: ColumnDef<Teacher>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem>Edit</DropdownMenuItem>
-            {/* <DropdownMenuItem className="text-destructive focus:text-destructive"><form action={deleteUser}><button>Delete</button></form></DropdownMenuItem> */}
+            <DropdownMenuItem className="text-destructive focus:text-destructive"><form onSubmit={deleteUser} onChange={(e) => setFormData({ ...formData, user_id: e.target.value })}><button>Delete</button></form></DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
