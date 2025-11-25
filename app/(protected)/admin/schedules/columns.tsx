@@ -5,8 +5,9 @@ import { ArrowUpDown, MoreHorizontal, Calendar as CalIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import { Schedule } from "@/app/models/models";
+import { parse } from "path";
 
 export const columns: ColumnDef<Schedule>[] = [
   {
@@ -20,7 +21,7 @@ export const columns: ColumnDef<Schedule>[] = [
     cell: ({ row }) => (
       <div className="font-medium">
         <CalIcon className="inline h-4 w-4 mr-1" />
-        {format(new Date(row.getValue("schedule_date")), 'MMM dd, yyyy h:mm a')}
+        {format(parseISO(row.getValue("schedule_date")), 'MMM dd, yyyy h:mm a')}
       </div>
     ),
   },
