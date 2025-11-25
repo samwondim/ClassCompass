@@ -14,7 +14,9 @@ export async function GET(request: NextRequest) {
           select: {
             user_id: true,
             first_name: true,
-            last_name: true
+            last_name: true,
+            phone_number: true,
+            tg_username: true
           }
         },
       },

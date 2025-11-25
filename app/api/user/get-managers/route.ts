@@ -5,17 +5,15 @@ import { User } from "@/generated/prisma";
 
 // Map Prisma user → Manager DTO
 const toPublicManager = (user: User): Manager => {
-  let sections = "";
 
-  for (let i = 0; i < user.sections_managed.length; i++) {
-    sections += user.sections_managed[i].section_name + ", ";
-  }
   return {
     user_role: user.user_role,
+    user_id: user.user_id,
     first_name: user.first_name,
     last_name: user.last_name,
     tg_username: user.tg_username,
-    sections: sections
+    phone_number: user.phone_number,
+    sections: user.sections_managed
   }
 };
 
@@ -27,12 +25,15 @@ export async function GET(request: NextRequest) {
       },
       select: {
         user_role: true,
+        user_id: true,
         first_name: true,
         last_name: true,
         tg_username: true,
+        phone_number: true,
         sections_managed: {
           select: {
-            section_name: true
+            section_name: true,
+            section_id: true
           }
         }
       }

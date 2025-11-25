@@ -5,16 +5,16 @@ import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import { AddTeacherButton } from "@/components/add-teacher-button";
 
-async function getData(): Promise<Manager[]> {
+async function getData(): Promise<Teacher[]> {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/user/get-teachers`, {
       cache: 'no-store', // Fresh data each load
     });
     if (!res.ok) {
-      console.error('Failed to fetch managers:', res.statusText);
+      console.error('Failed to fetch teachers:', res.statusText);
       return [];
     }
-    const response = await res.json(); // Full object: { managers: [...] }
+    const response = await res.json(); // Full object: { teachers: [...] }
     const teachers: Teacher[] = response.teachers || []; // Extract array; fallback to []
     return teachers;
   } catch (error) {

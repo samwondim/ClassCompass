@@ -53,3 +53,23 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
   }
 
 }
+
+export async function PUT(request: NextRequest, { params }) {
+  const body = await request.json();
+
+  try {
+    const updated = await prisma.user.update({
+      where: { user_id: params.id },
+      data: {
+        first_name: body.first_name,
+        last_name: body.last_name,
+        phone_number: body.phone_number,
+        tg_username: body.tg_username,
+      }
+    });
+
+    return NextResponse.json(updated);
+  } catch (err) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}

@@ -16,6 +16,7 @@ const toPublicTeacher = (userData: User): Teacher => {
     first_name: userData.first_name,
     last_name: userData.last_name,
     tg_username: userData.tg_username,
+    phone_number: userData.phone_number,
     sections: sections
   }
 
@@ -32,6 +33,7 @@ export async function GET(request: NextRequest): Promise<Teacher[]> {
       first_name: true,
       last_name: true,
       tg_username: true,
+      phone_number: true,
       teacher_sections: {
         select: {
           section: {

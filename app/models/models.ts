@@ -11,7 +11,7 @@ export type Manager = {
   first_name: string | null
   last_name: string | null
   user_role: UserRole
-  sections_managed: any
+  sections: any
 }
 
 export type Teacher = {
