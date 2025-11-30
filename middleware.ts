@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 import createMiddleware from 'next-intl/middleware';
+import { getSession } from './utils/session';
 // import { getSession, getUserRole } from '@/utils/session'; // Commented out due to Prisma incompatibility in Edge Runtime
 // -------------------------
 // 1. next-intl middleware
@@ -31,7 +32,7 @@ async function authMiddleware(request: NextRequest) {
     return NextResponse.next();
 
   // Load session using request
-  // const session = await getSession(); // Commented out
+  const session = await getSession(); // Commented out
   const sessionCookie = request.cookies.get("session")?.value; // Check for session cookie presence
 
   console.log("SESSION", sessionCookie ? "Session exists" : "No session"); // Modified log
@@ -45,12 +46,12 @@ async function authMiddleware(request: NextRequest) {
 
   // Logged in (session cookie exists) - simplified logic for build to pass
   // Further role-based checks would need to happen elsewhere, not in middleware
-  // const role = session.fetched_user.user_role; // Commented out
-  // console.log("ROLE", role) // Commented out
+  const role = session.fetched_user.user_role; // Commented out
+  console.log("ROLE", role) // Commented out
 
-  // if (!role) { // Commented out
-  //   return NextResponse.redirect(new URL(`/${locale}/`, request.url)); // Commented out
-  // } // Commented out
+  if (!role) { // Commented out
+    return NextResponse.redirect(new URL(`/${locale}/`, request.url)); // Commented out
+  } // Commented out
 
   // If visiting root: redirect to role dashboard (simplified)
   if (cleanPath === '/') {
@@ -60,19 +61,19 @@ async function authMiddleware(request: NextRequest) {
   }
 
   // Role-protected routes (simplified)
-  // const protectedRole = // Commented out
-  //   cleanPath.startsWith('/admin') // Commented out
-  //     ? 'ADMIN' // Commented out
-  //     : cleanPath.startsWith('/manager') // Commented out
-  //       ? 'MANAGER' // Commented out
-  //       : cleanPath.startsWith('/teacher') // Commented out
-  //         ? 'TEACHER' // Commented out
-  //         : null; // Commented out
+  const protectedRole = // Commented out
+    cleanPath.startsWith('/admin') // Commented out
+      ? 'ADMIN' // Commented out
+      : cleanPath.startsWith('/manager') // Commented out
+        ? 'MANAGER' // Commented out
+        : cleanPath.startsWith('/teacher') // Commented out
+          ? 'TEACHER' // Commented out
+          : null; // Commented out
 
-  // if (protectedRole && protectedRole !== role) { // Commented out
-  //   const redirectPath = `/${locale}/${role.toLowerCase()}`; // Commented out
-  //   return NextResponse.redirect(new URL(redirectPath, request.url)); // Commented out
-  // } // Commented out
+  if (protectedRole && protectedRole !== role) { // Commented out
+    const redirectPath = `/${locale}/${role.toLowerCase()}`; // Commented out
+    return NextResponse.redirect(new URL(redirectPath, request.url)); // Commented out
+  } // Commented out
 
   return NextResponse.next();
 }
