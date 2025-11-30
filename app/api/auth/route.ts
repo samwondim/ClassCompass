@@ -38,6 +38,8 @@ export async function POST(request: NextRequest) {
 
       const expires = new Date(Date.now() + SESSION_DURATION);
       if (fetched_user) {
+        console.log("FETCHED USER", fetched_user)
+        console.log(" EXPIRES", expires)
 
         const session = await encrypt({ fetched_user, expires });
 
