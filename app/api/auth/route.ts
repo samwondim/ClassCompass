@@ -9,6 +9,14 @@ export async function POST(request: NextRequest) {
   const { initData } = await request.json();
 
   const BOT_TOKEN = process.env.TELEGRAM_API_KEY;
+
+  if (!BOT_TOKEN) {
+    console.error('TELEGRAM_API_KEY environment variable is not set');
+    return NextResponse.json({
+      message: 'Server configuration error: Bot token not configured'
+    }, { status: 500 });
+  }
+
   const validationRes = validateTelegramWebAppData(initData, BOT_TOKEN);
 
   if (validationRes.validatedData) {
@@ -19,7 +27,7 @@ export async function POST(request: NextRequest) {
         tg_username: user.tg_username
       },
       data: {
-        tg_id: +validationRes.user.id
+        tg_id: validationRes.user.id ? +validationRes.user.id : null
       }
     });
     const fetched_user = await prisma.user.findUnique({
@@ -32,7 +40,8 @@ export async function POST(request: NextRequest) {
 
       const session = await encrypt({ fetched_user, expires });
 
-      cookies().set("session", session, { expires, httpOnly: true });
+      const cookieStore = await cookies();
+      cookieStore.set("session", session, { expires, httpOnly: true });
       return NextResponse.json({ session, user: { ...fetched_user } }, { status: 200 });
     } else {
       return NextResponse.json({ message: "User not found" }, { status: 404 });

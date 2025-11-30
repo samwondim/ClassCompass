@@ -14,7 +14,11 @@ interface validationResult {
   user: User
   message: string
 }
-export function validateTelegramWebAppData(initData: string, botToken: string | undefined): validationResult {
+export function validateTelegramWebAppData(initData: string, botToken: string): validationResult {
+  if (!botToken) {
+    return { validatedData: null, user: {}, message: "Bot token is required for validation" };
+  }
+
   const params = new URLSearchParams(initData);
   const parsed_data: { [key: string]: string } = {};
   for (const [key, value] of params.entries()) {
