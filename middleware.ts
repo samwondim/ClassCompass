@@ -81,6 +81,19 @@ async function authMiddleware(request: NextRequest) {
 // 3. Combined i18n + auth logic
 // ------------------------------
 export default async function middleware(request: NextRequest) {
+  // Handle CORS preflight requests
+  if (request.method === 'OPTIONS') {
+    return new NextResponse(null, {
+      status: 200,
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-phone-number',
+        'Access-Control-Max-Age': '86400',
+      },
+    });
+  }
+
   // First apply next-intl
   const intlResponse = intlMiddleware(request);
 
@@ -88,7 +101,14 @@ export default async function middleware(request: NextRequest) {
   if (intlResponse && intlResponse.redirected) return intlResponse;
 
   // Continue with custom auth
-  return authMiddleware(request);
+  const authResponse = await authMiddleware(request);
+
+  // Add CORS headers to all responses
+  authResponse.headers.set('Access-Control-Allow-Origin', '*');
+  authResponse.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  authResponse.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-phone-number');
+
+  return authResponse;
 }
 
 // ------------------------------

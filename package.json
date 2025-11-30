@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "postinstall": "prisma generate",
     "test:miniapp": "node scripts/test-miniapp.js",
     "test:dev": "node scripts/test-miniapp.js --dev && npm run dev",
     "bot:dev": "nodemon --ext ts --exec ts-node src/index.ts",
