@@ -1,8 +1,6 @@
 
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import prisma from '@/lib/prisma'
 
 interface Lesson {
   course: string
@@ -24,9 +22,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 })
     }
 
-    const teacher = await prisma.teacher.findUnique({
+    const teacher = await prisma.user.findUnique({
       where: { phone_number: phoneNumber },
-      select: { id: true }
+      select: { user_id: true }
     })
     if (!teacher) {
       return NextResponse.json({ error: 'Teacher not found' }, { status: 404 })
@@ -34,12 +32,12 @@ export async function GET(request: NextRequest) {
 
     // Fetch the next upcoming schedule for the teacher
     const schedule = await prisma.schedule.findFirst({
-      where: { teacher_id: teacher.id, date: { gte: new Date() } },
+      where: { teacher_id: teacher.user_id, schedule_date: { gte: new Date() } },
       include: {
         course: { select: { course_name: true, verse: true } },
         section: { select: { section_name: true } }
       },
-      orderBy: { date: 'asc' }
+      orderBy: { schedule_date: 'asc' }
     })
 
     if (!schedule) {
@@ -49,7 +47,7 @@ export async function GET(request: NextRequest) {
     // Construct lesson details (simplified; expand as needed)
     const lesson: Lesson = {
       course: schedule.course.course_name,
-      date: new Date(schedule.date).toLocaleDateString('en-US', {
+      date: new Date(schedule.schedule_date).toLocaleDateString('en-US', {
         weekday: 'long',
         month: 'long',
         day: 'numeric',

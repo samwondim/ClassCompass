@@ -46,6 +46,7 @@ model Section {
   manager          User?            @relation("ManagerSections", fields: [manager_id], references: [user_id], onDelete: SetNull)
   teacher_sections TeacherSection[]
   ManagerSection   ManagerSection[]
+  schedules        Schedule[]
 }
 
 model TeacherSection {
@@ -71,17 +72,21 @@ model ManagerSection {
 model Schedule {
   schedule_id   String   @id @default(uuid())
   course_id     String
+  section_id    String
   teacher_id    String
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
   schedule_date DateTime
   // Relations
   course        Course   @relation(fields: [course_id], references: [course_id], onDelete: Cascade)
+  section       Section  @relation(fields: [section_id], references: [section_id], onDelete: Cascade)
   teacher       User     @relation(fields: [teacher_id], references: [user_id], onDelete: Cascade)
 }
 
 model Course {
   course_id          String      @id @default(uuid())
+  course_name        String
+  verse              String?
   course_description String?
   created_at         DateTime    @default(now())
   updated_at         DateTime    @updatedAt

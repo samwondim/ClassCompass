@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
 import { formatDate } from 'date-fns'
-
-const prisma = new PrismaClient()
+import prisma from '@/lib/prisma'
 
 interface Schedule {
   id: number
@@ -25,33 +23,33 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 })
     }
 
-    const teacher = await prisma.teacher.findUnique({
+    const teacher = await prisma.user.findUnique({
       where: { phone_number: phoneNumber },
-      select: { id: true }
+      select: { user_id: true }
     })
     if (!teacher) {
       return NextResponse.json({ error: 'Teacher not found' }, { status: 404 })
     }
 
     const schedules = await prisma.schedule.findMany({
-      where: { teacher_id: teacher.id },
+      where: { teacher_id: teacher.user_id },
       include: {
         course: true,
         section: true
       },
-      orderBy: { date: 'asc' }
+      orderBy: { schedule_date: 'asc' }
     })
 
     const formattedSchedules = schedules.map((schedule) => ({
-      id: schedule.id,
-      date: formatDate(new Date(schedule.date), 'MMM dd, yyyy'),
+      id: schedule.schedule_id,
+      date: formatDate(new Date(schedule.schedule_date), 'MMM dd, yyyy'),
       course: {
-        id: schedule.course.id,
+        id: schedule.course.course_id,
         course_name: schedule.course.course_name,
         verse: schedule.course.verse
       },
       section: {
-        id: schedule.section.id,
+        id: schedule.section.section_id,
         section_name: schedule.section.section_name
       }
     }))

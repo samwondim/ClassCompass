@@ -22,6 +22,8 @@ const nextConfig = {
     "https://snooty-sherwood-ophicleidean.ngrok-free.dev",
     "'https://<new>.ngrok-free.dev'",
   ],
+  target: 'server',
 };
 
 export default withNextIntl(nextConfig);
+

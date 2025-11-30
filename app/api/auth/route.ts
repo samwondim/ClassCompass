@@ -1,4 +1,4 @@
-import prisma from "@/models/client";
+import prisma from "@/prisma/client";
 import { encrypt, SESSION_DURATION } from "@/utils/session";
 import { validateTelegramWebAppData } from "@/utils/telegramAuth";
 import { cookies } from "next/headers";

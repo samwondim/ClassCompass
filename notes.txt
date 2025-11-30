@@ -1,0 +1,37 @@
+remind managers to update schedule.
+send schedule to registered teachers.
+generate report of who teaches what topics and when.
+remind teachers what and when their classes are.
+
+what does the path look like?
+
+TEACHER 
+1. teacher starts bot and gets registered. HOW? by sending their contact information. MANAGER sends a table of teachers.
+2. bot receives the information and registers them to the db.
+3. bot provides the teacher with options. [view my schedules] or [other services]
+4. when [view my schedules] is clicked the bot fetches for the users schedules and sends them.
+
+BOT 
+1. register a message schedule of user to be sent on midweek (Wednesday) and Saturday night.
+2. send when the time comes.
+
+:DONE
+MANAGER(register teachers/update list)
+1. choose update teacher's list.
+2. prompt them to send the excel file.
+3. send excel file.
+4. bot registers every user on the list.
+MANAGER
+1. manager teacher adds an excel file of schedules.
+2. bot iterates over the list and stores the schedules to db.
+3. schedules need to be sent to other teachers. HOW? :TODO figure out how this can be done.
+
+:TODO implement a function that will send a pre organized excel template file when the admin requests to add a schedule.
+:TODO don't forget to register every users to the db
+:TODO add validation on actions. validation while accepting excel files.
+:TODO add verse to the schedule. done
+:TODO teacher's role: add schedule, manager's role: add teachers. done
+:TODO 1-8 . done
+
+
+:TODO Format date to work with all formats. Build a form UI to use in telegram mini app, add a date picker. in progress
