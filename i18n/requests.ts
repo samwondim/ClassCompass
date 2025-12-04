@@ -2,7 +2,7 @@
 import { getRequestConfig } from 'next-intl/server';
 
 export default getRequestConfig(async ({ requestLocale }) => {
-  const locale = await requestLocale || 'am'; // Fallback to 'en' if undefined
+  const locale = await requestLocale || 'am'; // Fallback to 'am' if undefined
   return {
     locale,
     // Use ./messages/ for sibling folder (adjust if messages/ is elsewhere)

@@ -9,7 +9,7 @@ import { getSession } from './utils/session';
 // -------------------------
 const intlMiddleware = createMiddleware({
   locales: ['en', 'am'],
-  defaultLocale: 'en',
+  defaultLocale: 'am',
   localePrefix: 'always', // ensures /en/* and /am/* both exist
 });
 
