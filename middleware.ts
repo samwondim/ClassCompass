@@ -18,7 +18,7 @@ const intlMiddleware = createMiddleware({
 // -------------------------
 async function authMiddleware(request: NextRequest) {
   const url = request.nextUrl;
-  const locale = url.locale;
+  const locale = url.locale || 'en';
   const pathname = url.pathname;
 
   // Remove locale prefix for routing checks
@@ -35,8 +35,6 @@ async function authMiddleware(request: NextRequest) {
   const session = await getSession();
   const sessionCookie = request.cookies.get("session")?.value;
 
-  console.log("SESSION", sessionCookie ? "Session exists" : "No session");
-
   if (!session || !sessionCookie) {
     // Not logged in
     if (cleanPath !== '/') {
@@ -47,7 +45,6 @@ async function authMiddleware(request: NextRequest) {
 
   // Logged in
   const role = session.fetched_user?.user_role;
-  console.log("ROLE", role)
 
   if (!role) {
     // If no role found in session, redirect to home (login)
