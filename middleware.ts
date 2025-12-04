@@ -32,11 +32,12 @@ async function authMiddleware(request: NextRequest) {
     return NextResponse.next();
 
   // Load session using request
-  const session = await getSession(); // Commented out
-  const sessionCookie = request.cookies.get("session")?.value; // Check for session cookie presence
+  const session = await getSession();
+  const sessionCookie = request.cookies.get("session")?.value;
 
-  console.log("SESSION", sessionCookie ? "Session exists" : "No session"); // Modified log
-  if (!sessionCookie) { // Modified condition
+  console.log("SESSION", sessionCookie ? "Session exists" : "No session");
+
+  if (!session || !sessionCookie) {
     // Not logged in
     if (cleanPath !== '/') {
       return NextResponse.redirect(new URL(`/${locale}/`, request.url));
@@ -44,36 +45,39 @@ async function authMiddleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Logged in (session cookie exists) - simplified logic for build to pass
-  // Further role-based checks would need to happen elsewhere, not in middleware
-  const role = session.fetched_user.user_role; // Commented out
-  console.log("ROLE", role) // Commented out
+  // Logged in
+  const role = session.fetched_user?.user_role;
+  console.log("ROLE", role)
 
-  if (!role) { // Commented out
-    return NextResponse.redirect(new URL(`/${locale}/`, request.url)); // Commented out
-  } // Commented out
-
-  // If visiting root: redirect to role dashboard (simplified)
-  if (cleanPath === '/') {
-    // Cannot determine role here without Prisma, so redirect to a generic protected page or login
-    // For now, let's just allow access if session exists, or redirect to login if no session
-    return NextResponse.next(); // Allow access if session exists
+  if (!role) {
+    // If no role found in session, redirect to home (login)
+    if (cleanPath !== '/') {
+      return NextResponse.redirect(new URL(`/${locale}/`, request.url));
+    }
+    return NextResponse.next();
   }
 
-  // Role-protected routes (simplified)
-  const protectedRole = // Commented out
-    cleanPath.startsWith('/admin') // Commented out
-      ? 'ADMIN' // Commented out
-      : cleanPath.startsWith('/manager') // Commented out
-        ? 'MANAGER' // Commented out
-        : cleanPath.startsWith('/teacher') // Commented out
-          ? 'TEACHER' // Commented out
-          : null; // Commented out
+  // If visiting root: redirect to role dashboard
+  if (cleanPath === '/') {
+    const redirectPath = `/${locale}/${role.toLowerCase()}`;
+    return NextResponse.redirect(new URL(redirectPath, request.url));
+  }
 
-  if (protectedRole && protectedRole !== role) { // Commented out
-    const redirectPath = `/${locale}/${role.toLowerCase()}`; // Commented out
-    return NextResponse.redirect(new URL(redirectPath, request.url)); // Commented out
-  } // Commented out
+  // Role-protected routes
+  const protectedRole =
+    cleanPath.startsWith('/admin')
+      ? 'ADMIN'
+      : cleanPath.startsWith('/manager')
+        ? 'MANAGER'
+        : cleanPath.startsWith('/teacher')
+          ? 'TEACHER'
+          : null;
+
+  if (protectedRole && protectedRole !== role) {
+    // Redirect to their own dashboard if they try to access another role's area
+    const redirectPath = `/${locale}/${role.toLowerCase()}`;
+    return NextResponse.redirect(new URL(redirectPath, request.url));
+  }
 
   return NextResponse.next();
 }

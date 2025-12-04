@@ -1,5 +1,5 @@
 import prisma from '@/models/client';
-import { getUserRole } from '@/utils/session';
+import { getUserRole } from '@/utils/data-access';
 import { NextRequest, NextResponse } from "next/server";
 
 // GET /api/sections - Get all sections
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Sanitize and validate input
-    const sanitizedSectionName: String = section_name.trim()
+    const sanitizedSectionName: string = section_name.trim()
 
     if (sanitizedSectionName.length < 2 || sanitizedSectionName.length > 100) {
       return NextResponse.json({ error: 'Section name must be between 2 and 100 characters' }, { status: 400 })

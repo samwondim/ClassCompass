@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/models/client';
-import { getUserRole } from '@/utils/session';
+import { getUserRole } from '@/utils/data-access';
 
 // GET /api/teachers - Get all teachers (manager only)
 export async function GET(request: NextRequest) {
