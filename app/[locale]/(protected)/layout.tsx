@@ -6,17 +6,19 @@ import { AppLayout } from '@/components/app-layout'
 
 export default async function ProtectedLayout({
   children,
+  params: { locale }
 }: {
   children: React.ReactNode
+  params: { locale: string }
 }) {
   const session = await getSession()
-  if (!session) redirect('/login')
+  if (!session) redirect(`/${locale}`)
 
   const user = await prisma.user.findUnique({
     where: { tg_username: session.fetched_user.tg_username },
   })
 
-  if (!user) redirect('/login') // Handle case where user doesn't exist
+  if (!user) redirect(`/${locale}`) // Handle case where user doesn't exist
 
   const { user_role: role } = user
 
