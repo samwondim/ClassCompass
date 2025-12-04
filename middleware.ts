@@ -18,7 +18,7 @@ const intlMiddleware = createMiddleware({
 // -------------------------
 async function authMiddleware(request: NextRequest) {
   const url = request.nextUrl;
-  const locale = url.locale || '';
+  const locale = url.locale || 'am';
   const pathname = url.pathname;
 
   // Remove locale prefix for routing checks
@@ -35,7 +35,7 @@ async function authMiddleware(request: NextRequest) {
   const session = await getSession();
   const sessionCookie = request.cookies.get("session")?.value;
 
-  if (!session || !sessionCookie) {
+  if (!session) {
     // Not logged in
     if (cleanPath !== '/') {
       return NextResponse.redirect(new URL(`/${locale}/`, request.url));

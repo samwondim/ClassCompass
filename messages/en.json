@@ -19,5 +19,28 @@
   "Schedules": "Schedules",
   "Courses": "Courses",
   "NoDataFound": "No {type} found.",
-  "Welcome": "Welcome, {name} ({role})"
+  "Welcome": "Welcome, {name} ({role})",
+  "Navigation": {
+    "Dashboard": "Dashboard",
+    "Teachers": "Teachers",
+    "Managers": "Managers",
+    "Schedules": "Schedules",
+    "Courses": "Courses",
+    "MySchedules": "My Schedules",
+    "MyClasses": "My Classes",
+    "MyLessons": "My Lessons",
+    "Students": "Students",
+    "Reports": "Reports",
+    "Settings": "Settings",
+    "Profile": "Profile",
+    "LogOut": "Log Out",
+    "Menu": "Menu"
+  },
+  "Common": {
+    "Loading": "Loading...",
+    "Error": "Error",
+    "Success": "Success",
+    "Welcome": "Welcome",
+    "Priscila": "Priscila"
+  }
 }

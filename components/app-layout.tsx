@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet"
 import { VisuallyHidden } from "@/components/ui/visually-hidden"
+import { useTranslations } from 'next-intl'
 
 
 interface AppLayoutProps {
@@ -25,6 +26,7 @@ async function logout() {
 export function AppLayout({ children, userRole }: AppLayoutProps) {
   const pathname = usePathname()
   const [isMounted, setIsMounted] = useState(false)
+  const t = useTranslations()
 
   useEffect(() => {
     setIsMounted(true)
@@ -44,25 +46,25 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
     case "ADMIN":
       navItems = [
 
-        { label: "Dashboard", href: "/admin/", icon: LayoutDashboardIcon },
-        { label: "Teachers", href: "/admin/teachers", icon: User },
-        { label: "Managers", href: "/admin/managers", icon: User },
-        { label: "Schedules", href: "/admin/schedules", icon: Calendar },
-        { label: "Courses", href: "/admin/courses", icon: BrainCog },
+        { label: t('Navigation.Dashboard'), href: "/admin/", icon: LayoutDashboardIcon },
+        { label: t('Navigation.Teachers'), href: "/admin/teachers", icon: User },
+        { label: t('Navigation.Managers'), href: "/admin/managers", icon: User },
+        { label: t('Navigation.Schedules'), href: "/admin/schedules", icon: Calendar },
+        { label: t('Navigation.Courses'), href: "/admin/courses", icon: BrainCog },
       ]
       break
     case "MANAGER":
       navItems = [
-        { label: "Dashboard", href: "/manager/", icon: LayoutDashboardIcon },
-        { label: "Teachers", href: "/manager/teachers", icon: User },
-        { label: "Courses", href: "/manager/courses", icon: BrainCog },
-        { label: "Schedules", href: "/manager/schedules", icon: Calendar },
+        { label: t('Navigation.Dashboard'), href: "/manager/", icon: LayoutDashboardIcon },
+        { label: t('Navigation.Teachers'), href: "/manager/teachers", icon: User },
+        { label: t('Navigation.Courses'), href: "/manager/courses", icon: BrainCog },
+        { label: t('Navigation.Schedules'), href: "/manager/schedules", icon: Calendar },
       ]
       break
     case "TEACHER":
       navItems = [
-        { label: "Dashboard", href: "/teacher/", icon: LayoutDashboardIcon },
-        { label: "My Schedules", href: "/teacher/my-schedules", icon: Calendar },
+        { label: t('Navigation.Dashboard'), href: "/teacher/", icon: LayoutDashboardIcon },
+        { label: t('Navigation.MySchedules'), href: "/teacher/my-schedules", icon: Calendar },
       ]
       break
   }
@@ -91,19 +93,19 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
                   <line x1="4" x2="20" y1="6" y2="6" />
                   <line x1="4" x2="20" y1="18" y2="18" />
                 </svg>
-                <span className="sr-only">Toggle Menu</span>
+                <span className="sr-only">{t('Navigation.Menu')}</span>
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-64">
               <VisuallyHidden>
-                <SheetTitle>Navigation Menu</SheetTitle>
+                <SheetTitle>{t('Navigation.Menu')}</SheetTitle>
               </VisuallyHidden>
               <div className="flex h-16 items-center border-b">
                 <Link href="/" className="flex items-center gap-2">
                   <div className="rounded-full bg-sky-100 p-1">
                     <Calendar className="h-5 w-5 text-sky-600" />
                   </div>
-                  <span className="text-lg font-bold text-sky-700">Priscila</span>
+                  <span className="text-lg font-bold text-sky-700">{t('Common.Priscila')}</span>
                 </Link>
               </div>
               <nav className="mt-4 flex flex-col gap-2">
@@ -125,7 +127,7 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
             <div className="rounded-full bg-sky-100 p-1">
               <Calendar className="h-5 w-5 text-sky-600" />
             </div>
-            <span className="text-lg font-bold text-sky-700 hidden md:inline-block">Priscila</span>
+            <span className="text-lg font-bold text-sky-700 hidden md:inline-block">{t('Common.Priscila')}</span>
           </Link>
         </div>
         <div className="flex items-center gap-4">
@@ -148,17 +150,17 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
             <DropdownMenuContent align="end">
               <DropdownMenuItem>
                 <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
+                <span>{t('Navigation.Profile')}</span>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
+                <span>{t('Navigation.Settings')}</span>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>
                   <form action={logout}>
-                    <button className="nav-link">LogOut</button>
+                    <button className="nav-link">{t('Navigation.LogOut')}</button>
                   </form>
                 </span>
               </DropdownMenuItem>

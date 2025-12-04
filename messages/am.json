@@ -22,5 +22,28 @@
   "Schedules": "መርሃ ግብሮች",
   "Courses": "ትምህርቶች",
   "NoDataFound": "{type} አልተገኘም።",
-  "Welcome": "{name} ({role}) እንኳን ደህና መጡ!"
+  "Welcome": "{name} ({role}) እንኳን ደህና መጡ!",
+  "Navigation": {
+    "Dashboard": "ዳሽቦርድ",
+    "Teachers": "መምህራን",
+    "Managers": "አስተዳዋሾች",
+    "Schedules": "መርሃ ግብሮች",
+    "Courses": "ትምህርቶች",
+    "MySchedules": "የኔ መርሃ ግብሮች",
+    "MyClasses": "የኔ ክፍሎች",
+    "MyLessons": "የኔ ትምህርቶች",
+    "Students": "ተማሪዎች",
+    "Reports": "ሪፖርቶች",
+    "Settings": "ቅንብሮች",
+    "Profile": "መገለጫ",
+    "LogOut": "ውጣ",
+    "Menu": "ምናሌ"
+  },
+  "Common": {
+    "Loading": "በመጫን ላይ...",
+    "Error": "ስህተት",
+    "Success": "ተሳክቷል",
+    "Welcome": "እንኳን ደህና መጡ",
+    "Priscila": "ፕሪስካ"
+  }
 }
