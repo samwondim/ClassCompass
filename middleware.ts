@@ -18,7 +18,7 @@ const intlMiddleware = createMiddleware({
 // -------------------------
 async function authMiddleware(request: NextRequest) {
   const url = request.nextUrl;
-  const locale = url.locale || 'en';
+  const locale = url.locale || 'am';
   const pathname = url.pathname;
 
   // Remove locale prefix for routing checks
