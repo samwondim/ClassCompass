@@ -8,7 +8,7 @@ export async function POST(request: NextRequest) {
 
     const userData = await request.json();
 
-    await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         tg_username: userData.tg_username,
         user_role: userData.user_role,
@@ -17,6 +17,15 @@ export async function POST(request: NextRequest) {
         phone_number: userData.phone_number,
       }
     });
+
+    if (userData.sectionIds && Array.isArray(userData.sectionIds) && userData.sectionIds.length > 0) {
+      await prisma.managerSection.createMany({
+        data: userData.sectionIds.map((sectionId: string) => ({
+          manager_id: user.user_id,
+          section_id: sectionId
+        }))
+      });
+    }
 
     return NextResponse.json({ message: 'User created!' }, { status: 200 });
   } catch (error) {

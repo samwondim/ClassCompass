@@ -13,7 +13,7 @@ export type Manager = {
   last_name: string | null
   user_role: UserRole
   phone_number: string | null
-  sections: any
+  sections: { section_id: string; section_name: string | null }[]
 }
 
 export type Teacher = {
