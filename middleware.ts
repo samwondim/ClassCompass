@@ -40,7 +40,7 @@ async function authMiddleware(request: NextRequest) {
     if (cleanPath !== '/') {
       return NextResponse.redirect(new URL(`/${locale}/`, request.url));
     }
-    return NextResponse.redirect(new URL(`/${locale}/`, request.url));
+    return NextResponse.redirect(new URL('/am', request.url));
   }
 
   // Logged in
@@ -94,6 +94,11 @@ export default async function middleware(request: NextRequest) {
         'Access-Control-Max-Age': '86400',
       },
     });
+  }
+
+  // Handle root path redirect manually to ensure it goes to /am
+  if (request.nextUrl.pathname === '/') {
+    return NextResponse.redirect(new URL('/am', request.url));
   }
 
   // First apply next-intl
