@@ -40,7 +40,7 @@ async function authMiddleware(request: NextRequest) {
     if (cleanPath !== '/') {
       return NextResponse.redirect(new URL(`/${locale}/`, request.url));
     }
-    return NextResponse.next();
+    return NextResponse.redirect(new URL(`/${locale}/`, request.url));
   }
 
   // Logged in
