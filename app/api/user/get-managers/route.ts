@@ -4,11 +4,11 @@ import { Manager } from "@/app/models/models";
 import { User } from "@/generated/prisma";
 
 // Map Prisma user → Manager DTO
-const toPublicManager = (user: User): Manager => {
-
+const toPublicManager = (user: any): Manager => {
   return {
     user_role: user.user_role,
     user_id: user.user_id,
+    telegram_id: user.tg_id,
     first_name: user.first_name,
     last_name: user.last_name,
     tg_username: user.tg_username,
@@ -35,11 +35,27 @@ export async function GET(request: NextRequest) {
             section_name: true,
             section_id: true
           }
+        },
+        ManagerSection: {
+          select: {
+            section: {
+              select: {
+                section_name: true,
+                section_id: true
+              }
+            }
+          }
         }
       }
     });
 
-    const managers = users.map(toPublicManager);
+    const managers = users.map(user => ({
+      ...toPublicManager(user),
+      sections: [
+        ...user.sections_managed,
+        ...user.ManagerSection.map(ms => ms.section)
+      ]
+    }));
     return NextResponse.json({ managers });
 
   } catch (error) {

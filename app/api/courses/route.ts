@@ -14,6 +14,7 @@ export async function POST(req: Request) {
 
     const course = await prisma.course.create({
       data: {
+        course_name: "",
         course_description,
         created_by,
         objectives: {

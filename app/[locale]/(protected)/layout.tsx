@@ -6,11 +6,12 @@ import { AppLayout } from '@/components/app-layout'
 
 export default async function ProtectedLayout({
   children,
-  params: { locale }
+  params
 }: {
   children: React.ReactNode
-  params: { locale: string }
+  params: Promise<{ locale: string }>
 }) {
+  const { locale } = await params;
   const session = await getSession()
   if (!session) redirect(`/${locale}`)
 

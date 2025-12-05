@@ -7,10 +7,12 @@ enum UserRole {
 
 export type Manager = {
   user_id: string
+  telegram_id: number | null
   tg_username: string | null
   first_name: string | null
   last_name: string | null
   user_role: UserRole
+  phone_number: string | null
   sections: any
 }
 

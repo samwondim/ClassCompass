@@ -20,7 +20,7 @@ interface AppLayoutProps {
 async function logout() {
   const res = await fetch("/api/auth/logout", { method: "POST" });
   console.log(res)
-  window.location.href = "/";
+  window.location.href = "/am";
 }
 
 export function AppLayout({ children, userRole }: AppLayoutProps) {
@@ -46,25 +46,25 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
     case "ADMIN":
       navItems = [
 
-        { label: t('Navigation.Dashboard'), href: "/admin/", icon: LayoutDashboardIcon },
-        { label: t('Navigation.Teachers'), href: "/admin/teachers", icon: User },
-        { label: t('Navigation.Managers'), href: "/admin/managers", icon: User },
-        { label: t('Navigation.Schedules'), href: "/admin/schedules", icon: Calendar },
-        { label: t('Navigation.Courses'), href: "/admin/courses", icon: BrainCog },
+        { label: t('Navigation.Dashboard'), href: "/am/admin/", icon: LayoutDashboardIcon },
+        { label: t('Navigation.Teachers'), href: "/am/admin/teachers", icon: User },
+        { label: t('Navigation.Managers'), href: "/am/admin/managers", icon: User },
+        { label: t('Navigation.Schedules'), href: "/am/admin/schedules", icon: Calendar },
+        { label: t('Navigation.Courses'), href: "/am/admin/courses", icon: BrainCog },
       ]
       break
     case "MANAGER":
       navItems = [
-        { label: t('Navigation.Dashboard'), href: "/manager/", icon: LayoutDashboardIcon },
-        { label: t('Navigation.Teachers'), href: "/manager/teachers", icon: User },
-        { label: t('Navigation.Courses'), href: "/manager/courses", icon: BrainCog },
-        { label: t('Navigation.Schedules'), href: "/manager/schedules", icon: Calendar },
+        { label: t('Navigation.Dashboard'), href: "/am/manager/", icon: LayoutDashboardIcon },
+        { label: t('Navigation.Teachers'), href: "/am/manager/teachers", icon: User },
+        { label: t('Navigation.Courses'), href: "/am/manager/courses", icon: BrainCog },
+        { label: t('Navigation.Schedules'), href: "/am/manager/schedules", icon: Calendar },
       ]
       break
     case "TEACHER":
       navItems = [
-        { label: t('Navigation.Dashboard'), href: "/teacher/", icon: LayoutDashboardIcon },
-        { label: t('Navigation.MySchedules'), href: "/teacher/my-schedules", icon: Calendar },
+        { label: t('Navigation.Dashboard'), href: "/am/teacher/", icon: LayoutDashboardIcon },
+        { label: t('Navigation.MySchedules'), href: "/am/teacher/my-schedules", icon: Calendar },
       ]
       break
   }

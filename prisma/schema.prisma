@@ -85,7 +85,7 @@ model Schedule {
 
 model Course {
   course_id          String      @id @default(uuid())
-  course_name        String
+  course_name        String?
   verse              String?
   course_description String?
   created_at         DateTime    @default(now())
