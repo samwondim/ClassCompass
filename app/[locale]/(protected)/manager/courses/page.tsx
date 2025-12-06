@@ -6,10 +6,9 @@ import AddCourseButton from "@/components/add-course-button";
 
 
 // -------- FETCH COURSES --------
-// -------- FETCH COURSES --------
 async function getData(): Promise<Course[]> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const res = await fetch(`${baseUrl}/api/courses`, {
       cache: 'no-store',
     });
