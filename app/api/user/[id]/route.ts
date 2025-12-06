@@ -3,9 +3,9 @@ import { PrismaClient, User } from '@/generated/prisma'
 import prisma from '@/models/client';
 import { NextRequest, NextResponse } from "next/server";
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
 
     if (!body || Object.keys(body).length === 0) {
@@ -31,11 +31,11 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 
   try {
 
-    const { id } = params;
+    const { id } = await params;
 
     const deletedUser = await prisma.user.delete({
       where: { user_id: id },
@@ -54,12 +54,13 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
 }
 
-export async function PUT(request: NextRequest, { params }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const body = await request.json();
 
   try {
     const updated = await prisma.user.update({
-      where: { user_id: params.id },
+      where: { user_id: id },
       data: {
         first_name: body.first_name,
         last_name: body.last_name,

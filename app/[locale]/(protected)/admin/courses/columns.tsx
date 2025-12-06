@@ -12,6 +12,59 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Course } from "@/app/models/models";
+import { EditCourseDialog } from "@/components/edit-course-dialog";
+import { useState } from "react";
+
+const ActionCell = ({ course }: { course: Course }) => {
+  const [showEditDialog, setShowEditDialog] = useState(false);
+
+  const handleDelete = async () => {
+    if (!confirm("Are you sure you want to delete this course?")) return;
+    try {
+      const res = await fetch(`/api/courses/${course.course_id}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        alert("Failed to delete");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error deleting");
+    }
+  };
+
+  return (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => navigator.clipboard.writeText(course.course_id)}>
+            Copy ID
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setShowEditDialog(true); }}>
+            Edit Course
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive">
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <EditCourseDialog
+        course={course}
+        open={showEditDialog}
+        onOpenChange={setShowEditDialog}
+      />
+    </>
+  );
+};
 
 export const columns: ColumnDef<Course>[] = [
   {
@@ -65,20 +118,6 @@ export const columns: ColumnDef<Course>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem>View Details</DropdownMenuItem>
-          <DropdownMenuItem>Edit Course</DropdownMenuItem>
-          <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
+    cell: ({ row }) => <ActionCell course={row.original} />,
   },
 ];

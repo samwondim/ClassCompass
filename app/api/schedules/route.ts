@@ -14,6 +14,7 @@ export async function GET(request: NextRequest) {
         include: {
 
           course: { select: { course_id: true, course_description: true } },
+          section: { select: { section_name: true, section_id: true } },
         }
       });
 
@@ -23,6 +24,7 @@ export async function GET(request: NextRequest) {
       include: {
         course: { select: { course_id: true, course_description: true } },
         teacher: { select: { user_id: true, first_name: true, last_name: true } },
+        section: { select: { section_name: true, section_id: true } },
       },
     });
     return NextResponse.json({ schedules });

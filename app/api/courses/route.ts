@@ -55,7 +55,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ courses });
   } catch (error) {
     console.error('Get courses error:', error);
-    return NextResponse.json({ error: 'Internal error' }, { status: 500 });
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Internal error' }, { status: 500 });
   }
 }
 

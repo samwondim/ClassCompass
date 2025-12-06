@@ -3,40 +3,20 @@ import { columns } from './columns';
 import { DataTable } from './data-table';
 import { Schedule } from '@/app/models/models'; // Adjust import
 
-import { getSession } from '@/utils/session';
-import prisma from '@/models/client';
-
 async function getTeacherSchedules(): Promise<Schedule[]> {
   try {
-    const session = await getSession();
-    const user = session?.fetched_user;
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/schedules`, {
+      cache: 'no-store',
+    });
 
-    if (!user || !user.user_id) {
+    if (!res.ok) {
+      console.error('Failed to fetch schedules', res.status, await res.text());
       return [];
     }
 
-    const schedules = await prisma.schedule.findMany({
-      where: {
-        teacher_id: user.user_id
-      },
-      include: {
-        course: {
-          include: { objectives: true }
-        },
-        teacher: {
-          select: {
-            user_id: true,
-            first_name: true,
-            last_name: true,
-            teacher_sections: {
-              include: { section: true }
-            }
-          }
-        },
-        section: true
-      },
-    });
-    return schedules as any;
+    const { schedules } = await res.json();
+    return schedules || [];
   } catch (error) {
     console.error('Error fetching schedules:', error);
     return [];

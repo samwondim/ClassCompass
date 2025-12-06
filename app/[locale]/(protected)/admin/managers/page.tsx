@@ -3,63 +3,21 @@ import { Manager } from "@/app/models/models";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import { AddManagerButton } from "@/components/add-manager-button";
-import prisma from "@/models/client";
-
-// Map Prisma user → Manager DTO
-const toPublicManager = (user: any): Manager => {
-  return {
-    user_role: user.user_role,
-    user_id: user.user_id,
-    telegram_id: user.tg_id,
-    first_name: user.first_name,
-    last_name: user.last_name,
-    tg_username: user.tg_username,
-    phone_number: user.phone_number,
-    sections: user.sections_managed
-  }
-};
 
 async function getData(): Promise<Manager[]> {
   try {
-    const users = await prisma.user.findMany({
-      where: {
-        user_role: "MANAGER"
-      },
-      select: {
-        user_role: true,
-        user_id: true,
-        first_name: true,
-        last_name: true,
-        tg_username: true,
-        phone_number: true,
-        sections_managed: {
-          select: {
-            section_name: true,
-            section_id: true
-          }
-        },
-        ManagerSection: {
-          select: {
-            section: {
-              select: {
-                section_name: true,
-                section_id: true
-              }
-            }
-          }
-        }
-      }
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/user/get-managers`, {
+      cache: 'no-store',
     });
 
-    const managers = users.map(user => ({
-      ...toPublicManager(user),
-      sections: [
-        ...user.sections_managed,
-        ...user.ManagerSection.map((ms: any) => ms.section)
-      ]
-    }));
+    if (!res.ok) {
+      console.error('Failed to fetch managers', res.status, await res.text());
+      return [];
+    }
 
-    return managers;
+    const { managers } = await res.json();
+    return managers || [];
   } catch (error) {
     console.error('Error fetching managers:', error);
     return [];

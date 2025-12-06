@@ -27,7 +27,21 @@ export type Teacher = {
 }
 
 export type Schedule = {
-
+  schedule_id: string;
+  schedule_date: string | Date;
+  course: {
+    course_id: string;
+    course_description: string;
+  },
+  teacher: {
+    user_id: string;
+    first_name: string;
+    last_name: string;
+  },
+  section?: {
+    section_id: string;
+    section_name: string;
+  }
 }
 
 export interface Objective {
@@ -50,4 +64,19 @@ export interface Course {
   created_by: string; // user_id of creator
   objectives: Objective[];
   created_by_user: UserSummary | null;
+}
+
+export interface ScheduleWithRelations {
+  schedule_id: string;
+  schedule_date: string | Date;
+  course: {
+    course_id: string;
+    course_description: string;
+    objectives: Objective[];
+  };
+  teacher_sections: {
+    section: {
+      section_name: string;
+    }
+  }[];
 }

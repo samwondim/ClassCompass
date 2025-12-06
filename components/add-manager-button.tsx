@@ -46,9 +46,10 @@ export function AddManagerButton() {
       try {
         const res = await fetch("/api/sections");
         const data = await res.json();
-        setSections(data.sections);
+        setSections(data.sections || []);
       } catch (error) {
         console.error(error);
+        setSections([]);
       }
     };
     fetchSections();

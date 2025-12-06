@@ -4,17 +4,20 @@ import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import { AddScheduleButton } from "./AddScheduleButton"; // move it to separate file
 
-import prisma from '@/models/client';
-
 async function getData(): Promise<Schedule[]> {
   try {
-    const schedules = await prisma.schedule.findMany({
-      include: {
-        course: { select: { course_id: true, course_description: true } },
-        teacher: { select: { user_id: true, first_name: true, last_name: true } },
-      },
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const res = await fetch(`${baseUrl}/api/schedules`, {
+      cache: 'no-store',
     });
-    return schedules as any;
+
+    if (!res.ok) {
+      console.error('Failed to fetch schedules', res.status, await res.text());
+      return [];
+    }
+
+    const { schedules } = await res.json();
+    return schedules || [];
   } catch (error) {
     console.error('Error fetching schedules:', error);
     return [];
