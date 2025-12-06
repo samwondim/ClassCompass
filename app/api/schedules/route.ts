@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/models/client';
+
+export const dynamic = 'force-dynamic';
+
 import { getSession } from '@/utils/session';
 
 export async function GET(request: NextRequest) {

@@ -1,5 +1,8 @@
 import prisma from "@/models/client";
 import { NextRequest, NextResponse } from "next/server";
+
+export const dynamic = 'force-dynamic';
+
 import { Manager } from "@/app/models/models";
 import { User } from "@/generated/prisma";
 
