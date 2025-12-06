@@ -5,9 +5,11 @@ import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import { AddTeacherButton } from "@/components/add-teacher-button";
 
+// import prisma from "@/models/client"; // removed
+
 async function getData(): Promise<Teacher[]> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const res = await fetch(`${baseUrl}/api/user/get-teachers`, {
       cache: 'no-store',
     });

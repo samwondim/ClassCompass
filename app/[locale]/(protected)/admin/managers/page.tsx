@@ -4,9 +4,11 @@ import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import { AddManagerButton } from "@/components/add-manager-button";
 
+// import prisma from "@/models/client"; // removed
+
 async function getData(): Promise<Manager[]> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const res = await fetch(`${baseUrl}/api/user/get-managers`, {
       cache: 'no-store',
     });
