@@ -22,6 +22,7 @@ export type Teacher = {
   first_name: string | null
   last_name: string | null
   user_role: UserRole
+  phone_number: string | null
   sections: string | null
 }
 

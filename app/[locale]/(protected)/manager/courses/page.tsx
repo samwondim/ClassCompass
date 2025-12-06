@@ -6,22 +6,26 @@ import AddCourseButton from "@/components/add-course-button";
 
 
 // -------- FETCH COURSES --------
+import prisma from '@/models/client';
+
+// -------- FETCH COURSES --------
 async function getData(): Promise<Course[]> {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/courses`, {
-      cache: 'no-store',
-      credentials: "include",
+    const courses = await prisma.course.findMany({
+      orderBy: { created_at: "desc" },
+      include: {
+        objectives: true, // <-- include all objectives for each course
+        created_by_user: {
+          select: {
+            first_name: true,
+            last_name: true,
+            tg_username: true,
+          },
+        },
+      }
     });
-    console.log("FETCHED COURSES", res)
 
-    if (!res.ok) {
-      console.error('Failed to fetch courses:', res.statusText);
-      return [];
-    }
-
-    const response = await res.json();
-    return response.courses || [];
-
+    return courses as any; // Type assertion needed due to prisma vs frontend model mismatch if any
   } catch (error) {
     console.error('Error fetching courses:', error);
     return [];
