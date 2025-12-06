@@ -44,9 +44,9 @@ export function validateTelegramWebAppData(initData: string, botToken: string): 
     return { validatedData: null, user: {}, message: "Invalid init data: missing auth_date" };
   }
   const auth_date = parseInt(parsed_data['auth_date']);
-  if ((Date.now() / 1000) - auth_date > 86400) {
-    return { validatedData: null, user: {}, message: "Data is outdated" };
-  }
+  // if ((Date.now() / 1000) - auth_date > 86400) {
+  //   return { validatedData: null, user: {}, message: "Data is outdated" };
+  // }
   if (!('user' in parsed_data)) {
     return { validatedData: null, user: {}, message: "Invalid init data: missing user" };
   }

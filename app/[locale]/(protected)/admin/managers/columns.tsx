@@ -31,7 +31,7 @@ export const columns: ColumnDef<Manager>[] = [
     accessorKey: "sections",
     header: "Section",
     cell: ({ row }) => {
-      if (!row.original.sections || row.original.sections.length === 0) {
+      if (!row.original.sections) {
         return <Badge variant="outline">No Sections Assigned</Badge>
       }
       return <>
