@@ -38,9 +38,11 @@ async function authMiddleware(request: NextRequest) {
   if (!session) {
     // Not logged in
     if (cleanPath !== '/') {
+      // If trying to access a specific page while logged out, redirect to login (root)
       return NextResponse.redirect(new URL(`/${locale}/`, request.url));
     }
-    return NextResponse.redirect(new URL('/am', request.url));
+    // If already at root, allow access to login page
+    return NextResponse.next();
   }
 
   // Logged in
