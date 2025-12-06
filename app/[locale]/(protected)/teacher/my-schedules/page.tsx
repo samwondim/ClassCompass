@@ -5,7 +5,7 @@ import { Schedule } from '@/app/models/models'; // Adjust import
 
 async function getTeacherSchedules(): Promise<Schedule[]> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const res = await fetch(`${baseUrl}/api/schedules`, {
       cache: 'no-store',
     });

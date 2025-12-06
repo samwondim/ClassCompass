@@ -13,9 +13,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { ScheduleWithRelations } from "@/app/models/models"; // Adjust import for your types
+import { Schedule } from "@/app/models/models"; // Adjust import for your types
 
-export const columns: ColumnDef<ScheduleWithRelations>[] = [
+export const columns: ColumnDef<Schedule>[] = [
   // Date
   {
     accessorKey: "schedule_date",
@@ -74,32 +74,18 @@ export const columns: ColumnDef<ScheduleWithRelations>[] = [
       </div>
     ),
   },
-  // Sections (from teacher_sections)
+  // Section
   {
-    id: "sections",
-    header: "Sections",
+    id: "section",
+    header: "Section",
     cell: ({ row }) => {
-      const sections = row.original.teacher_sections.map((ts) => ts.section.section_name);
+      const sectionName = row.original.section?.section_name || "N/A";
       return (
-        <div className="flex flex-wrap gap-1">
-          {sections.map((section, idx) => (
-            <Badge key={idx} variant="secondary" className="text-xs">
-              {section}
-            </Badge>
-          ))}
-        </div>
+        <Badge variant="secondary" className="text-xs">
+          {sectionName}
+        </Badge>
       );
     },
-  },
-  // Objectives Count
-  {
-    id: "objectives",
-    header: "Objectives",
-    cell: ({ row }) => (
-      <Badge variant="outline" className="text-xs">
-        {row.original.course.objectives.length} objectives
-      </Badge>
-    ),
   },
   // Actions
   {
