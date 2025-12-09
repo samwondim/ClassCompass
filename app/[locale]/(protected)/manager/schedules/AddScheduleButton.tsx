@@ -14,8 +14,8 @@ import { useRouter } from "next/navigation";
 
 export function AddScheduleButton() {
   const [open, setOpen] = useState(false);
-  const [courses, setCourses] = useState([]);
-  const [teachers, setTeachers] = useState([]);
+  const [courses, setCourses] = useState<{ id: string, name: string }[]>([]);
+  const [teachers, setTeachers] = useState<{ id: string, name: string }[]>([]);
   const [formData, setFormData] = useState({
     course_id: "",
     teacher_id: "",
@@ -38,7 +38,7 @@ export function AddScheduleButton() {
     setCourses(
       courses.map((c: any) => ({
         id: c.course_id,
-        name: c.course_description,
+        name: c.course_name || c.course_description, // Use Name if available
       }))
     );
   }

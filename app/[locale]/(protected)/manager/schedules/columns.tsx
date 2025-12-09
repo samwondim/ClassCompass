@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal, Calendar as CalIcon } from "lucide-react";
+import { ArrowUpDown, MoreHorizontal, Calendar as CalIcon, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
@@ -79,9 +79,20 @@ export const columns: ColumnDef<Schedule>[] = [
     ),
   },
   {
-    accessorKey: "course.course_description",
+    accessorKey: "course",
     header: "Course",
-    cell: ({ row }) => <Badge variant="outline">{row.original.course.course_description || 'Untitled'}</Badge>,
+    cell: ({ row }) => {
+      const course = row.original.course;
+      return (
+        <div className="flex flex-col">
+          <span className="font-semibold flex items-center">
+            <BookOpen className="w-3 h-3 mr-1 text-primary" />
+            {course.course_name || course.course_description}
+          </span>
+          {course.verse && <span className="text-xs text-muted-foreground italic">{course.verse}</span>}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "teacher.first_name",

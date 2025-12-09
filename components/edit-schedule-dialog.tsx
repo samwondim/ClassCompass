@@ -57,7 +57,7 @@ export function EditScheduleDialog({ schedule, open, onOpenChange }: EditSchedul
             setCourses(
                 courses?.map((c: any) => ({
                     id: c.course_id,
-                    name: c.course_description,
+                    name: c.course_name || c.course_description,
                 })) || []
             );
         } catch (e) { console.error(e); }

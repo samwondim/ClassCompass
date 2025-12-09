@@ -31,6 +31,8 @@ export type Schedule = {
   schedule_date: string | Date;
   course: {
     course_id: string;
+    course_name?: string | null;
+    verse?: string | null;
     course_description: string;
   },
   teacher: {

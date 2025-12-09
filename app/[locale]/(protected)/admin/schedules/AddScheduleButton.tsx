@@ -37,7 +37,12 @@ export function AddScheduleButton() {
   });
 
   // Create Course Data
-  const [newCourse, setNewCourse] = useState({ description: "", objective: "" });
+  const [newCourse, setNewCourse] = useState({
+    course_name: "",
+    verse: "",
+    description: "",
+    objectives: [""]
+  });
 
   // Create Teacher Data
   const [newTeacher, setNewTeacher] = useState({
@@ -129,11 +134,16 @@ export function AddScheduleButton() {
   };
 
   const handleCreateCourse = async () => {
+    // Filter empty objectives
+    const validObjectives = newCourse.objectives.filter(o => o.trim().length > 0);
+
     const res = await fetch("/api/courses", {
       method: "POST",
       body: JSON.stringify({
+        course_name: newCourse.course_name,
+        verse: newCourse.verse,
         course_description: newCourse.description,
-        objectives: [newCourse.objective] // Simplified for inline
+        objectives: validObjectives
       }),
       headers: { "Content-Type": "application/json" }
     });
@@ -142,7 +152,7 @@ export function AddScheduleButton() {
       toast({ title: "Course created" });
       await loadCourses();
       setView('schedule');
-      setNewCourse({ description: "", objective: "" });
+      setNewCourse({ course_name: "", verse: "", description: "", objectives: [""] });
     } else {
       toast({ title: "Failed to create course", variant: "destructive" });
     }
@@ -244,8 +254,69 @@ export function AddScheduleButton() {
 
         {view === 'create_course' && (
           <div className="space-y-4">
-            <div><Label>Description</Label><Input value={newCourse.description} onChange={e => setNewCourse({ ...newCourse, description: e.target.value })} /></div>
-            <div><Label>Objective</Label><Input value={newCourse.objective} onChange={e => setNewCourse({ ...newCourse, objective: e.target.value })} /></div>
+            <div>
+              <Label>Course Name</Label>
+              <Input
+                value={newCourse.course_name}
+                onChange={e => setNewCourse({ ...newCourse, course_name: e.target.value })}
+                placeholder="e.g., Biblical Foundations"
+              />
+            </div>
+            <div>
+              <Label>Key Verse</Label>
+              <Input
+                value={newCourse.verse}
+                onChange={e => setNewCourse({ ...newCourse, verse: e.target.value })}
+                placeholder="e.g., Joshua 1:8"
+              />
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Input
+                value={newCourse.description}
+                onChange={e => setNewCourse({ ...newCourse, description: e.target.value })}
+                placeholder="Brief overview..."
+              />
+            </div>
+            <div>
+              <Label>Objectives</Label>
+              <div className="space-y-2 mt-2">
+                {newCourse.objectives.map((obj, idx) => (
+                  <div key={idx} className="flex gap-2">
+                    <Input
+                      value={obj}
+                      onChange={e => {
+                        const newObjs = [...newCourse.objectives];
+                        newObjs[idx] = e.target.value;
+                        setNewCourse({ ...newCourse, objectives: newObjs });
+                      }}
+                      placeholder={`Objective ${idx + 1}`}
+                    />
+                    {newCourse.objectives.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => {
+                          const newObjs = newCourse.objectives.filter((_, i) => i !== idx);
+                          setNewCourse({ ...newCourse, objectives: newObjs });
+                        }}
+                      >
+                        X
+                      </Button>
+                    )}
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setNewCourse({ ...newCourse, objectives: [...newCourse.objectives, ""] })}
+                >
+                  + Add Objective
+                </Button>
+              </div>
+            </div>
             <DialogFooter className="gap-2">
               <Button variant="outline" onClick={() => setView('schedule')}>Back</Button>
               <Button onClick={handleCreateCourse}>Create Course</Button>
