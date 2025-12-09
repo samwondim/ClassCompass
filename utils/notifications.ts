@@ -4,7 +4,7 @@ import prisma from '@/models/client';
 const botToken = process.env.BOT_TOKEN;
 const bot = botToken ? new Bot(botToken) : null;
 
-const WEB_APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://t.me/ClassCompassBot/app';
+const WEB_APP_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://t.me/class_compass_bot/app';
 
 // Helper to escape MarkdownV2 special characters
 function escapeMarkdown(text: string): string {
