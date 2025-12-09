@@ -26,11 +26,26 @@ async function logout() {
 export function AppLayout({ children, userRole }: AppLayoutProps) {
   const pathname = usePathname()
   const [isMounted, setIsMounted] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
   const t = useTranslations()
 
   useEffect(() => {
     setIsMounted(true)
+    fetchUnreadCount()
   }, [])
+
+  const fetchUnreadCount = async () => {
+    try {
+      const res = await fetch('/api/notifications')
+      if (res.ok) {
+        const { notifications } = await res.json()
+        const unread = notifications.filter((n: any) => !n.is_read).length
+        setUnreadCount(unread)
+      }
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error)
+    }
+  }
 
   if (!isMounted) {
     return null
@@ -68,6 +83,10 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
       ]
       break
   }
+
+  const notificationsPath = userRole === "ADMIN" ? "/am/admin/notifications" :
+    userRole === "MANAGER" ? "/am/manager/notifications" :
+      "/am/teacher/notifications"
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
@@ -131,12 +150,16 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
           </Link>
         </div>
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
-            <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
-              3
-            </span>
-          </Button>
+          <Link href={notificationsPath}>
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="h-5 w-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </Button>
+          </Link>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">

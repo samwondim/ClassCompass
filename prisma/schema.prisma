@@ -37,6 +37,20 @@ model User {
   schedules        Schedule[]
   courses_created  Course[]         @relation("CreatedCourses")
   ManagerSection   ManagerSection[]
+  notifications    Notification[]
+}
+
+model Notification {
+  id         String   @id @default(uuid())
+  user_id    String
+  title      String
+  message    String
+  type       String   @default("info") // info, warning, success, error
+  is_read    Boolean  @default(false)
+  created_at DateTime @default(now())
+  link       String?
+
+  user       User     @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 }
 
 model Section {

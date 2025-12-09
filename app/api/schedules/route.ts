@@ -57,7 +57,8 @@ export async function POST(request: NextRequest) {
 
     // Lookup Teacher's Section (Required for Schedule)
     const teacherSection = await prisma.teacherSection.findFirst({
-      where: { teacher_id: teacher_id }
+      where: { teacher_id: teacher_id },
+      include: { section: true }
     });
 
     if (!teacherSection) {
@@ -70,6 +71,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Course not found" }, { status: 404 });
     }
 
+    const currentUser = await getSession().then(s => s?.fetched_user);
+    const changerName = currentUser ? `${currentUser.first_name} ${currentUser.last_name || ''}`.trim() : "Admin";
+
     const schedule = await prisma.schedule.create({
       data: {
         course: { connect: { course_id } },
@@ -79,9 +83,27 @@ export async function POST(request: NextRequest) {
       },
       include: {
         course: { select: { course_id: true, course_name: true, verse: true, course_description: true } },
-        teacher: { select: { user_id: true, first_name: true, last_name: true } },
+        teacher: { select: { user_id: true, first_name: true, last_name: true, tg_id: true } },
       },
     });
+
+    // Notify Teacher
+    if (schedule.teacher.tg_id) {
+      const detail = `Date: ${new Date(schedule_date).toLocaleString()}
+Section: ${teacherSection.section.section_name || 'N/A'}`;
+
+      // Use import dynamically or at top. Importing at top is better.
+      const { notifyScheduleChange } = await import('@/utils/notifications');
+      await notifyScheduleChange(
+        schedule.teacher.user_id,
+        schedule.teacher.tg_id.toString(),
+        'Added',
+        schedule.course.course_name || schedule.course.course_description || 'Unknown Course',
+        changerName,
+        detail
+      );
+    }
+
     return NextResponse.json({ schedule }, { status: 201 });
 
   } catch (error) {
