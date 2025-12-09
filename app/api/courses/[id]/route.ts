@@ -6,14 +6,18 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     try {
         const { id } = await params;
         const body = await request.json();
-        const { course_description, objectives } = body;
+        const { course_name, verse, course_description, objectives } = body;
 
         // Transaction to update course and replace objectives
         const updatedCourse = await prisma.$transaction(async (tx) => {
             // 1. Update basic course info
             await tx.course.update({
                 where: { course_id: id },
-                data: { course_description },
+                data: {
+                    course_name,
+                    verse,
+                    course_description
+                },
             });
 
             // 2. Handle objectives if provided

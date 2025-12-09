@@ -68,7 +68,7 @@ const ActionCell = ({ course }: { course: Course }) => {
 
 export const columns: ColumnDef<Course>[] = [
   {
-    accessorKey: "course_description",
+    accessorKey: "course_name",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -76,13 +76,31 @@ export const columns: ColumnDef<Course>[] = [
           column.toggleSorting(column.getIsSorted() === "asc")
         }
       >
-        Description
+        Course Name
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
     cell: ({ row }) => (
-      <div className="font-medium max-w-md truncate flex items-center">
-        <BookIcon className="inline h-4 w-4 mr-1" />
+      <div className="font-medium flex items-center">
+        <BookIcon className="inline h-4 w-4 mr-1 text-primary" />
+        {row.getValue("course_name") || <span className="text-muted-foreground italic">Untitled</span>}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "verse",
+    header: "Key Verse",
+    cell: ({ row }) => (
+      <div className="italic text-muted-foreground">
+        {row.getValue("verse") || "-"}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "course_description",
+    header: "Description",
+    cell: ({ row }) => (
+      <div className="max-w-xs truncate" title={row.getValue("course_description")}>
         {row.getValue("course_description")}
       </div>
     ),

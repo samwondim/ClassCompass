@@ -58,6 +58,8 @@ export interface UserSummary {
 
 export interface Course {
   course_id: string;
+  course_name?: string | null;
+  verse?: string | null;
   course_description: string;
   created_at: string; // ISO date string
   updated_at: string; // ISO date string

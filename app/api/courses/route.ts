@@ -9,7 +9,7 @@ import { Course } from '@/app/models/models';
 export async function POST(req: Request) {
   try {
     const created_by = await getSession().then(session => session.fetched_user.user_id);
-    const { course_description, objectives } = await req.json();
+    const { course_name, verse, course_description, objectives } = await req.json();
 
     if (!created_by) {
       return NextResponse.json({ error: "Missing created_by user_id" }, { status: 400 });
@@ -17,7 +17,8 @@ export async function POST(req: Request) {
 
     const course = await prisma.course.create({
       data: {
-        course_name: "",
+        course_name: course_name || null,
+        verse: verse || null,
         course_description,
         created_by,
         objectives: {
