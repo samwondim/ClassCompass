@@ -326,7 +326,7 @@ export function AddScheduleButton() {
 
         {view === 'create_teacher' && (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div><Label>First Name</Label><Input value={newTeacher.first_name} onChange={e => setNewTeacher({ ...newTeacher, first_name: e.target.value })} /></div>
               <div><Label>Last Name</Label><Input value={newTeacher.last_name} onChange={e => setNewTeacher({ ...newTeacher, last_name: e.target.value })} /></div>
             </div>

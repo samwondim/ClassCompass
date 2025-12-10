@@ -30,7 +30,7 @@ export default function EditTeacherForm({ teacher, onClose }: any) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 p-4 w-full max-w-md mx-auto sm:max-w-lg">
+    <form onSubmit={handleSubmit} className="space-y-4 p-4 w-full">
       <div className="flex flex-col space-y-2">
         <label className="text-sm font-medium">First Name</label>
         <input

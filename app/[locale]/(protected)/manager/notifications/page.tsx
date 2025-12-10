@@ -99,7 +99,7 @@ export default function NotificationsPage() {
 
     if (loading) {
         return (
-            <div className="container mx-auto py-10">
+            <div className="container mx-auto py-10 px-4">
                 <div className="flex items-center justify-center">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600"></div>
                 </div>
