@@ -209,11 +209,11 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
             ))}
           </div>
         </nav>
-        {/* Content */}
-        <main className="flex-1">{children}</main>
+        {/* Content - Added pb-20 on mobile to account for fixed bottom nav */}
+        <main className="flex-1 pb-20 md:pb-0">{children}</main>
       </div>
-      {/* Bottom Navigation (mobile only) */}
-      <div className="md:hidden border-t bg-white">
+      {/* Bottom Navigation (mobile only) - Now fixed/sticky */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-white z-50 shadow-lg">
         <nav className="flex items-center justify-around">
           {navItems.map((item, index) => (
             <Link
