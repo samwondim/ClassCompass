@@ -41,6 +41,16 @@ export async function GET(request: NextRequest) {
 // POST /api/teachers - Create new teacher (manager, and admin only)
 export async function POST(request: NextRequest) {
   try {
+    // Authenticate user
+    const user = await getUserRole();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
+
+    if (!["MANAGER", "ADMIN"].includes(user.user_role || '')) {
+      return NextResponse.json({ error: 'Unauthorized: Only managers and admins can create teachers' }, { status: 403 });
+    }
 
     const { first_name, last_name, phone_number, user_role, tg_username, section_id } = await request.json()
 
@@ -51,6 +61,23 @@ export async function POST(request: NextRequest) {
     if (!tg_username) {
       return NextResponse.json({ error: 'Telegram Username is required' }, { status: 400 })
     }
+
+    // CRITICAL: Validate that the manager owns this section
+    if (user.user_role === 'MANAGER') {
+      const managerOwnsSection = await prisma.managerSection.findFirst({
+        where: {
+          manager_id: user.user_id,
+          section_id: section_id
+        }
+      });
+
+      if (!managerOwnsSection) {
+        return NextResponse.json({
+          error: 'Unauthorized: You can only add teachers to sections you manage'
+        }, { status: 403 });
+      }
+    }
+
     // Sanitize and validate input
     const sanitizedFirstName = first_name.trim()
     const sanitizedtgUsername = tg_username.trim()
@@ -61,13 +88,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'First name must be between 2 and 100 characters' }, { status: 400 })
     }
 
-    // Basic phone number validation
-    // const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/
-    // if (!phoneRegex.test(sanitizedPhone)) {
-    //   return NextResponse.json({ error: 'Invalid phone number format' }, { status: 400 })
-    // }
-
-    // Check if phone number already exists
+    // Check if teacher with this telegram username already exists
     const existingTeacher = await prisma.teacherSection.findFirst({
       where: {
         teacher: {

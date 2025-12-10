@@ -1,6 +1,6 @@
 
-import { RepresentativeDashboard } from "@/components/representative/dashboard"
+import { ManagerDashboard } from "@/components/manager/dashboard"
 
-export default function RepresentativePage() {
-  return <RepresentativeDashboard />
+export default function ManagerPage() {
+  return <ManagerDashboard />
 }
