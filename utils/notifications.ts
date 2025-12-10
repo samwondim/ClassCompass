@@ -36,14 +36,51 @@ async function saveNotification(
 
 // Send Telegram notification
 export async function sendTelegramNotification(telegramId: string, message: string) {
-    if (!bot || !telegramId) {
-        console.warn("Notification skipped: No bot token or invalid telegramId");
-        return;
+    // Validate bot initialization
+    if (!botToken) {
+        console.error('❌ TELEGRAM BOT ERROR: BOT_TOKEN environment variable is not set');
+        return false;
     }
+
+    if (!bot) {
+        console.error('❌ TELEGRAM BOT ERROR: Bot instance failed to initialize');
+        return false;
+    }
+
+    // Validate telegram ID
+    if (!telegramId || telegramId === 'null' || telegramId === 'undefined') {
+        console.error('❌ TELEGRAM BOT ERROR: Invalid telegramId provided:', telegramId);
+        return false;
+    }
+
     try {
-        await bot.api.sendMessage(telegramId, message, { parse_mode: 'MarkdownV2' });
-    } catch (error) {
-        console.error(`Failed to send notification to ${telegramId}:`, error);
+        console.log(`📤 Attempting to send Telegram message to chat ID: ${telegramId}`);
+        console.log(`📝 Message preview: ${message.substring(0, 100)}...`);
+
+        const result = await bot.api.sendMessage(telegramId, message, { parse_mode: 'MarkdownV2' });
+
+        console.log(`✅ Telegram message sent successfully to ${telegramId}. Message ID: ${result.message_id}`);
+        return true;
+    } catch (error: any) {
+        console.error(`❌ TELEGRAM BOT ERROR: Failed to send message to ${telegramId}`);
+        console.error('Error details:', {
+            name: error.name,
+            message: error.message,
+            description: error.description,
+            code: error.error_code,
+            parameters: error.parameters
+        });
+
+        // Log specific common errors
+        if (error.error_code === 400) {
+            console.error('⚠️  Bad Request - Check message formatting or chat ID validity');
+        } else if (error.error_code === 403) {
+            console.error('⚠️  Forbidden - User may have blocked the bot or chat doesn\'t exist');
+        } else if (error.error_code === 429) {
+            console.error('⚠️  Rate Limited - Too many requests');
+        }
+
+        return false;
     }
 }
 
@@ -57,6 +94,14 @@ export async function notifySectionChange(
     changerName: string,
     changeDetails: string
 ) {
+    console.log('🔔 notifySectionChange called:', {
+        managerUserId,
+        managerTgId,
+        sectionName,
+        changerName,
+        changeDetails
+    });
+
     const title = "📢 Section Update";
     const plainMessage = `Section: ${sectionName}\nWhat Changed: ${changeDetails}\nBy: ${changerName}`;
 
@@ -68,6 +113,7 @@ export async function notifySectionChange(
         'info',
         '/manager/sections'
     );
+    console.log('✅ Section change notification saved to database');
 
     // Send Telegram message
     const telegramTitle = "📢 *Section Update*";
@@ -89,7 +135,13 @@ ${escapeMarkdown(new Date().toLocaleString())}
 
     const deepLink = `[Open App](${WEB_APP_URL})`;
     const fullMessage = `${body}\n${deepLink}`;
-    await sendTelegramNotification(managerTgId, fullMessage);
+
+    const sent = await sendTelegramNotification(managerTgId, fullMessage);
+    if (sent) {
+        console.log('✅ Section change Telegram notification sent successfully');
+    } else {
+        console.error('❌ Section change Telegram notification failed');
+    }
 }
 
 /**
@@ -103,6 +155,15 @@ export async function notifyScheduleChange(
     changerName: string,
     details: string
 ) {
+    console.log('🔔 notifyScheduleChange called:', {
+        teacherUserId,
+        teacherTgId,
+        action,
+        courseName,
+        changerName,
+        details
+    });
+
     const title = `🗓 Schedule Update: ${action}`;
     const plainMessage = `Course: ${courseName}\n${details}\nUpdated By: ${changerName}`;
 
@@ -114,6 +175,7 @@ export async function notifyScheduleChange(
         action === 'Removed' ? 'warning' : 'info',
         '/teacher/my-schedules'
     );
+    console.log('✅ Schedule change notification saved to database');
 
     // Send Telegram message
     const telegramTitle = `🗓 *Schedule Update: ${action}*`;
@@ -135,7 +197,13 @@ ${escapeMarkdown(new Date().toLocaleString())}
 
     const deepLink = `[Check Schedule](${WEB_APP_URL}?startapp=my_schedule)`;
     const fullMessage = `${body}\n${deepLink}`;
-    await sendTelegramNotification(teacherTgId, fullMessage);
+
+    const sent = await sendTelegramNotification(teacherTgId, fullMessage);
+    if (sent) {
+        console.log('✅ Schedule change Telegram notification sent successfully');
+    } else {
+        console.error('❌ Schedule change Telegram notification failed');
+    }
 }
 
 /**
@@ -148,6 +216,15 @@ export async function notifyUnavailability(
     affectedClass: string,
     date: string
 ) {
+    console.log('🔔 notifyUnavailability called:', {
+        recipientCount: recipients.length,
+        recipients: recipients.map(r => ({ userId: r.userId, tgId: r.tgId })),
+        teacherName,
+        reason,
+        affectedClass,
+        date
+    });
+
     const title = "⚠️ Teacher Unavailability Report";
     const plainMessage = `Teacher: ${teacherName}\nClass: ${affectedClass}\nDate: ${date}\nReason: ${reason}`;
 
@@ -163,6 +240,7 @@ export async function notifyUnavailability(
             )
         )
     );
+    console.log(`✅ Unavailability notifications saved to database for ${recipients.length} recipients`);
 
     // Send Telegram messages
     const telegramTitle = "⚠️ *Teacher Unavailability Report*";
@@ -188,5 +266,18 @@ ${escapeMarkdown(new Date().toLocaleString())}
     const deepLink = `[Manage Substitutes](${WEB_APP_URL}?startapp=manage_schedules)`;
     const fullMessage = `${body}\n${deepLink}`;
 
-    await Promise.all(recipients.map(r => sendTelegramNotification(r.tgId, fullMessage)));
+    const results = await Promise.all(
+        recipients.map(async (r) => {
+            const sent = await sendTelegramNotification(r.tgId, fullMessage);
+            return { tgId: r.tgId, sent };
+        })
+    );
+
+    const successCount = results.filter(r => r.sent).length;
+    const failCount = results.filter(r => !r.sent).length;
+
+    console.log(`✅ Unavailability Telegram notifications: ${successCount} sent, ${failCount} failed`);
+    if (failCount > 0) {
+        console.error('❌ Failed recipients:', results.filter(r => !r.sent).map(r => r.tgId));
+    }
 }
