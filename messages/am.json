@@ -1,8 +1,8 @@
 {
   "Login": "ግባ",
-  "Login with Telegram": "በ Telegram ግባ",
-  "Log in with your Telegram account": "በ Telegram ግባ",
-  "Authenticating": "Authenticating",
+  "Login with Telegram": "እንኳን ደህና መጡ",
+  "Log in with your Telegram account": "ወደ ቦቱ ግባ",
+  "Authenticating": "በመጫን ላይ",
   "Dashboard": "ዳሽቦርድ",
   "AddManager": "አስተዳዳሪ ጨምር",
   "AddTeacher": "መምህር ጨምር",
@@ -26,7 +26,7 @@
   "Navigation": {
     "Dashboard": "ዳሽቦርድ",
     "Teachers": "መምህራን",
-    "Managers": "አስተዳዋሾች",
+    "Managers": "አስተዳዳሪዎች",
     "Schedules": "መርሃ ግብሮች",
     "Courses": "ትምህርቶች",
     "MySchedules": "የኔ መርሃ ግብሮች",
@@ -37,13 +37,13 @@
     "Settings": "ቅንብሮች",
     "Profile": "መገለጫ",
     "LogOut": "ውጣ",
-    "Menu": "ምናሌ"
+    "Menu": "ማውጫ"
   },
   "Common": {
     "Loading": "በመጫን ላይ...",
     "Error": "ስህተት",
     "Success": "ተሳክቷል",
     "Welcome": "እንኳን ደህና መጡ",
-    "Priscila": "ፕሪስካ"
+    "Priscila": "ጵርስቅላ"
   }
 }

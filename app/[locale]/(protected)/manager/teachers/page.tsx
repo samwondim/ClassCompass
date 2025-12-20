@@ -1,28 +1,87 @@
 
-// app/manager/page.tsx (or your file)
-import { Manager, Teacher } from "@/app/models/models";
+// app/manager/teachers/page.tsx
+import { Teacher } from "@/app/models/models";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import { AddTeacherButton } from "@/components/add-teacher-button";
+import { getUserRole } from "@/utils/data-access";
+import prisma from "@/models/client";
+import { redirect } from "next/navigation";
 
 async function getData(): Promise<Teacher[]> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    // Use manager-scoped endpoint that returns only teachers in manager's sections
-    const res = await fetch(`${baseUrl}/api/managers/teachers`, {
-      cache: 'no-store',
-    });
+    // Get authenticated user directly (server component has access to cookies)
+    const user = await getUserRole();
 
-    if (!res.ok) {
-      console.error('Failed to fetch teachers', res.status, await res.text());
+    if (!user) {
+      redirect('/');
+    }
+
+    if (user.user_role !== 'MANAGER') {
+      console.error('Unauthorized: User is not a manager');
       return [];
     }
 
-    const { teachers } = await res.json();
-    return teachers || [];
+    // Get sections managed by this manager
+    const managerSections = await prisma.managerSection.findMany({
+      where: {
+        manager_id: user.user_id
+      },
+      select: {
+        section_id: true
+      }
+    });
+
+    const sectionIds = managerSections.map(ms => ms.section_id);
+
+    if (sectionIds.length === 0) {
+      return [];
+    }
+
+    // Fetch teachers assigned to those sections
+    const teacherSections = await prisma.teacherSection.findMany({
+      where: {
+        section_id: { in: sectionIds }
+      },
+      include: {
+        teacher: {
+          select: {
+            user_id: true,
+            first_name: true,
+            last_name: true,
+            tg_username: true,
+            phone_number: true,
+            user_role: true
+          }
+        },
+        section: {
+          select: {
+            section_id: true,
+            section_name: true
+          }
+        }
+      }
+    });
+
+    // Transform to match the Teacher model format and filter out invalid entries
+    const teachers = teacherSections
+      .filter(ts => ts.teacher.user_role !== null) // Filter out teachers with null role
+      .map(ts => ({
+        user_id: ts.teacher.user_id,
+        user_role: ts.teacher.user_role as any,  // Type assertion for Enum compatibility
+        first_name: ts.teacher.first_name,
+        last_name: ts.teacher.last_name,
+        tg_username: ts.teacher.tg_username,
+        phone_number: ts.teacher.phone_number,
+        sections: ts.section.section_name
+      }));
+
+    return teachers;
   } catch (error) {
     console.error('Error fetching teachers:', error);
     return [];
+  } finally {
+    await prisma.$disconnect();
   }
 }
 

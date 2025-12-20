@@ -7,7 +7,8 @@ import { AddScheduleButton } from "./AddScheduleButton"; // move it to separate 
 async function getData(): Promise<Schedule[]> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-    const res = await fetch(`${baseUrl}/api/schedules`, {
+    // Use manager-scoped endpoint that returns only schedules for manager's sections
+    const res = await fetch(`${baseUrl}/api/managers/schedules`, {
       cache: 'no-store',
     });
 

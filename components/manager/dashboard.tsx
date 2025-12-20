@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
 
 interface DashboardStats {
   teachers: number
@@ -43,6 +44,7 @@ export function ManagerDashboard() {
   const [upcomingSchedules, setUpcomingSchedules] = useState<UpcomingSchedule[]>([])
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
+  const t = useTranslations();
 
   useEffect(() => {
     fetchDashboardData()
