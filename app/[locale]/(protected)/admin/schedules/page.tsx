@@ -32,7 +32,7 @@ export default async function SchedulesPage() {
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Schedules</h1>
+        <h1 className="text-2xl font-bold">መርሃ ግብሮች</h1>
         <AddScheduleButton />
       </div>
 

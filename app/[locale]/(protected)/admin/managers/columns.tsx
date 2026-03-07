@@ -12,24 +12,23 @@ import { Badge } from "@/components/ui/badge";
 export const columns: ColumnDef<Manager>[] = [
   {
     accessorKey: "first_name",
-    header: "First Name",
+    header: "ስም",
   },
   {
     accessorKey: "last_name",
-    header: "Last Name",
+    header: "የአባት ስም",
   },
   {
     accessorKey: "tg_username",
-    header: "Telegram Username",
+    header: "ተሌግራም ዩዘርኔም",
   },
-
   {
     accessorKey: "phone_number",
-    header: "Phone Number",
+    header: "የስልክ ቁጥር",
   },
   {
     accessorKey: "sections",
-    header: "Section",
+    header: "ክፍል",
     cell: ({ row }) => {
       if (!row.original.sections) {
         return <Badge variant="outline">No Sections Assigned</Badge>
@@ -42,6 +41,7 @@ export const columns: ColumnDef<Manager>[] = [
   {
 
     id: "actions",
+    header: "ተጨማሪ ተግባራት",
     cell: ({ row }) => {
       const manager = row.original;
 
@@ -73,15 +73,15 @@ export const columns: ColumnDef<Manager>[] = [
             <DropdownMenuContent align="end">
               {/* EDIT */}
               <DialogTrigger asChild>
-                <DropdownMenuItem>Edit</DropdownMenuItem>
+                <DropdownMenuItem>መረጃ አስተካክል</DropdownMenuItem>
               </DialogTrigger>
 
+              {/* DELETE */}
               <DropdownMenuItem
                 onClick={deleteUser}
                 className="text-destructive focus:text-destructive"
               >
-                Delete
-              </DropdownMenuItem>
+                አጥፋ </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 

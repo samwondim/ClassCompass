@@ -32,11 +32,11 @@ export default async function DemoPage() {
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Managers</h1>
+        <h1 className="text-2xl font-bold">አስተዳዳሪዎች</h1>
         <AddManagerButton />
       </div>
       {data.length === 0 ? (
-        <p className="text-muted-foreground">No managers found.</p>
+        <p className="text-muted-foreground">አስተዳዳሪዎች አልተገኙም</p>
       ) : (
         <DataTable columns={columns} data={data} />
       )}

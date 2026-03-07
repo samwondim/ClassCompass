@@ -179,19 +179,19 @@ export function AddScheduleButton() {
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setView('schedule'); }}>
       <DialogTrigger asChild>
-        <Button>Add Schedule</Button>
+        <Button>መርሃግብር መዝግብ</Button>
       </DialogTrigger>
 
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {view === 'schedule' ? 'Add Schedule' : view === 'create_course' ? 'Create New Course' : 'Create New Teacher'}
+            {view === 'schedule' ? 'መርሃግብር መመዝገብያ ቅጽ' : view === 'create_course' ? 'Create New Course' : 'Create New Teacher'}
           </DialogTitle>
         </DialogHeader>
 
         {view === 'schedule' && (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Label>Date</Label>
+            <Label>ቀን</Label>
             <Input
               type="datetime-local"
               value={formData.schedule_date}
@@ -199,7 +199,7 @@ export function AddScheduleButton() {
             />
 
             <div className="flex flex-col gap-2">
-              <Label>Course</Label>
+              <Label>ስለ ትምህርቱ መረጃ</Label>
               {courses.length === 0 ? (
                 <Button type="button" variant="outline" onClick={() => setView('create_course')}>+ Create Course</Button>
               ) : (
@@ -209,7 +209,7 @@ export function AddScheduleButton() {
                     onValueChange={(v) => setFormData({ ...formData, course_id: v })}
                   >
                     <SelectTrigger className="flex-1">
-                      <SelectValue placeholder="Select a course" />
+                      <SelectValue placeholder="ትምህርቱን ይምረጡ" />
                     </SelectTrigger>
                     <SelectContent>
                       {courses.map(c => (
@@ -223,7 +223,7 @@ export function AddScheduleButton() {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label>Teacher</Label>
+              <Label>አስተማሪ</Label>
               {teachers.length === 0 ? (
                 <Button type="button" variant="outline" onClick={() => setView('create_teacher')}>+ Create Teacher</Button>
               ) : (
@@ -233,7 +233,7 @@ export function AddScheduleButton() {
                     onValueChange={(v) => setFormData({ ...formData, teacher_id: v })}
                   >
                     <SelectTrigger className="flex-1">
-                      <SelectValue placeholder="Select a teacher" />
+                      <SelectValue placeholder="መምህሩን ይምረጡ" />
                     </SelectTrigger>
                     <SelectContent>
                       {teachers.map(t => (
@@ -247,7 +247,7 @@ export function AddScheduleButton() {
             </div>
 
             <DialogFooter>
-              <Button type="submit">Save Schedule</Button>
+              <Button type="submit">መዝግብ</Button>
             </DialogFooter>
           </form>
         )}

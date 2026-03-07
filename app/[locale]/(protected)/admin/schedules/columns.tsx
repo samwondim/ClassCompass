@@ -63,7 +63,7 @@ export const columns: ColumnDef<Schedule>[] = [
     accessorKey: "schedule_date",
     header: ({ column }) => (
       <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-        Date
+        ቀን
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
@@ -80,12 +80,12 @@ export const columns: ColumnDef<Schedule>[] = [
   },
   {
     accessorKey: "course.course_description",
-    header: "Course",
+    header: "ትምህርት",
     cell: ({ row }) => <Badge variant="outline">{row.original.course.course_description || 'Untitled'}</Badge>,
   },
   {
     accessorKey: "teacher.first_name",
-    header: "Teacher",
+    header: "መምህር",
     cell: ({ row }) => {
       const first = row.original.teacher.first_name;
       const last = row.original.teacher.last_name;
@@ -94,6 +94,7 @@ export const columns: ColumnDef<Schedule>[] = [
   },
   {
     id: "actions",
+    header: "ተጨማሪ ተግባራት",
     cell: ({ row }) => <ActionCell schedule={row.original} />,
   },
 ];

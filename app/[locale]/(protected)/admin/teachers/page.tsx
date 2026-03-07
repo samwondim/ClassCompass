@@ -33,11 +33,11 @@ export default async function TeacherMgmtPage() {
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Teachers</h1>
+        <h1 className="text-2xl font-bold">መምህራን</h1>
         <AddTeacherButton />
       </div>
       {data.length === 0 ? (
-        <p className="text-muted-foreground">No teachers found.</p>
+        <p className="text-muted-foreground">ምንም መምህር አልተገኘም</p>
       ) : (
         <DataTable columns={columns} data={data} />
       )}

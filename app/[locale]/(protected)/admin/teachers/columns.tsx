@@ -18,26 +18,27 @@ import EditTeacherForm from "./EditTeacherForm";
 export const columns: ColumnDef<Teacher>[] = [
   {
     accessorKey: "first_name",
-    header: "First Name",
+    header: "ስም",
   },
   {
     accessorKey: "last_name",
-    header: "Last Name",
+    header: "የአባት ስም",
   },
   {
     accessorKey: "tg_username",
-    header: "Telegram Username",
+    header: "ተሌግራም ዩዘርኔም",
   },
   {
     accessorKey: "phone_number",
-    header: "Phone Number",
+    header: "የስልክ ቁጥር",
   },
   {
     accessorKey: "sections",
-    header: "Section",
+    header: "ክፍል",
   },
   {
     id: "actions",
+    header: "ተጨማሪ ተግባራት",
     cell: ({ row }) => {
       const teacher = row.original;
 
@@ -69,7 +70,7 @@ export const columns: ColumnDef<Teacher>[] = [
             <DropdownMenuContent align="end">
               {/* EDIT */}
               <DialogTrigger asChild>
-                <DropdownMenuItem>Edit</DropdownMenuItem>
+                <DropdownMenuItem>መረጃ አስተካክል</DropdownMenuItem>
               </DialogTrigger>
 
               {/* DELETE */}
@@ -77,8 +78,7 @@ export const columns: ColumnDef<Teacher>[] = [
                 onClick={deleteUser}
                 className="text-destructive focus:text-destructive"
               >
-                Delete
-              </DropdownMenuItem>
+                አጥፋ </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 

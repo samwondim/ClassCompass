@@ -26,22 +26,21 @@ export function AdminDashboard() {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold text-sky-700 mb-4">Welcome Admin</h1>
+      <h1 className="text-2xl font-bold text-sky-700 mb-4">እንኳን ደህና መጡ</h1>
 
 
       <Card>
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Manage your Sunday school</CardDescription>
+          <CardTitle>ፈጣን ማስተካከያ</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-row justify-center">
           <div className="grid grid-cols-1 gap-3">
             <div className="grid grid-cols-3 gap-3">
               <Button variant="secondary" onClick={() => handleToggleForm('teacher')}>
-                {activeForm === 'teacher' ? 'Cancel' : 'Add Users'}
+                {activeForm === 'teacher' ? 'ተመለስ' : 'ተጠቃሚዎች  መዝግብ'}
               </Button>
               <Button variant="secondary" onClick={() => handleToggleForm('section')}>
-                {activeForm === 'section' ? 'Cancel' : 'Add Section'}
+                {activeForm === 'section' ? 'ተመለስ' : 'ክፍል  መዝግብ'}
               </Button>
             </div>
             {activeForm === 'teacher' && (
@@ -60,23 +59,6 @@ export function AdminDashboard() {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
-          <CardDescription>Latest updates to your Sunday school</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-center py-8">
-            <div className="text-center space-y-2">
-              <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto">
-                <Clock className="h-6 w-6 text-muted-foreground" />
-              </div>
-              <p className="text-sm text-muted-foreground">No recent activity</p>
-              <p className="text-xs text-muted-foreground">Activity will appear here once you start managing your schedule</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
     </div>
   )

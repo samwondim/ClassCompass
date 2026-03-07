@@ -111,44 +111,48 @@ export function AddManagerButton() {
         <DialogTrigger asChild>
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Add Manager
+            የክፍል አስተዳዳሪ መዝግብ
           </Button>
         </DialogTrigger>
 
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Add New Manager</DialogTitle>
-            <DialogDescription>Enter the details for the new manager.</DialogDescription>
+            <DialogTitle>አዲስ አስተዳዳሪ መመዝገብያ ቅጽ</DialogTitle>
+            <DialogDescription>የአስተዳዳሪውን መረጃዎች እዚህ  ይሙሉ</DialogDescription>
           </DialogHeader>
 
           <form className="space-y-4" onSubmit={handleSubmit}>
+            {/* First Name */}
             <div className="space-y-2">
-              <Label>First Name</Label>
-              <Input name="first_name" value={formData.first_name} onChange={handleInputChange} required />
+              <Label htmlFor="first_name">ስም</Label>
+              <Input id="first_name" name="first_name" value={formData.first_name} onChange={handleInputChange} required />
             </div>
 
+            {/* Last Name */}
             <div className="space-y-2">
-              <Label>Last Name</Label>
-              <Input name="last_name" value={formData.last_name} onChange={handleInputChange} required />
+              <Label htmlFor="last_name">የአባት ስም</Label>
+              <Input id="last_name" name="last_name" value={formData.last_name} onChange={handleInputChange} required />
             </div>
 
+            {/* Telegram Username */}
             <div className="space-y-2">
-              <Label>Telegram Username</Label>
-              <Input name="tg_username" value={formData.tg_username} onChange={handleInputChange} required />
+              <Label htmlFor="tg_username">ተሌግራም ዩዘርኔም</Label>
+              <Input id="tg_username" name="tg_username" value={formData.tg_username} onChange={handleInputChange} required />
             </div>
 
+            {/* Phone Number */}
             <div className="space-y-2">
-              <Label>Phone Number</Label>
-              <Input name="phone_number" value={formData.phone_number} onChange={handleInputChange} required />
+              <Label htmlFor="phone_number">የስልክ ቁጥር</Label>
+              <Input id="phone_number" name="phone_number" value={formData.phone_number} onChange={handleInputChange} required />
             </div>
 
             {/* -------- SECTION SELECT -------- */}
             <div className="space-y-2">
-              <Label>Sections Managed</Label>
+              <Label>ሚያስተዳድረው ክፍል</Label>
 
               <Select>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select sections" />
+                  <SelectValue placeholder="ክፍል ይምረጡ" />
                 </SelectTrigger>
 
                 <SelectContent>
@@ -178,7 +182,7 @@ export function AddManagerButton() {
 
             <DialogFooter>
               <Button disabled={loading} type="submit">
-                {loading ? "Adding..." : "Add Manager"}
+                {loading ? 'በመመዝገብ ላይ...' : 'መዝግብ'}
               </Button>
             </DialogFooter>
           </form>

@@ -126,50 +126,49 @@ export function AddTeacherButton() {
         <DialogTrigger asChild>
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Add Teacher
-          </Button>
+            መምህር መዝግብ</Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Add New Teacher</DialogTitle>
-            <DialogDescription>Enter details for the new teacher.</DialogDescription>
+            <DialogTitle>መምህር መዝግብ</DialogTitle>
+            <DialogDescription>የመምህሩን መረጃዎች  እዚህ ይሙሉ</DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
 
             {/* First Name */}
             <div className="space-y-2">
-              <Label htmlFor="first_name">First Name</Label>
+              <Label htmlFor="first_name">ስም</Label>
               <Input id="first_name" name="first_name" value={formData.first_name} onChange={handleInputChange} required />
             </div>
 
             {/* Last Name */}
             <div className="space-y-2">
-              <Label htmlFor="last_name">Last Name</Label>
+              <Label htmlFor="last_name">የአባት ስም</Label>
               <Input id="last_name" name="last_name" value={formData.last_name} onChange={handleInputChange} required />
             </div>
 
             {/* Telegram Username */}
             <div className="space-y-2">
-              <Label htmlFor="tg_username">Telegram Username</Label>
+              <Label htmlFor="tg_username">ተሌግራም ዩዘርኔም</Label>
               <Input id="tg_username" name="tg_username" value={formData.tg_username} onChange={handleInputChange} required />
             </div>
 
             {/* Phone Number */}
             <div className="space-y-2">
-              <Label htmlFor="phone_number">Phone Number</Label>
+              <Label htmlFor="phone_number">የስልክ ቁጥር</Label>
               <Input id="phone_number" name="phone_number" value={formData.phone_number} onChange={handleInputChange} required />
             </div>
 
             {/* Section Assignment - Auto-selected if only one, dropdown if multiple */}
             <div className="space-y-2">
-              <Label>Assign to Section</Label>
+              <Label>ክፍል መመድብያ</Label>
               {loadingSections ? (
                 <div className="border p-2 rounded text-sm text-muted-foreground">
-                  Loading sections...
+                  ክፍሎች በመፈለግ ላይ...
                 </div>
               ) : sections.length === 0 ? (
                 <div className="border p-2 rounded text-sm text-destructive">
-                  You are not assigned to any sections. Please contact an admin.
+                  ክፍል አልተመደበሎትም እባኮ አድሚኑን ያናግሩ
                 </div>
               ) : sections.length === 1 ? (
                 <Input
@@ -184,7 +183,7 @@ export function AddTeacherButton() {
                   required
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Choose Section" />
+                    <SelectValue placeholder="ክፍል ይምረጡ" />
                   </SelectTrigger>
                   <SelectContent>
                     {sections.map((s) => (
@@ -199,7 +198,7 @@ export function AddTeacherButton() {
 
             <DialogFooter>
               <Button type="submit" disabled={loading}>
-                {loading ? 'Adding...' : 'Add Teacher'}
+                {loading ? 'በመመዝገብ ላይ...' : 'መዝግብ'}
               </Button>
             </DialogFooter>
           </form>
