@@ -35,12 +35,12 @@ export default async function CoursesPage() {
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Courses</h1>
+        <h1 className="text-2xl font-bold">ትምህርቶች</h1>
         <AddCourseButton />
       </div>
 
       {data.length === 0 ? (
-        <p className="text-muted-foreground">No courses found.</p>
+        <p className="text-muted-foreground">ትምትህርቶች አልተገኙም</p>
       ) : (
         <DataTable columns={columns} data={data} />
       )}

@@ -76,7 +76,7 @@ export const columns: ColumnDef<Course>[] = [
           column.toggleSorting(column.getIsSorted() === "asc")
         }
       >
-        Course Name
+        የትምህርት ዓርዕሥ
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
@@ -89,7 +89,7 @@ export const columns: ColumnDef<Course>[] = [
   },
   {
     accessorKey: "verse",
-    header: "Key Verse",
+    header: "መሪ ጥቅሥ",
     cell: ({ row }) => (
       <div className="italic text-muted-foreground">
         {row.getValue("verse") || "-"}
@@ -98,7 +98,7 @@ export const columns: ColumnDef<Course>[] = [
   },
   {
     accessorKey: "course_description",
-    header: "Description",
+    header: "ስለ ትምህርቱ አጭርር ማብራርያ",
     cell: ({ row }) => (
       <div className="max-w-xs truncate" title={row.getValue("course_description")}>
         {row.getValue("course_description")}
@@ -107,7 +107,7 @@ export const columns: ColumnDef<Course>[] = [
   },
   {
     accessorKey: "objectives",
-    header: "Objectives",
+    header: "የትምህርቱ አላማዎች / ተማሪዎች እንዲገነዘቡ ሚፈለጉ ነገሮች ",
     cell: ({ row }) => {
       const objectives = row.original.objectives || [];
       return (
@@ -127,7 +127,7 @@ export const columns: ColumnDef<Course>[] = [
   },
   {
     accessorKey: "created_by_user",
-    header: "Created By",
+    header: "ትምህርቱን የመዘገበው አካል",
     cell: ({ row }) => {
       const creator = row.original.created_by_user;
       if (!creator) return <div>Unknown</div>;
@@ -136,6 +136,7 @@ export const columns: ColumnDef<Course>[] = [
   },
   {
     id: "actions",
+    header: "ተጨማሪ ተግባራት",
     cell: ({ row }) => <ActionCell course={row.original} />,
   },
 ];

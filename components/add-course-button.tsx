@@ -99,7 +99,7 @@ export default function AddCourseButton() {
 
       toast({
         title: "Success!",
-        description: "Course added.",
+        description: "ይትምህርቱ መረጃ ተመዝግቧል",
       });
 
       setOpen(false);
@@ -126,14 +126,14 @@ export default function AddCourseButton() {
       <DialogTrigger asChild>
         <Button>
           <Plus className="mr-2 h-4 w-4" />
-          Add Course
+          የትምህርት መረጃ መዝግብ
         </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New Course</DialogTitle>
-          <DialogDescription>Create a new Sunday School course with objectives.</DialogDescription>
+          <DialogTitle>አዲስ የትምህርት መረጃ መመዝገብያ ቅፅ</DialogTitle>
+          <DialogDescription>የትምህርት መረጃዎትን እዚህ ይመዝግቡ</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -141,7 +141,7 @@ export default function AddCourseButton() {
           {/* Course Name */}
           <div className="space-y-2">
             <Label htmlFor="course_name">
-              Course Name <BookOpen className="inline h-4 w-4 ml-1" />
+              የትምህርት ዓርዕስ<BookOpen className="inline h-4 w-4 ml-1" />
             </Label>
             <Input
               id="course_name"
@@ -156,7 +156,7 @@ export default function AddCourseButton() {
           {/* Verse */}
           <div className="space-y-2">
             <Label htmlFor="verse">
-              Key Verse <ScrollText className="inline h-4 w-4 ml-1" />
+              ጥቅሥ<ScrollText className="inline h-4 w-4 ml-1" />
             </Label>
             <Input
               id="verse"
@@ -170,7 +170,7 @@ export default function AddCourseButton() {
           {/* Course Description */}
           <div className="space-y-2">
             <Label htmlFor="course_description">
-              Description
+              ስለ ትምህርቱ አጭርር ማብራርያ
             </Label>
             <Textarea
               id="course_description"
@@ -184,7 +184,7 @@ export default function AddCourseButton() {
           {/* Objectives */}
           <div className="space-y-2">
             <Label>
-              Objectives <Target className="inline h-4 w-4 ml-1" />
+              የትምህርቱ አላማዎች / ተማሪዎች እንዲገነዘቡ ሚፈለጉ ነገሮች <Target className="inline h-4 w-4 ml-1" />
             </Label>
             <div className="space-y-2">
               {objectives.map((objective, index) => (
@@ -215,14 +215,14 @@ export default function AddCourseButton() {
                 className="w-full mt-2 border-dashed"
               >
                 <Plus className="mr-2 h-3 w-3" />
-                Add Objective
+                ዋና አላማ  መዝግብ
               </Button>
             </div>
           </div>
 
           <DialogFooter>
             <Button type="submit" disabled={loading}>
-              {loading ? "Adding..." : "Add Course"}
+              {loading ? "በመመዝገብ ላይ..." : "መዝግብ"}
             </Button>
           </DialogFooter>
 
