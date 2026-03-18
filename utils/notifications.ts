@@ -281,3 +281,91 @@ ${escapeMarkdown(new Date().toLocaleString())}
     console.error('❌ Failed recipients:', results.filter(r => !r.sent).map(r => r.tgId));
   }
 }
+
+/**
+ * 4. Sunday schedule reminders → Teachers
+ */
+export async function notifySundayScheduleReminder(
+  teacher: { user_id: string; tg_id: string | number | null; first_name?: string | null; last_name?: string | null },
+  schedules: Array<{
+    schedule_date: Date
+    course: { course_name: string | null; course_description: string | null }
+    section: { section_name: string | null }
+  }>,
+  sundayDate: Date
+) {
+  if (!teacher.tg_id) return;
+
+  const teacherName = `${teacher.first_name || ""} ${teacher.last_name || ""}`.trim() || "Teacher";
+  const title = "📅 Upcoming Sunday Schedule";
+
+  const lines = schedules.map((s) => {
+    const course = s.course.course_name || s.course.course_description || "Unknown Course";
+    const section = s.section.section_name || "Unknown Section";
+    const time = new Date(s.schedule_date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    return `• ${course} (${section}) at ${time}`;
+  });
+
+  const plainMessage = `Hello ${teacherName},\nYour upcoming Sunday (${sundayDate.toLocaleDateString()}) schedule:\n${lines.join("\n")}`;
+
+  await saveNotification(
+    teacher.user_id,
+    title,
+    plainMessage,
+    "info",
+    "/teacher/my-schedules"
+  );
+
+  const telegramTitle = "📅 *Sunday Schedule Reminder*";
+  const body = `
+${telegramTitle}
+
+*Date:*
+${escapeMarkdown(sundayDate.toLocaleDateString())}
+
+*Schedules:*
+${escapeMarkdown(lines.join("\n"))}
+`;
+
+  const deepLink = `[View Schedule](${WEB_APP_URL}?startapp=my_schedule)`;
+  const fullMessage = `${body}\n${deepLink}`;
+  await sendTelegramNotification(teacher.tg_id.toString(), fullMessage);
+}
+
+/**
+ * 5. Missing schedule alerts → Managers
+ */
+export async function notifyMissingSundaySchedule(
+  manager: { user_id: string; tg_id: string | number | null; first_name?: string | null; last_name?: string | null },
+  sectionName: string,
+  sundayDate: Date
+) {
+  if (!manager.tg_id) return;
+
+  const managerName = `${manager.first_name || ""} ${manager.last_name || ""}`.trim() || "Manager";
+  const title = "⚠️ Missing Sunday Schedule";
+  const plainMessage = `Hello ${managerName},\nNo schedule found for section "${sectionName}" on ${sundayDate.toLocaleDateString()}. Please add schedules.`;
+
+  await saveNotification(
+    manager.user_id,
+    title,
+    plainMessage,
+    "warning",
+    "/manager/schedules"
+  );
+
+  const telegramTitle = "⚠️ *Missing Sunday Schedule*";
+  const body = `
+${telegramTitle}
+
+*Section:*
+${escapeMarkdown(sectionName)}
+
+*Date:*
+${escapeMarkdown(sundayDate.toLocaleDateString())}
+`;
+
+  const deepLink = `[Add Schedule](${WEB_APP_URL}?startapp=manage_schedules)`;
+  const fullMessage = `${body}\n${deepLink}`;
+  await sendTelegramNotification(manager.tg_id.toString(), fullMessage);
+}

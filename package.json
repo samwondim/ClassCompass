@@ -9,6 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate",
+    "test": "vitest",
+    "test:run": "vitest run",
     "test:miniapp": "node scripts/test-miniapp.js",
     "test:dev": "node scripts/test-miniapp.js --dev && npm run dev",
     "bot:dev": "nodemon --ext ts --exec ts-node src/index.ts",
@@ -26,7 +28,8 @@
     "@types/node-cron": "^3.0.11",
     "nodemon": "^3.1.7",
     "ts-node": "^10.9.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.9"
   },
   "dependencies": {
     "@grammyjs/conversations": "^1.2.0",
