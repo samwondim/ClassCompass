@@ -1,10 +1,19 @@
 
-import { PrismaClient, User } from '@/generated/prisma'
 import prisma from '@/models/client';
 import { NextRequest, NextResponse } from "next/server";
+import { getUserRole } from '@/utils/data-access';
 
 export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const user = await getUserRole();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
+    if (user.user_role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
     const { id } = await params;
     const body = await request.json();
 
@@ -25,7 +34,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     console.error('Error updating user:', error);
 
     return NextResponse.json(
-      { error: 'Failed to update user', details: error.message },
+      { error: 'Failed to update user' },
       { status: 500 }
     );
   }
@@ -34,6 +43,14 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
 
   try {
+    const user = await getUserRole();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
+    if (user.user_role !== 'ADMIN') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
 
     const { id } = await params;
 
@@ -47,7 +64,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     console.error('Error deleting user:', error);
 
     return NextResponse.json(
-      { error: 'Failed to delete user', details: error.message },
+      { error: 'Failed to delete user' },
       { status: 500 }
     );
   }
@@ -55,6 +72,15 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 }
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const user = await getUserRole();
+
+  if (!user) {
+    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+  }
+  if (user.user_role !== 'ADMIN') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  }
+
   const { id } = await params;
   const body = await request.json();
 
@@ -71,6 +97,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
     return NextResponse.json(updated);
   } catch (err) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    return NextResponse.json({ error: 'Failed to update user' }, { status: 500 });
   }
 }

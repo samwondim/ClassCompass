@@ -21,7 +21,6 @@ export async function decrypt(input: string): Promise<any> {
 export async function getSession() {
   const cookieStore = await cookies()
   const session = cookieStore.get("session")?.value
-  console.log("Session value in getSession", session)
   if (!session) return null
   return await decrypt(session)
 }
@@ -40,6 +39,7 @@ export async function updateSession(request: NextRequest) {
     httpOnly: true,
     expires: parsed.expires as Date
   });
+  return res
 }
 
 

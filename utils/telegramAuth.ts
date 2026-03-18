@@ -37,16 +37,18 @@ export function validateTelegramWebAppData(initData: string, botToken: string): 
   const computed_hash = crypto.createHmac('sha256', secret_key)
     .update(data_check_string)
     .digest('hex');
-  if (computed_hash !== received_hash) {
+  const received = Buffer.from(received_hash, 'hex');
+  const computed = Buffer.from(computed_hash, 'hex');
+  if (received.length !== computed.length || !crypto.timingSafeEqual(received, computed)) {
     return { validatedData: null, user: {}, message: "Invalid hash: data integrity check failed" };
   }
   if (!('auth_date' in parsed_data)) {
     return { validatedData: null, user: {}, message: "Invalid init data: missing auth_date" };
   }
   const auth_date = parseInt(parsed_data['auth_date']);
-  // if ((Date.now() / 1000) - auth_date > 86400) {
-  //   return { validatedData: null, user: {}, message: "Data is outdated" };
-  // }
+  if ((Date.now() / 1000) - auth_date > 86400) {
+    return { validatedData: null, user: {}, message: "Data is outdated" };
+  }
   if (!('user' in parsed_data)) {
     return { validatedData: null, user: {}, message: "Invalid init data: missing user" };
   }

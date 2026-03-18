@@ -6,6 +6,14 @@ import { getSession } from '@/utils/session';
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const currentUser = await getSession().then(s => s?.fetched_user);
+        if (!currentUser) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+        if (!["MANAGER", "ADMIN"].includes(currentUser.user_role || "")) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+        }
+
         const { id } = await params;
         const body = await request.json();
         const { course_id, teacher_id, schedule_date } = body;
@@ -23,8 +31,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             return NextResponse.json({ error: "Selected teacher is not assigned to any section" }, { status: 400 });
         }
 
-        const currentUser = await getSession().then(s => s?.fetched_user);
-        const changerName = currentUser ? `${currentUser.first_name} ${currentUser.last_name || ''}`.trim() : "Admin";
+        const changerName = `${currentUser.first_name} ${currentUser.last_name || ''}`.trim() || "Admin";
 
         const updatedSchedule = await prisma.schedule.update({
             where: { schedule_id: id },
@@ -65,6 +72,14 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
+        const currentUser = await getSession().then(s => s?.fetched_user);
+        if (!currentUser) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+        if (!["MANAGER", "ADMIN"].includes(currentUser.user_role || "")) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+        }
+
         const { id } = await params;
 
         // Fetch before delete to notify
@@ -82,8 +97,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
                 where: { schedule_id: id },
             });
 
-            const currentUser = await getSession().then(s => s?.fetched_user);
-            const changerName = currentUser ? `${currentUser.first_name} ${currentUser.last_name || ''}`.trim() : "Admin";
+            const changerName = `${currentUser.first_name} ${currentUser.last_name || ''}`.trim() || "Admin";
 
             if (schedule.teacher.tg_id) {
                 const { notifyScheduleChange } = await import('@/utils/notifications');

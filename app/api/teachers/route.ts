@@ -6,11 +6,15 @@ import { getUserRole } from '@/utils/data-access';
 export async function GET(request: NextRequest) {
   try {
 
-    // const user = await getUserRole();
-    //
-    // if (!["MANAGER", "ADMIN"].includes(user?.user_role)) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    // }
+    const user = await getUserRole();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    if (!["MANAGER", "ADMIN"].includes(user.user_role || '')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+    }
     const teacherSections = await prisma.teacherSection.findMany({
       include: {
         teacher: {
@@ -146,8 +150,6 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Create teacher error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-  } finally {
-    await prisma.$disconnect()
   }
 }
 
@@ -155,29 +157,56 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
 
-    const { teacher_id } = await request.json()
+    const user = await getUserRole();
 
-    if (!teacher_id) {
-      return NextResponse.json({ error: 'teacher id is required' }, { status: 400 })
+    if (!user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
+    if (!["MANAGER", "ADMIN"].includes(user.user_role || '')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    // Check if phone number already exists for another teacher
-    const existingTeacher = await prisma.user.findFirst({
+    const { teacher_id, phone_number } = await request.json()
+
+    if (!teacher_id || !phone_number) {
+      return NextResponse.json({ error: 'teacher id and phone number are required' }, { status: 400 })
+    }
+
+    if (user.user_role === 'MANAGER') {
+      const managerSections = await prisma.managerSection.findMany({
+        where: { manager_id: user.user_id },
+        select: { section_id: true }
+      });
+      const managedSectionIds = managerSections.map(ms => ms.section_id);
+      const teacherSections = await prisma.teacherSection.findMany({
+        where: { teacher_id },
+        select: { section_id: true }
+      });
+      const teacherSectionIds = teacherSections.map(ts => ts.section_id);
+      const allowed = teacherSectionIds.some(id => managedSectionIds.includes(id));
+      if (!allowed) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+      }
+    }
+
+    // Check if phone number already exists for another user
+    const existingPhone = await prisma.user.findFirst({
       where: {
-        user_id: teacher_id,
+        phone_number: phone_number,
+        NOT: { user_id: teacher_id },
       }
     })
 
-    if (existingTeacher) {
+    if (existingPhone) {
       return NextResponse.json({ error: 'This phone number is already in use' }, { status: 409 })
     }
 
-    // const updatedTeacher = await prisma.teacher.update({
-    //   where: { id: currentTeacher.id },
-    //   data: { phone_number }
-    // })
+    const updatedTeacher = await prisma.user.update({
+      where: { user_id: teacher_id },
+      data: { phone_number }
+    })
 
-    return NextResponse.json({ existingTeacher })
+    return NextResponse.json({ teacher: updatedTeacher })
   } catch (error) {
     console.error('Update teacher error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -189,6 +218,15 @@ export async function PUT(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    const user = await getUserRole();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
+    if (!["MANAGER", "ADMIN"].includes(user.user_role || '')) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
     const { id } = await request.json()
     console.log("Teacher ID:", id)
 
@@ -201,6 +239,23 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Teacher not found' }, { status: 404 })
     }
 
+    if (user.user_role === 'MANAGER') {
+      const managerSections = await prisma.managerSection.findMany({
+        where: { manager_id: user.user_id },
+        select: { section_id: true }
+      });
+      const managedSectionIds = managerSections.map(ms => ms.section_id);
+      const teacherSections = await prisma.teacherSection.findMany({
+        where: { teacher_id: id },
+        select: { section_id: true }
+      });
+      const teacherSectionIds = teacherSections.map(ts => ts.section_id);
+      const allowed = teacherSectionIds.some(sectionId => managedSectionIds.includes(sectionId));
+      if (!allowed) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+      }
+    }
+
 
     await prisma.user.delete({
       where: { user_id: id }
@@ -210,7 +265,5 @@ export async function DELETE(request: NextRequest) {
   } catch (error) {
     console.error('Error deleting teacher:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-  } finally {
-    await prisma.$disconnect()
   }
 }

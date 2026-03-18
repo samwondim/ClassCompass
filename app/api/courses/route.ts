@@ -8,11 +8,17 @@ import { Course } from '@/app/models/models';
 
 export async function POST(req: Request) {
   try {
-    const created_by = await getSession().then(session => session.fetched_user.user_id);
+    const session = await getSession();
+    const created_by = session?.fetched_user?.user_id;
     const { course_name, verse, course_description, objectives } = await req.json();
 
     if (!created_by) {
-      return NextResponse.json({ error: "Missing created_by user_id" }, { status: 400 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const safeObjectives = Array.isArray(objectives) ? objectives : [];
+    if (!course_description) {
+      return NextResponse.json({ error: "Course description is required" }, { status: 400 });
     }
 
     const course = await prisma.course.create({
@@ -22,7 +28,7 @@ export async function POST(req: Request) {
         course_description,
         created_by,
         objectives: {
-          create: objectives.map((obj: string) => ({
+          create: safeObjectives.map((obj: string) => ({
             objective: obj,
           }))
         }
@@ -62,4 +68,3 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error instanceof Error ? error.message : 'Internal error' }, { status: 500 });
   }
 }
-

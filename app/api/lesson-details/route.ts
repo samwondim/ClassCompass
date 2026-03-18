@@ -1,6 +1,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
+import { getSession } from '@/utils/session'
 
 interface Lesson {
   course: string
@@ -17,13 +18,18 @@ interface Lesson {
 
 export async function GET(request: NextRequest) {
   try {
-    const phoneNumber = request.headers.get('x-phone-number')
-    if (!phoneNumber) {
+    const session = await getSession()
+    const user = session?.fetched_user
+
+    if (!user) {
       return NextResponse.json({ error: 'User not authenticated' }, { status: 401 })
+    }
+    if (user.user_role !== 'TEACHER') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
 
     const teacher = await prisma.user.findUnique({
-      where: { phone_number: phoneNumber },
+      where: { user_id: user.user_id },
       select: { user_id: true }
     })
     if (!teacher) {
@@ -86,7 +92,5 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching lesson details:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-  } finally {
-    await prisma.$disconnect()
   }
 }

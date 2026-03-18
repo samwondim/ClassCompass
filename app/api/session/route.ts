@@ -12,5 +12,6 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
-  await updateSession(request);
+  const res = await updateSession(request);
+  return res ?? NextResponse.json({ error: "No session" }, { status: 401 });
 }

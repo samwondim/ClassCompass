@@ -9,6 +9,10 @@ export async function GET(request: NextRequest) {
   try {
     const user = await getSession().then(session => session?.fetched_user);
 
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     if (user && user.user_role == "TEACHER") {
       const schedules = await prisma.schedule.findMany({
         where: {
@@ -24,6 +28,10 @@ export async function GET(request: NextRequest) {
 
       return NextResponse.json({ schedules });
     }
+    if (!["MANAGER", "ADMIN"].includes(user.user_role || "")) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
     const schedules = await prisma.schedule.findMany({
       include: {
         course: { select: { course_id: true, course_name: true, verse: true, course_description: true } },
@@ -41,6 +49,15 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await getSession().then(session => session?.fetched_user);
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    if (!["MANAGER", "ADMIN"].includes(user.user_role || "")) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
     const { course_id, teacher_id, schedule_date } = await request.json();
     console.log("AT SCHEDULE EP", teacher_id);
 
@@ -49,7 +66,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const existing_schedule = await prisma.schedule.findFirst({ where: { course_id: course_id, teacher_id: teacher_id } });
+    const scheduleDate = new Date(schedule_date);
+    const existing_schedule = await prisma.schedule.findFirst({
+      where: {
+        course_id: course_id,
+        teacher_id: teacher_id,
+        schedule_date: scheduleDate
+      }
+    });
 
     if (existing_schedule) {
       return NextResponse.json({ message: "Schedule already exists" }, { status: 400 });
@@ -79,7 +103,7 @@ export async function POST(request: NextRequest) {
         course: { connect: { course_id } },
         teacher: { connect: { user_id: teacher_id } },
         section: { connect: { section_id: teacherSection.section_id } },
-        schedule_date: new Date(schedule_date), // Parse ISO
+        schedule_date: scheduleDate, // Parse ISO
       },
       include: {
         course: { select: { course_id: true, course_name: true, verse: true, course_description: true } },
