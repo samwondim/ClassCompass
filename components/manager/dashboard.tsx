@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { useTranslations } from "next-intl"
 
 interface DashboardStats {
@@ -45,6 +46,9 @@ export function ManagerDashboard() {
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
   const t = useTranslations();
+  const pathname = usePathname()
+  const locale = pathname?.split("/")[1] || "am"
+  const managerBase = `/${locale}/manager`
 
   useEffect(() => {
     fetchDashboardData()
@@ -69,8 +73,18 @@ export function ManagerDashboard() {
         notificationsRes.json()
       ])
 
-      if (teachersRes.ok && sectionsRes.ok && schedulesRes.ok && coursesRes.ok) {
-        const allSchedules = schedulesData.schedules || []
+      if (!teachersRes.ok || !sectionsRes.ok || !schedulesRes.ok || !coursesRes.ok || !notificationsRes.ok) {
+        const errorMessage =
+          teachersData?.error ||
+          sectionsData?.error ||
+          schedulesData?.error ||
+          coursesData?.error ||
+          notificationsData?.error ||
+          "Failed to load dashboard data"
+        throw new Error(errorMessage)
+      }
+
+      const allSchedules = schedulesData.schedules || []
 
         // Filter upcoming schedules (next 7 days)
         const now = new Date()
@@ -89,14 +103,13 @@ export function ManagerDashboard() {
           unreadNotifications: notificationsData.notifications?.filter((n: any) => !n.is_read).length || 0
         })
 
-        setSections(sectionsData.sections || [])
-        setUpcomingSchedules(upcoming.slice(0, 5)) // Show top 5
-      }
+      setSections(sectionsData.sections || [])
+      setUpcomingSchedules(upcoming.slice(0, 5)) // Show top 5
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
       toast({
         title: 'Error',
-        description: 'Failed to load dashboard data',
+        description: error instanceof Error ? error.message : 'Failed to load dashboard data',
         variant: 'destructive'
       })
     } finally {
@@ -246,7 +259,7 @@ export function ManagerDashboard() {
               </CardTitle>
               <CardDescription>Classes scheduled for the next 7 days</CardDescription>
             </div>
-            <Link href="/manager/schedules">
+            <Link href={`${managerBase}/schedules`}>
               <Button variant="outline" size="sm">View All</Button>
             </Link>
           </div>
@@ -291,25 +304,25 @@ export function ManagerDashboard() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <Link href="/manager/teachers">
+            <Link href={`${managerBase}/teachers`}>
               <Button variant="outline" className="w-full">
                 <Users className="mr-2 h-4 w-4" />
                 Manage Teachers
               </Button>
             </Link>
-            <Link href="/manager/schedules">
+            <Link href={`${managerBase}/schedules`}>
               <Button variant="outline" className="w-full">
                 <Calendar className="mr-2 h-4 w-4" />
                 View Schedules
               </Button>
             </Link>
-            <Link href="/manager/courses">
+            <Link href={`${managerBase}/courses`}>
               <Button variant="outline" className="w-full">
                 <BookOpen className="mr-2 h-4 w-4" />
                 Browse Courses
               </Button>
             </Link>
-            <Link href="/manager/notifications">
+            <Link href={`${managerBase}/notifications`}>
               <Button variant="outline" className="w-full">
                 <Bell className="mr-2 h-4 w-4" />
                 Notifications

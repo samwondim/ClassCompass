@@ -18,7 +18,11 @@ import useToast from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 
-export function AddTeacherButton() {
+type AddTeacherButtonProps = {
+  role?: "ADMIN" | "MANAGER"
+}
+
+export function AddTeacherButton({ role = "MANAGER" }: AddTeacherButtonProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingSections, setLoadingSections] = useState(true);
@@ -36,28 +40,34 @@ export function AddTeacherButton() {
   const { toast } = useToast();
   const router = useRouter();
 
-  // Fetch ONLY manager's assigned sections
+  // Fetch sections based on role
   useEffect(() => {
-    async function fetchManagerSections() {
+    async function fetchSections() {
       setLoadingSections(true);
       try {
-        const res = await fetch("/api/managers/sections");
+        const endpoint = role === "ADMIN" ? "/api/sections" : "/api/managers/sections";
+        const res = await fetch(endpoint);
         if (!res.ok) {
-          throw new Error('Failed to fetch your assigned sections');
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err?.error || 'Failed to fetch sections');
         }
         const data = await res.json();
-        const managerSections = data.sections || [];
-        setSections(managerSections);
+        const rawSections = data.sections || [];
+        const normalizedSections = rawSections.map((s: any) => ({
+          section_id: s.section_id,
+          section_name: s.section_name
+        }))
+        setSections(normalizedSections);
 
         // Auto-select if only one section
-        if (managerSections.length === 1) {
-          setFormData(prev => ({ ...prev, section_id: managerSections[0].section_id }));
+        if (normalizedSections.length === 1) {
+          setFormData(prev => ({ ...prev, section_id: normalizedSections[0].section_id }));
         }
       } catch (err) {
         console.error("Failed to fetch sections:", err);
         toast({
           title: 'Error',
-          description: 'Failed to load your sections. Please try again.',
+          description: err instanceof Error ? err.message : 'Failed to load sections.',
           variant: 'destructive'
         });
       } finally {
@@ -65,9 +75,9 @@ export function AddTeacherButton() {
       }
     }
     if (open) {
-      fetchManagerSections();
+      fetchSections();
     }
-  }, [open, toast]);
+  }, [open, toast, role]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -168,7 +178,9 @@ export function AddTeacherButton() {
                 </div>
               ) : sections.length === 0 ? (
                 <div className="border p-2 rounded text-sm text-destructive">
-                  ክፍል አልተመደበሎትም እባኮ አድሚኑን ያናግሩ
+                  {role === "ADMIN"
+                    ? "አሁን የተመደበ ክፍል የለም። እባኮ በመጀመሪያ ክፍል ይፍጠሩ።"
+                    : "ክፍል አልተመደበሎትም እባኮ አድሚኑን ያናግሩ"}
                 </div>
               ) : sections.length === 1 ? (
                 <Input

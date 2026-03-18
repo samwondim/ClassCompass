@@ -40,7 +40,5 @@ export async function GET(request: NextRequest) {
     } catch (error) {
         console.error('Error fetching manager sections:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-    } finally {
-        await prisma.$disconnect();
     }
 }

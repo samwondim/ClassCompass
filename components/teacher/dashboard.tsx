@@ -25,13 +25,6 @@ interface Section {
   section_name: string
 }
 
-interface TeacherSection {
-  id: string
-  teacher_id: string
-  section_id: string
-  section: Section
-}
-
 interface Schedule {
   schedule_id: string
   course_id: string
@@ -40,7 +33,7 @@ interface Schedule {
   updated_at: Date
   schedule_date: Date
   course: Course
-  teacher_sections: TeacherSection[] // Link to sections via teacher
+  section?: Section
 }
 
 export function TeacherDashboard() {
@@ -93,7 +86,13 @@ export function TeacherDashboard() {
     .sort((a, b) => new Date(a.schedule_date).getTime() - new Date(b.schedule_date).getTime())[0]
 
   // Get sections for the teacher (from teacher_sections)
-  const teacherSections = []
+  const teacherSections = Array.from(
+    new Set(
+      schedules
+        .map((schedule) => schedule.section?.section_name)
+        .filter((name): name is string => Boolean(name))
+    )
+  )
 
   return (
     <div className="p-4 space-y-6">
@@ -256,7 +255,7 @@ function TeacherSchedule({ schedules, onRefresh }: { schedules: Schedule[]; onRe
                 <p className="text-sm text-muted-foreground">
                   {new Date(schedule.schedule_date).toLocaleString()}
                 </p>
-                <p className="text-xs">Sections: {schedule.teacher_sections.map(ts => ts.section.section_name).join(', ')}</p>
+                <p className="text-xs">Section: {schedule.section?.section_name || 'N/A'}</p>
               </div>
             ))}
           </div>

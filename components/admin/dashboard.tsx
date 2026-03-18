@@ -2,22 +2,13 @@
 'use client'
 
 import { useState } from "react"
-import { Calendar, Clock, FileSpreadsheet, Send, Users } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { AppLayout } from "@/components/app-layout"
-import { DataEntryForm } from "@/components/manager/data-entry-form"
-import { TeachersList } from "@/components/manager/teachers-list"
-import { ScheduleCalendar } from "@/components/manager/schedule-calendar"
-import { ManageReminders } from "@/components/manager/manage-reminders"
 import { AddTeacherForm } from "@/components/manager/add-teacher-form"
 import { AddCourseForm } from "@/components/manager/add-course-form"
 import { AddSectionForm } from "@/components/manager/add-section-form"
-import { ClassRepresentativeManagement } from "@/components/manager/class-representative-management"
 
 export function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState("dashboard")
   const [activeForm, setActiveForm] = useState<null | 'teacher' | 'course' | 'section'>(null)
 
   const handleToggleForm = (formType: 'teacher' | 'course' | 'section') => {
@@ -39,6 +30,9 @@ export function AdminDashboard() {
               <Button variant="secondary" onClick={() => handleToggleForm('teacher')}>
                 {activeForm === 'teacher' ? 'ተመለስ' : 'ተጠቃሚዎች  መዝግብ'}
               </Button>
+              <Button variant="secondary" onClick={() => handleToggleForm('course')}>
+                {activeForm === 'course' ? 'ተመለስ' : 'ትምህርት  መዝግብ'}
+              </Button>
               <Button variant="secondary" onClick={() => handleToggleForm('section')}>
                 {activeForm === 'section' ? 'ተመለስ' : 'ክፍል  መዝግብ'}
               </Button>
@@ -51,6 +45,12 @@ export function AdminDashboard() {
             )}
             {activeForm === 'section' && (
               <AddSectionForm
+                onCancel={() => setActiveForm(null)}
+                onSuccess={() => setActiveForm(null)}
+              />
+            )}
+            {activeForm === 'course' && (
+              <AddCourseForm
                 onCancel={() => setActiveForm(null)}
                 onSuccess={() => setActiveForm(null)}
               />

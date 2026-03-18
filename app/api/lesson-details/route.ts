@@ -6,11 +6,11 @@ import { getSession } from '@/utils/session'
 interface Lesson {
   course: string
   date: string
-  time: string
-  verse: string
-  section: string
-  topic: string
-  description: string
+  time?: string | null
+  verse?: string | null
+  section?: string | null
+  topic?: string | null
+  description?: string | null
   objectives: string[]
   materials: string[]
   schedule: { time: string; activity: string }[]
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     const schedule = await prisma.schedule.findFirst({
       where: { teacher_id: teacher.user_id, schedule_date: { gte: new Date() } },
       include: {
-        course: { select: { course_name: true, verse: true } },
+        course: { select: { course_name: true, verse: true, course_description: true, objectives: true } },
         section: { select: { section_name: true } }
       },
       orderBy: { schedule_date: 'asc' }
@@ -50,42 +50,27 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'No upcoming lessons found' }, { status: 404 })
     }
 
-    // Construct lesson details (simplified; expand as needed)
+    const courseName = schedule.course.course_name || schedule.course.course_description || 'Upcoming Lesson'
+
+    const objectives = schedule.course.objectives?.map(obj => obj.objective).filter(Boolean) || []
+
+    // Construct lesson details based on available data
     const lesson: Lesson = {
-      course: schedule.course.course_name,
+      course: courseName,
       date: new Date(schedule.schedule_date).toLocaleDateString('en-US', {
         weekday: 'long',
         month: 'long',
         day: 'numeric',
         year: 'numeric'
       }),
-      time: '10:30 AM - 11:30 AM', // Placeholder; fetch actual time if available
-      verse: schedule.course.verse || 'Matthew 5:16',
-      section: schedule.section.section_name || 'Room 203',
-      topic: 'Let Your Light Shine', // Placeholder; derive from course or add to schema
-      description: 'In this lesson, students will learn about being a light in the world and how their actions can reflect God\'s love to others.',
-      objectives: [
-        'Understand the meaning of ' + (schedule.course.verse || 'Matthew 5:16'),
-        'Identify ways to be a light in their homes and schools',
-        'Create a craft that represents being a light',
-        'Memorize the verse',
-      ],
-      materials: [
-        'Construction paper',
-        'Scissors',
-        'Glue',
-        'Markers',
-        'Battery-operated tea lights (one per student)',
-        'Printed verse cards',
-      ],
-      schedule: [
-        { time: '10:30 AM', activity: 'Welcome and Opening Prayer' },
-        { time: '10:35 AM', activity: 'Review Last Week\'s Lesson' },
-        { time: '10:40 AM', activity: 'Bible Story and Discussion' },
-        { time: '10:55 AM', activity: 'Memory Verse Activity' },
-        { time: '11:05 AM', activity: 'Craft: Paper Lanterns' },
-        { time: '11:25 AM', activity: 'Closing Prayer' },
-      ]
+      time: null,
+      verse: schedule.course.verse || null,
+      section: schedule.section.section_name || null,
+      topic: null,
+      description: schedule.course.course_description || null,
+      objectives,
+      materials: [],
+      schedule: []
     }
 
     return NextResponse.json({ lesson }, { status: 200 })

@@ -92,7 +92,7 @@ export default async function TeacherMgmtPage() {
     <div className="container mx-auto py-10 px-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Teachers</h1>
-        <AddTeacherButton />
+        <AddTeacherButton role="MANAGER" />
       </div>
       {data.length === 0 ? (
         <p className="text-muted-foreground">No teachers found.</p>
