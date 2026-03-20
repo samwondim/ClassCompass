@@ -2,12 +2,25 @@
 import { columns } from './columns';
 import { DataTable } from './data-table';
 import { Schedule } from '@/app/models/models'; // Adjust import
+import { cookies, headers } from "next/headers";
 
 async function getTeacherSchedules(): Promise<Schedule[]> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const headerList = headers();
+    const host = headerList.get("x-forwarded-host") || headerList.get("host");
+    const protocol = headerList.get("x-forwarded-proto") || "http";
+    const baseUrl =
+      (host ? `${protocol}://${host}` : "") ||
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      process.env.NEXT_PUBLIC_APP_URL ||
+      "http://localhost:3000";
+
+    const session = cookies().get("session")?.value;
+    const authHeaders = session ? { cookie: `session=${session}` } : {};
+
     const res = await fetch(`${baseUrl}/api/schedules`, {
       cache: 'no-store',
+      headers: authHeaders,
     });
 
     if (!res.ok) {

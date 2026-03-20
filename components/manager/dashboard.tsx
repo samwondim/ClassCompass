@@ -57,12 +57,13 @@ export function ManagerDashboard() {
   const fetchDashboardData = async () => {
     setLoading(true)
     try {
+      const requestOptions: RequestInit = { credentials: 'include' };
       const [teachersRes, sectionsRes, schedulesRes, coursesRes, notificationsRes] = await Promise.all([
-        fetch('/api/managers/teachers'),
-        fetch('/api/managers/sections'),
-        fetch('/api/managers/schedules'),
-        fetch('/api/courses'),
-        fetch('/api/notifications')
+        fetch('/api/managers/teachers', requestOptions),
+        fetch('/api/managers/sections', requestOptions),
+        fetch('/api/managers/schedules', requestOptions),
+        fetch('/api/courses', requestOptions),
+        fetch('/api/notifications', requestOptions)
       ])
 
       const [teachersData, sectionsData, schedulesData, coursesData, notificationsData] = await Promise.all([

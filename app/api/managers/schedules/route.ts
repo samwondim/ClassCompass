@@ -19,17 +19,24 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ error: 'Unauthorized: Only managers can access this endpoint' }, { status: 403 });
         }
 
-        // Get sections managed by this manager
-        const managerSections = await prisma.managerSection.findMany({
-            where: {
-                manager_id: user.user_id
-            },
-            select: {
-                section_id: true
-            }
-        });
+        // Get sections managed by this manager (both direct manager_id and ManagerSection join)
+        const [managerSections, directSections] = await Promise.all([
+            prisma.managerSection.findMany({
+                where: { manager_id: user.user_id },
+                select: { section_id: true },
+            }),
+            prisma.section.findMany({
+                where: { manager_id: user.user_id },
+                select: { section_id: true },
+            }),
+        ]);
 
-        const sectionIds = managerSections.map(ms => ms.section_id);
+        const sectionIds = Array.from(
+            new Set([
+                ...managerSections.map(ms => ms.section_id),
+                ...directSections.map(section => section.section_id),
+            ])
+        );
 
         if (sectionIds.length === 0) {
             return NextResponse.json({ schedules: [] }, { status: 200 });
@@ -73,7 +80,5 @@ export async function GET(request: NextRequest) {
     } catch (error) {
         console.error('Error fetching manager schedules:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-    } finally {
-        await prisma.$disconnect();
     }
 }
