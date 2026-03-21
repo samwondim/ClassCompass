@@ -1,0 +1,127 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { Label } from '@/components/ui/label'
+import useToast from '@/hooks/use-toast'
+import { Course } from '@/app/models/models'
+
+interface CourseEditFormProps {
+  course: Course
+  cancelHref: string
+  onSuccessHref: string
+}
+
+export function CourseEditForm({ course, cancelHref, onSuccessHref }: CourseEditFormProps) {
+  const { toast } = useToast()
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    course_name: course.course_name || '',
+    verse: course.verse || '',
+    course_description: course.course_description || '',
+  })
+  const [objectives, setObjectives] = useState<string[]>(
+    course.objectives && course.objectives.length > 0
+      ? course.objectives.map((o) => o.objective)
+      : ['']
+  )
+
+  const handleObjectiveChange = (index: number, value: string) => {
+    const newObjectives = [...objectives]
+    newObjectives[index] = value
+    setObjectives(newObjectives)
+  }
+
+  const addObjective = () => setObjectives([...objectives, ''])
+  const removeObjective = (index: number) => {
+    const newObjectives = [...objectives]
+    newObjectives.splice(index, 1)
+    setObjectives(newObjectives)
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!formData.course_name.trim()) {
+      toast({ title: 'Error', description: 'Course Name is required.', variant: 'destructive' })
+      return
+    }
+
+    const validObjectives = objectives.map((obj) => obj.trim()).filter((obj) => obj.length > 0)
+
+    setLoading(true)
+    try {
+      const res = await fetch(`/api/courses/${course.course_id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          course_name: formData.course_name,
+          verse: formData.verse,
+          course_description: formData.course_description,
+          objectives: validObjectives,
+        }),
+      })
+
+      if (!res.ok) throw new Error('Failed to update course.')
+
+      toast({ title: 'Success', description: 'Course updated.' })
+      router.push(onSuccessHref)
+      router.refresh()
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to update course.',
+        variant: 'destructive',
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div className="px-4 py-3">
+        <Label htmlFor="course_name">የትምህርት ዓርዕስ</Label>
+        <Input id="course_name" name="course_name" value={formData.course_name} onChange={(e) => setFormData({ ...formData, course_name: e.target.value })} required />
+      </div>
+      <div className="px-4 py-3">
+        <Label htmlFor="verse">ጥቅሥ</Label>
+        <Input id="verse" name="verse" value={formData.verse} onChange={(e) => setFormData({ ...formData, verse: e.target.value })} />
+      </div>
+      <div className="px-4 py-3">
+        <Label htmlFor="course_description">ስለ ትምህርቱ አጭር ማብራርያ</Label>
+        <Textarea id="course_description" name="course_description" value={formData.course_description} onChange={(e) => setFormData({ ...formData, course_description: e.target.value })} />
+      </div>
+      <div className="px-4 py-3">
+        <Label>የትምህርቱ አላማዎች</Label>
+        <div className="mt-2 space-y-2">
+          {objectives.map((objective, index) => (
+            <div key={index} className="flex gap-2">
+              <Input value={objective} onChange={(e) => handleObjectiveChange(index, e.target.value)} placeholder={`Objective ${index + 1}`} />
+              {objectives.length > 1 && (
+                <Button type="button" variant="ghost" onClick={() => removeObjective(index)}>
+                  አጥፋ
+                </Button>
+              )}
+            </div>
+          ))}
+          <Button type="button" variant="outline" onClick={addObjective}>
+            አዲስ አላማ ጨምር
+          </Button>
+        </div>
+      </div>
+      <div className="flex items-center justify-end gap-2 px-4 py-3">
+        <Button type="button" variant="ghost" onClick={() => router.push(cancelHref)}>
+          ተመለስ
+        </Button>
+        <Button type="submit" disabled={loading}>
+          {loading ? 'በመመዝገብ ላይ...' : 'አስተካክል'}
+        </Button>
+      </div>
+    </form>
+  )
+}

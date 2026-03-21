@@ -1,19 +1,15 @@
 
 'use client'
 
-import { useState } from "react"
+import { usePathname } from "next/navigation"
+import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { AddTeacherForm } from "@/components/manager/add-teacher-form"
-import { AddCourseForm } from "@/components/manager/add-course-form"
-import { AddSectionForm } from "@/components/manager/add-section-form"
 
 export function AdminDashboard() {
-  const [activeForm, setActiveForm] = useState<null | 'teacher' | 'course' | 'section'>(null)
-
-  const handleToggleForm = (formType: 'teacher' | 'course' | 'section') => {
-    setActiveForm(activeForm === formType ? null : formType)
-  }
+  const pathname = usePathname()
+  const locale = pathname?.split("/")[1] || "am"
+  const base = `/${locale}/admin`
 
   return (
     <div className="p-4">
@@ -27,34 +23,16 @@ export function AdminDashboard() {
         <CardContent className="flex flex-row justify-center">
           <div className="grid grid-cols-1 gap-3">
             <div className="grid grid-cols-3 gap-3">
-              <Button variant="secondary" onClick={() => handleToggleForm('teacher')}>
-                {activeForm === 'teacher' ? 'ተመለስ' : 'ተጠቃሚዎች  መዝግብ'}
-              </Button>
-              <Button variant="secondary" onClick={() => handleToggleForm('course')}>
-                {activeForm === 'course' ? 'ተመለስ' : 'ትምህርት  መዝግብ'}
-              </Button>
-              <Button variant="secondary" onClick={() => handleToggleForm('section')}>
-                {activeForm === 'section' ? 'ተመለስ' : 'ክፍል  መዝግብ'}
-              </Button>
+              <Link href={`${base}/teachers/new`}>
+                <Button variant="secondary">ተጠቃሚዎች መዝግብ</Button>
+              </Link>
+              <Link href={`${base}/courses/new`}>
+                <Button variant="secondary">ትምህርት መዝግብ</Button>
+              </Link>
+              <Link href={`${base}/sections/new`}>
+                <Button variant="secondary">ክፍል መዝግብ</Button>
+              </Link>
             </div>
-            {activeForm === 'teacher' && (
-              <AddTeacherForm
-                onCancel={() => setActiveForm(null)}
-                onSuccess={() => setActiveForm(null)}
-              />
-            )}
-            {activeForm === 'section' && (
-              <AddSectionForm
-                onCancel={() => setActiveForm(null)}
-                onSuccess={() => setActiveForm(null)}
-              />
-            )}
-            {activeForm === 'course' && (
-              <AddCourseForm
-                onCancel={() => setActiveForm(null)}
-                onSuccess={() => setActiveForm(null)}
-              />
-            )}
           </div>
         </CardContent>
       </Card>
