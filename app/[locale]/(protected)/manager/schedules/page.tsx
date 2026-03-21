@@ -2,7 +2,7 @@
 import { Schedule } from "@/app/models/models";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
-import { AddScheduleButton } from "./AddScheduleButton"; // move it to separate file
+import Link from "next/link";
 import { cookies, headers } from "next/headers";
 
 async function getData(): Promise<Schedule[]> {
@@ -38,14 +38,17 @@ async function getData(): Promise<Schedule[]> {
   }
 }
 
-export default async function SchedulesPage() {
+export default async function SchedulesPage({ params }: { params: { locale: string } }) {
   const data = await getData();
+  const base = `/${params.locale}/manager`;
 
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Schedules</h1>
-        <AddScheduleButton />
+        <Link href={`${base}/schedules/new`}>
+          <span className="inline-flex items-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white">Add Schedule</span>
+        </Link>
       </div>
 
       <DataTable columns={columns} data={data} />

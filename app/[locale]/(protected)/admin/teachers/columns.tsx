@@ -11,9 +11,30 @@ import {
 
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import EditTeacherForm from "./EditTeacherForm";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
+
+const TeacherActions = ({ teacherId }: { teacherId: string }) => {
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "am";
+  const editHref = `/${locale}/admin/teachers/${teacherId}/edit`;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem asChild>
+          <Link href={editHref}>መረጃ አስተካክል</Link>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
 
 export const columns: ColumnDef<Teacher>[] = [
   {
@@ -59,38 +80,12 @@ export const columns: ColumnDef<Teacher>[] = [
       };
 
       return (
-        <Dialog>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent align="end">
-              {/* EDIT */}
-              <DialogTrigger asChild>
-                <DropdownMenuItem>መረጃ አስተካክል</DropdownMenuItem>
-              </DialogTrigger>
-
-              {/* DELETE */}
-              <DropdownMenuItem
-                onClick={deleteUser}
-                className="text-destructive focus:text-destructive"
-              >
-                አጥፋ </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* MODAL CONTENT */}
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Edit Teacher</DialogTitle>
-            </DialogHeader>
-
-            <EditTeacherForm teacher={teacher} onClose={() => { }} />
-          </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-2">
+          <TeacherActions teacherId={teacher.user_id} />
+          <Button variant="ghost" className="h-8 px-2 text-destructive" onClick={deleteUser}>
+            አጥፋ
+          </Button>
+        </div>
       );
     },
   },

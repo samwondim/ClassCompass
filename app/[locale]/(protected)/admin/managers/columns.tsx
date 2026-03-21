@@ -2,13 +2,35 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 import { Manager } from "@/app/models/models"
-import EditManagerForm from "./EditManagerForm";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
+
+const ManagerActions = ({ managerId }: { managerId: string }) => {
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "am";
+  const editHref = `/${locale}/admin/managers/${managerId}/edit`;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem asChild>
+          <Link href={editHref}>መረጃ አስተካክል</Link>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
 export const columns: ColumnDef<Manager>[] = [
   {
     accessorKey: "first_name",
@@ -62,38 +84,12 @@ export const columns: ColumnDef<Manager>[] = [
         }
       };
       return (
-        <Dialog>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent align="end">
-              {/* EDIT */}
-              <DialogTrigger asChild>
-                <DropdownMenuItem>መረጃ አስተካክል</DropdownMenuItem>
-              </DialogTrigger>
-
-              {/* DELETE */}
-              <DropdownMenuItem
-                onClick={deleteUser}
-                className="text-destructive focus:text-destructive"
-              >
-                አጥፋ </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* MODAL CONTENT */}
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Edit Teacher</DialogTitle>
-            </DialogHeader>
-
-            <EditManagerForm manager={manager} onClose={() => { }} />
-          </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-2">
+          <ManagerActions managerId={manager.user_id} />
+          <Button variant="ghost" className="h-8 px-2 text-destructive" onClick={deleteUser}>
+            አጥፋ
+          </Button>
+        </div>
       );
     },
   }

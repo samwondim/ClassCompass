@@ -12,11 +12,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Course } from "@/app/models/models";
-import { EditCourseDialog } from "@/components/edit-course-dialog";
-import { useState } from "react";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 const ActionCell = ({ course }: { course: Course }) => {
-  const [showEditDialog, setShowEditDialog] = useState(false);
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "am";
+  const editHref = `/${locale}/manager/courses/${course.course_id}/edit`;
 
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this course?")) return;
@@ -36,33 +38,25 @@ const ActionCell = ({ course }: { course: Course }) => {
   };
 
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => navigator.clipboard.writeText(course.course_id)}>
-            Copy ID
-          </DropdownMenuItem>
-          <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setShowEditDialog(true); }}>
-            Edit Course
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive">
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <EditCourseDialog
-        course={course}
-        open={showEditDialog}
-        onOpenChange={setShowEditDialog}
-      />
-    </>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuItem onClick={() => navigator.clipboard.writeText(course.course_id)}>
+          Copy ID
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href={editHref}>Edit Course</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive">
+          Delete
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

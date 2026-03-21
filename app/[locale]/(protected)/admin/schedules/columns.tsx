@@ -7,11 +7,13 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Badge } from "@/components/ui/badge";
 import { format, parseISO } from 'date-fns';
 import { Schedule } from "@/app/models/models";
-import { useState } from "react";
-import { EditScheduleDialog } from "@/components/edit-schedule-dialog";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 const ActionCell = ({ schedule }: { schedule: Schedule }) => {
-  const [showEditDialog, setShowEditDialog] = useState(false);
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "am";
+  const editHref = `/${locale}/admin/schedules/${schedule.schedule_id}/edit`;
 
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this schedule?")) return;
@@ -32,29 +34,21 @@ const ActionCell = ({ schedule }: { schedule: Schedule }) => {
   };
 
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => navigator.clipboard.writeText(schedule.schedule_id)}>Copy ID</DropdownMenuItem>
-          <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setShowEditDialog(true); }}>
-            Edit Schedule
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive">Delete</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-
-      <EditScheduleDialog
-        schedule={schedule}
-        open={showEditDialog}
-        onOpenChange={setShowEditDialog}
-      />
-    </>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuItem onClick={() => navigator.clipboard.writeText(schedule.schedule_id)}>Copy ID</DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href={editHref}>Edit Schedule</Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive">Delete</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

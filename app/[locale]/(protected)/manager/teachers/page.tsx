@@ -3,7 +3,7 @@
 import { Teacher } from "@/app/models/models";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
-import { AddTeacherButton } from "@/components/add-teacher-button";
+import Link from "next/link";
 import { getUserRole } from "@/utils/data-access";
 import prisma from "@/models/client";
 import { redirect } from "next/navigation";
@@ -85,14 +85,17 @@ async function getData(): Promise<Teacher[]> {
   }
 }
 
-export default async function TeacherMgmtPage() {
+export default async function TeacherMgmtPage({ params }: { params: { locale: string } }) {
   const data = await getData();
+  const base = `/${params.locale}/manager`;
 
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Teachers</h1>
-        <AddTeacherButton role="MANAGER" />
+        <Link href={`${base}/teachers/new`}>
+          <span className="inline-flex items-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white">Add Teacher</span>
+        </Link>
       </div>
       {data.length === 0 ? (
         <p className="text-muted-foreground">No teachers found.</p>

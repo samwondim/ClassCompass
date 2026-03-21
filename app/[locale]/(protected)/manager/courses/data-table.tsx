@@ -22,8 +22,8 @@ import { Course } from "@/app/models/models"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Badge } from "@/components/ui/badge"
-import { EditCourseDialog } from "@/components/edit-course-dialog"
-import { useState } from "react"
+import { usePathname } from "next/navigation"
+import Link from "next/link"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -32,7 +32,9 @@ interface DataTableProps<TData, TValue> {
 
 // Mobile Card Component for Courses
 function CourseCard({ course }: { course: Course }) {
-  const [showEditDialog, setShowEditDialog] = useState(false);
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "am";
+  const editHref = `/${locale}/manager/courses/${course.course_id}/edit`;
 
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this course?")) return;
@@ -72,8 +74,8 @@ function CourseCard({ course }: { course: Course }) {
                 <DropdownMenuItem onClick={() => navigator.clipboard.writeText(course.course_id)}>
                   Copy ID
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setShowEditDialog(true); }}>
-                  Edit Course
+                <DropdownMenuItem asChild>
+                  <Link href={editHref}>Edit Course</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive">
                   Delete
@@ -120,11 +122,6 @@ function CourseCard({ course }: { course: Course }) {
         </CardContent>
       </Card>
 
-      <EditCourseDialog
-        course={course}
-        open={showEditDialog}
-        onOpenChange={setShowEditDialog}
-      />
     </>
   );
 }

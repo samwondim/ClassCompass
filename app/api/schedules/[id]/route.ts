@@ -2,11 +2,42 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/models/client';
 
-import { getSession } from '@/utils/session';
+import { getRequestUser } from '@/utils/request-auth';
+
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+    try {
+        const currentUser = await getRequestUser(request);
+        if (!currentUser) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+        if (!["MANAGER", "ADMIN"].includes(currentUser.user_role || "")) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+        }
+
+        const { id } = await params;
+        const schedule = await prisma.schedule.findUnique({
+            where: { schedule_id: id },
+            include: {
+                course: { select: { course_id: true, course_name: true, verse: true, course_description: true } },
+                teacher: { select: { user_id: true, first_name: true, last_name: true } },
+                section: { select: { section_id: true, section_name: true } },
+            }
+        });
+
+        if (!schedule) {
+            return NextResponse.json({ error: 'Schedule not found' }, { status: 404 });
+        }
+
+        return NextResponse.json({ schedule });
+    } catch (error) {
+        console.error("Get schedule error:", error);
+        return NextResponse.json({ error: "Failed to fetch schedule" }, { status: 500 });
+    }
+}
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-        const currentUser = await getSession().then(s => s?.fetched_user);
+        const currentUser = await getRequestUser(request);
         if (!currentUser) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
@@ -72,7 +103,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
-        const currentUser = await getSession().then(s => s?.fetched_user);
+        const currentUser = await getRequestUser(request);
         if (!currentUser) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }

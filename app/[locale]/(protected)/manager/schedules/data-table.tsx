@@ -20,11 +20,11 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Calendar, BookOpen, User } from "lucide-react"
 import { format, parseISO } from "date-fns"
 import { Schedule } from "@/app/models/models"
-import { useState } from "react"
+import { usePathname } from "next/navigation"
+import Link from "next/link"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { MoreHorizontal } from "lucide-react"
-import { EditScheduleDialog } from "@/components/edit-schedule-dialog"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -33,7 +33,9 @@ interface DataTableProps<TData, TValue> {
 
 // Mobile Card Component for Schedules
 function ScheduleCard({ schedule }: { schedule: Schedule }) {
-  const [showEditDialog, setShowEditDialog] = useState(false);
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "am";
+  const editHref = `/${locale}/manager/schedules/${schedule.schedule_id}/edit`;
 
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this schedule?")) return;
@@ -74,8 +76,8 @@ function ScheduleCard({ schedule }: { schedule: Schedule }) {
                 <DropdownMenuItem onClick={() => navigator.clipboard.writeText(schedule.schedule_id)}>
                   Copy ID
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={(e) => { e.preventDefault(); setShowEditDialog(true); }}>
-                  Edit Schedule
+                <DropdownMenuItem asChild>
+                  <Link href={editHref}>Edit Schedule</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive">
                   Delete
@@ -103,11 +105,6 @@ function ScheduleCard({ schedule }: { schedule: Schedule }) {
         </CardContent>
       </Card>
 
-      <EditScheduleDialog
-        schedule={schedule}
-        open={showEditDialog}
-        onOpenChange={setShowEditDialog}
-      />
     </>
   );
 }

@@ -21,8 +21,8 @@ import { User, Phone, MessageCircle, MapPin, MoreHorizontal } from "lucide-react
 import { Manager } from "@/app/models/models"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import EditManagerForm from "./EditManagerForm"
+import { usePathname } from "next/navigation"
+import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
 
 interface DataTableProps<TData, TValue> {
@@ -32,6 +32,9 @@ interface DataTableProps<TData, TValue> {
 
 // Mobile Card Component for Managers
 function ManagerCard({ manager }: { manager: Manager }) {
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "am";
+  const editHref = `/${locale}/admin/managers/${manager.user_id}/edit`;
   const deleteUser = async () => {
     const ok = confirm("Are you sure you want to delete this manager?");
     if (!ok) return;
@@ -48,8 +51,7 @@ function ManagerCard({ manager }: { manager: Manager }) {
   };
 
   return (
-    <Dialog>
-      <Card className="mb-3">
+    <Card className="mb-3">
         <CardContent className="p-4">
           <div className="flex justify-between items-start mb-3">
             <div className="flex items-center">
@@ -65,9 +67,9 @@ function ManagerCard({ manager }: { manager: Manager }) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DialogTrigger asChild>
-                  <DropdownMenuItem>Edit</DropdownMenuItem>
-                </DialogTrigger>
+                <DropdownMenuItem asChild>
+                  <Link href={editHref}>Edit</Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={deleteUser}
                   className="text-destructive focus:text-destructive"
@@ -111,13 +113,7 @@ function ManagerCard({ manager }: { manager: Manager }) {
         </CardContent>
       </Card>
 
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Edit Manager</DialogTitle>
-        </DialogHeader>
-        <EditManagerForm manager={manager} onClose={() => { }} />
-      </DialogContent>
-    </Dialog>
+      </Card>
   );
 }
 

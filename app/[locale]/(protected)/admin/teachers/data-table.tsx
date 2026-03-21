@@ -21,8 +21,8 @@ import { User, Phone, MessageCircle, MapPin, MoreHorizontal } from "lucide-react
 import { Teacher } from "@/app/models/models"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import EditTeacherForm from "./EditTeacherForm"
+import { usePathname } from "next/navigation"
+import Link from "next/link"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -31,6 +31,9 @@ interface DataTableProps<TData, TValue> {
 
 // Mobile Card Component for Teachers
 function TeacherCard({ teacher }: { teacher: Teacher }) {
+  const pathname = usePathname();
+  const locale = pathname?.split("/")[1] || "am";
+  const editHref = `/${locale}/admin/teachers/${teacher.user_id}/edit`;
   const deleteUser = async () => {
     const ok = confirm("Are you sure you want to delete this teacher?");
     if (!ok) return;
@@ -47,8 +50,7 @@ function TeacherCard({ teacher }: { teacher: Teacher }) {
   };
 
   return (
-    <Dialog>
-      <Card className="mb-3">
+    <Card className="mb-3">
         <CardContent className="p-4">
           <div className="flex justify-between items-start mb-3">
             <div className="flex items-center">
@@ -64,9 +66,9 @@ function TeacherCard({ teacher }: { teacher: Teacher }) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DialogTrigger asChild>
-                  <DropdownMenuItem>Edit</DropdownMenuItem>
-                </DialogTrigger>
+                <DropdownMenuItem asChild>
+                  <Link href={editHref}>Edit</Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={deleteUser}
                   className="text-destructive focus:text-destructive"
@@ -102,13 +104,7 @@ function TeacherCard({ teacher }: { teacher: Teacher }) {
         </CardContent>
       </Card>
 
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Edit Teacher</DialogTitle>
-        </DialogHeader>
-        <EditTeacherForm teacher={teacher} onClose={() => { }} />
-      </DialogContent>
-    </Dialog>
+      </Card>
   );
 }
 
