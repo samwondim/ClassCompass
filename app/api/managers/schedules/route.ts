@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/models/client';
-import { getUserRole } from '@/utils/data-access';
+import { getRequestUser } from '@/utils/request-auth';
 
 /**
  * GET /api/managers/schedules
@@ -9,7 +9,7 @@ import { getUserRole } from '@/utils/data-access';
 export async function GET(request: NextRequest) {
     try {
         // Get authenticated user
-        const user = await getUserRole();
+        const user = await getRequestUser(request);
 
         if (!user) {
             return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });

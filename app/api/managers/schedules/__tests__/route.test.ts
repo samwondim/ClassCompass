@@ -2,7 +2,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 
 import { GET } from "../route";
 import prisma from "@/models/client";
-import { getUserRole } from "@/utils/data-access";
+import { getRequestUser } from "@/utils/request-auth";
 
 vi.mock("@/models/client", () => {
   return {
@@ -14,9 +14,9 @@ vi.mock("@/models/client", () => {
   };
 });
 
-vi.mock("@/utils/data-access", () => {
+vi.mock("@/utils/request-auth", () => {
   return {
-    getUserRole: vi.fn(),
+    getRequestUser: vi.fn(),
   };
 });
 
@@ -26,7 +26,7 @@ const prismaMock = prisma as unknown as {
   schedule: { findMany: ReturnType<typeof vi.fn> };
 };
 
-const getUserRoleMock = getUserRole as unknown as ReturnType<typeof vi.fn>;
+const getRequestUserMock = getRequestUser as unknown as ReturnType<typeof vi.fn>;
 
 describe("GET /api/managers/schedules", () => {
   beforeEach(() => {
@@ -34,7 +34,7 @@ describe("GET /api/managers/schedules", () => {
   });
 
   it("unions section ids from managerSection and direct section manager_id", async () => {
-    getUserRoleMock.mockResolvedValue({ user_id: "manager-1", user_role: "MANAGER" });
+    getRequestUserMock.mockResolvedValue({ user_id: "manager-1", user_role: "MANAGER" });
 
     prismaMock.managerSection.findMany.mockResolvedValue([
       { section_id: "section-a" },

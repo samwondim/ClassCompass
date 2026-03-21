@@ -3,11 +3,11 @@ import prisma from '@/models/client';
 
 export const dynamic = 'force-dynamic';
 
-import { getSession } from '@/utils/session';
+import { getRequestUser } from '@/utils/request-auth';
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await getSession().then(session => session?.fetched_user);
+    const user = await getRequestUser(request);
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await getSession().then(session => session?.fetched_user);
+    const user = await getRequestUser(request);
 
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Course not found" }, { status: 404 });
     }
 
-    const currentUser = await getSession().then(s => s?.fetched_user);
+    const currentUser = await getRequestUser(request);
     const changerName = currentUser ? `${currentUser.first_name} ${currentUser.last_name || ''}`.trim() : "Admin";
 
     const schedule = await prisma.schedule.create({

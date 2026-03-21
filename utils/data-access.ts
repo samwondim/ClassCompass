@@ -7,9 +7,14 @@ export async function getUserRole() {
 
     if (!session || !session.fetched_user) return null;
 
+    const userId = session.fetched_user.user_id;
     const user = await prisma.user.findUnique({
-        where: { tg_username: session.fetched_user.tg_username },
-    })
+        where: { user_id: userId },
+    }) || (session.fetched_user.tg_username
+        ? await prisma.user.findUnique({
+            where: { tg_username: session.fetched_user.tg_username },
+        })
+        : null);
     console.log("Inside getUserRole", user)
 
     return user;

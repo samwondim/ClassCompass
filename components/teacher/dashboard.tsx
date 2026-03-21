@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import useToast from '@/hooks/use-toast'
+import { useTelegram } from '@/components/telegram-provider'
 
 // Types based on Prisma schema
 interface Objective {
@@ -42,6 +43,7 @@ export function TeacherDashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
+  const { webApp } = useTelegram()
 
   useEffect(() => {
     fetchSchedules()
@@ -52,8 +54,14 @@ export function TeacherDashboard() {
     setError(null)
     try {
 
+      const authHeaders: HeadersInit = {}
+      if (webApp?.initData) {
+        authHeaders['x-telegram-init-data'] = webApp.initData
+      }
+
       const response = await fetch(`/api/schedules`, {
-        credentials: 'include' // Send session cookie
+        credentials: 'include', // Send session cookie
+        headers: authHeaders,
       })
       const data = await response.json()
       if (response.ok) {

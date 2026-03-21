@@ -16,7 +16,7 @@ export default async function ProtectedLayout({
   if (!session) redirect(`/${locale}`)
 
   const user = await prisma.user.findUnique({
-    where: { tg_username: session.fetched_user.tg_username },
+    where: { user_id: session.fetched_user.user_id },
   })
 
   if (!user) redirect(`/${locale}`) // Handle case where user doesn't exist

@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTranslations } from "next-intl"
+import { useTelegram } from "@/components/telegram-provider"
 
 interface DashboardStats {
   teachers: number
@@ -49,6 +50,7 @@ export function ManagerDashboard() {
   const pathname = usePathname()
   const locale = pathname?.split("/")[1] || "am"
   const managerBase = `/${locale}/manager`
+  const { webApp } = useTelegram()
 
   useEffect(() => {
     fetchDashboardData()
@@ -57,7 +59,11 @@ export function ManagerDashboard() {
   const fetchDashboardData = async () => {
     setLoading(true)
     try {
-      const requestOptions: RequestInit = { credentials: 'include' };
+      const authHeaders: HeadersInit = {}
+      if (webApp?.initData) {
+        authHeaders['x-telegram-init-data'] = webApp.initData
+      }
+      const requestOptions: RequestInit = { credentials: 'include', headers: authHeaders };
       const [teachersRes, sectionsRes, schedulesRes, coursesRes, notificationsRes] = await Promise.all([
         fetch('/api/managers/teachers', requestOptions),
         fetch('/api/managers/sections', requestOptions),
