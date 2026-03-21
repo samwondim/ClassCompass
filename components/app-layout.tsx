@@ -2,8 +2,8 @@
 import React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { redirect, usePathname } from "next/navigation"
-import { Calendar, Home, BookOpen, Settings, LogOut, User, Bell, LayoutDashboard, BrainCog, LayoutDashboardIcon } from "lucide-react"
+import { redirect, usePathname, useRouter } from "next/navigation"
+import { Calendar, Home, BookOpen, Settings, LogOut, User, Bell, LayoutDashboard, BrainCog, LayoutDashboardIcon, ChevronLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -25,6 +25,7 @@ async function logout() {
 
 export function AppLayout({ children, userRole }: AppLayoutProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const [isMounted, setIsMounted] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
   const t = useTranslations()
@@ -33,6 +34,53 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
     setIsMounted(true)
     fetchUnreadCount()
   }, [])
+
+  const locale = pathname?.split("/")[1] || "am"
+  const rolePath = userRole ? `/${locale}/${userRole.toLowerCase()}` : `/${locale}`
+
+  const handleBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.back()
+    } else {
+      router.push(rolePath)
+    }
+  }
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return
+      if (event.key !== "Escape") return
+      const target = event.target as HTMLElement | null
+      const tag = target?.tagName?.toLowerCase()
+      if (tag === "input" || tag === "textarea" || tag === "select" || target?.isContentEditable) {
+        return
+      }
+      handleBack()
+    }
+
+    window.addEventListener("keydown", onKeyDown)
+    return () => window.removeEventListener("keydown", onKeyDown)
+  }, [rolePath])
+
+  const touchStart = React.useRef<{ x: number; y: number } | null>(null)
+  const handleTouchStart = (event: React.TouchEvent) => {
+    const touch = event.touches[0]
+    touchStart.current = { x: touch.clientX, y: touch.clientY }
+  }
+
+  const handleTouchEnd = (event: React.TouchEvent) => {
+    const start = touchStart.current
+    if (!start) return
+    const touch = event.changedTouches[0]
+    const deltaX = touch.clientX - start.x
+    const deltaY = touch.clientY - start.y
+    const absX = Math.abs(deltaX)
+    const absY = Math.abs(deltaY)
+    touchStart.current = null
+
+    if (absX < 60 || absX < absY * 1.5) return
+    handleBack()
+  }
 
   const fetchUnreadCount = async () => {
     try {
@@ -93,6 +141,9 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
       {/* Top Navigation */}
       <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-white px-4">
         <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={handleBack} aria-label="Back">
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="outline" size="icon" className="md:hidden">
@@ -210,7 +261,13 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
           </div>
         </nav>
         {/* Content - Added pb-20 on mobile to account for fixed bottom nav */}
-        <main className="flex-1 pb-20 md:pb-0">{children}</main>
+        <main
+          className="flex-1 pb-20 md:pb-0"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          {children}
+        </main>
       </div>
       {/* Bottom Navigation (mobile only) - Now fixed/sticky */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-white z-50 shadow-lg">
