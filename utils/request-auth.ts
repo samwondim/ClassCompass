@@ -4,7 +4,7 @@ import { validateTelegramWebAppData } from "@/utils/telegramAuth";
 import { getSession } from "@/utils/session";
 
 export async function getRequestUser(request: NextRequest) {
-  const sessionUser = await getSession().then((session) => session?.fetched_user);
+  const sessionUser = await getSession(request).then((session) => session?.fetched_user);
   if (sessionUser) return sessionUser;
 
   const initData = request.headers.get("x-telegram-init-data");

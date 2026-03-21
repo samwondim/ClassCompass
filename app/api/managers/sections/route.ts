@@ -9,7 +9,7 @@ import { getUserRole } from '@/utils/data-access';
 export async function GET(request: NextRequest) {
     try {
         // Get authenticated user
-        const user = await getUserRole();
+        const user = await getUserRole(request);
 
         if (!user) {
             return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });

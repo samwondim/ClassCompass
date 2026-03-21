@@ -32,7 +32,7 @@ async function authMiddleware(request: NextRequest) {
     return NextResponse.next();
 
   // Load session using request
-  const session = await getSession();
+  const session = await getSession(request);
   const sessionCookie = request.cookies.get("session")?.value;
 
   if (!session) {
@@ -128,4 +128,3 @@ export const config = {
     '/((?!_next/static|_next/image|favicon.ico|api|.*\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };
-

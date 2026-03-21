@@ -18,7 +18,7 @@ interface Lesson {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getSession()
+    const session = await getSession(request)
     const user = session?.fetched_user
 
     if (!user) {

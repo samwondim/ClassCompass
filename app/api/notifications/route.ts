@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 // GET /api/notifications - Get user's notifications
 export async function GET(request: NextRequest) {
     try {
-        const user = await getSession().then(s => s?.fetched_user);
+        const user = await getSession(request).then(s => s?.fetched_user);
 
         if (!user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 // PATCH /api/notifications - Mark notification(s) as read
 export async function PATCH(request: NextRequest) {
     try {
-        const user = await getSession().then(s => s?.fetched_user);
+        const user = await getSession(request).then(s => s?.fetched_user);
 
         if (!user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -59,7 +59,7 @@ export async function PATCH(request: NextRequest) {
 // DELETE /api/notifications - Delete notification(s)
 export async function DELETE(request: NextRequest) {
     try {
-        const user = await getSession().then(s => s?.fetched_user);
+        const user = await getSession(request).then(s => s?.fetched_user);
 
         if (!user) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

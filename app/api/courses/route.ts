@@ -6,11 +6,11 @@ export const dynamic = 'force-dynamic';
 import { getSession } from '@/utils/session';
 import { Course } from '@/app/models/models';
 
-export async function POST(req: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const session = await getSession();
+    const session = await getSession(request);
     const created_by = session?.fetched_user?.user_id;
-    const { course_name, verse, course_description, objectives } = await req.json();
+    const { course_name, verse, course_description, objectives } = await request.json();
 
     if (!created_by) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

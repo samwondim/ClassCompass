@@ -1,5 +1,4 @@
 import prisma from '@/models/client';
-import { getUserRole } from '@/utils/data-access';
 import { NextRequest, NextResponse } from "next/server";
 
 // GET /api/sections - Get all sections

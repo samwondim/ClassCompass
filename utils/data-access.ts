@@ -1,9 +1,10 @@
+import type { NextRequest } from "next/server";
 import prisma from "@/models/client";
 import { getSession } from "./session";
 
-export async function getUserRole() {
+export async function getUserRole(request?: NextRequest) {
 
-    const session = await getSession()
+    const session = await getSession(request)
 
     if (!session || !session.fetched_user) return null;
 

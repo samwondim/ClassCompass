@@ -18,8 +18,8 @@ export async function decrypt(input: string): Promise<any> {
   return payload
 }
 
-export async function getSession() {
-  const cookieStore = await cookies()
+export async function getSession(request?: NextRequest) {
+  const cookieStore = request ? request.cookies : await cookies()
   const session = cookieStore.get("session")?.value
   if (!session) return null
   return await decrypt(session)

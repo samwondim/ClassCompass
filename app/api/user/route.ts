@@ -5,7 +5,7 @@ import { getUserRole } from '@/utils/data-access';
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await getUserRole();
+    const user = await getUserRole(request);
 
     if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const user = await getUserRole();
+    const user = await getUserRole(request);
 
     if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
