@@ -260,26 +260,28 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
             ))}
           </div>
         </nav>
-        {/* Content - Added pb-20 on mobile to account for fixed bottom nav */}
+        {/* Content - Added pb-24 on mobile to account for floating bottom nav */}
         <main
-          className="flex-1 pb-20 md:pb-0"
+          className="flex-1 pb-24 md:pb-0"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
           {children}
         </main>
       </div>
-      {/* Bottom Navigation (mobile only) - Now fixed/sticky */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 border-t bg-white z-50 shadow-lg">
-        <nav className="flex items-center justify-around">
+      {/* Bottom Navigation (mobile only) - Floating Telegram-style */}
+      <div className="md:hidden fixed bottom-4 left-4 right-4 z-50">
+        <nav className="flex items-center justify-around rounded-2xl bg-white/95 shadow-xl border border-slate-200 backdrop-blur px-2 py-1">
           {navItems.map((item, index) => (
             <Link
               key={index}
               href={item.href}
-              className={`flex flex-1 flex-col items-center gap-1 py-2 text-xs ${isActive(item.href) ? "text-sky-700 font-medium" : "text-slate-600"
+              className={`flex flex-1 flex-col items-center gap-1 py-2 text-[11px] transition ${isActive(item.href) ? "text-sky-700 font-semibold" : "text-slate-600"
                 }`}
             >
-              <item.icon className="h-5 w-5" />
+              <span className={`flex h-9 w-9 items-center justify-center rounded-full ${isActive(item.href) ? "bg-sky-100" : "bg-slate-100"}`}>
+                <item.icon className="h-5 w-5" />
+              </span>
               {item.label}
             </Link>
           ))}
