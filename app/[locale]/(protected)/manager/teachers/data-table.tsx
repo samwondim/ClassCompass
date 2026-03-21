@@ -103,8 +103,6 @@ function TeacherCard({ teacher }: { teacher: Teacher }) {
           </div>
         </CardContent>
       </Card>
-
-      </Card>
   );
 }
 

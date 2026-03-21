@@ -112,8 +112,6 @@ function ManagerCard({ manager }: { manager: Manager }) {
           </div>
         </CardContent>
       </Card>
-
-      </Card>
   );
 }
 
