@@ -3,15 +3,11 @@ import { Schedule } from "@/app/models/models";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import Link from "next/link";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 
 async function getData(): Promise<Schedule[]> {
   try {
-    const headerList = headers();
-    const host = headerList.get("x-forwarded-host") || headerList.get("host");
-    const protocol = headerList.get("x-forwarded-proto") || "http";
     const baseUrl =
-      (host ? `${protocol}://${host}` : "") ||
       process.env.NEXT_PUBLIC_BASE_URL ||
       process.env.NEXT_PUBLIC_APP_URL ||
       "http://localhost:3000";
