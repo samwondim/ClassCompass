@@ -4,6 +4,26 @@ import prisma from '@/models/client';
 
 import { getRequestUser } from '@/utils/request-auth';
 
+async function managerCanAccessSection(managerId: string, sectionId: string): Promise<boolean> {
+    const [managerSections, directSections] = await Promise.all([
+        prisma.managerSection.findMany({
+            where: { manager_id: managerId },
+            select: { section_id: true },
+        }),
+        prisma.section.findMany({
+            where: { manager_id: managerId },
+            select: { section_id: true },
+        }),
+    ]);
+
+    const allowedSectionIds = new Set([
+        ...managerSections.map(ms => ms.section_id),
+        ...directSections.map(s => s.section_id),
+    ]);
+
+    return allowedSectionIds.has(sectionId);
+}
+
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
         const currentUser = await getRequestUser(request);
@@ -28,6 +48,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
             return NextResponse.json({ error: 'Schedule not found' }, { status: 404 });
         }
 
+        if (currentUser.user_role === 'MANAGER') {
+            const hasAccess = await managerCanAccessSection(currentUser.user_id, schedule.section.section_id);
+            if (!hasAccess) {
+                return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+            }
+        }
+
         return NextResponse.json({ schedule });
     } catch (error) {
         console.error("Get schedule error:", error);
@@ -46,6 +73,23 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         }
 
         const { id } = await params;
+
+        const existingSchedule = await prisma.schedule.findUnique({
+            where: { schedule_id: id },
+            select: { section_id: true },
+        });
+
+        if (!existingSchedule) {
+            return NextResponse.json({ error: 'Schedule not found' }, { status: 404 });
+        }
+
+        if (currentUser.user_role === 'MANAGER') {
+            const hasAccess = await managerCanAccessSection(currentUser.user_id, existingSchedule.section_id);
+            if (!hasAccess) {
+                return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+            }
+        }
+
         const body = await request.json();
         const { course_id, teacher_id, schedule_date } = body;
 
@@ -53,13 +97,19 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        // Lookup Teacher's Section
         const teacherSection = await prisma.teacherSection.findFirst({
             where: { teacher_id: teacher_id }
         });
 
         if (!teacherSection) {
             return NextResponse.json({ error: "Selected teacher is not assigned to any section" }, { status: 400 });
+        }
+
+        if (currentUser.user_role === 'MANAGER') {
+            const hasAccess = await managerCanAccessSection(currentUser.user_id, teacherSection.section_id);
+            if (!hasAccess) {
+                return NextResponse.json({ error: "Cannot assign schedule to a teacher outside your sections" }, { status: 403 });
+            }
         }
 
         const changerName = `${currentUser.first_name} ${currentUser.last_name || ''}`.trim() || "Admin";
@@ -79,7 +129,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             }
         });
 
-        // Notify Teacher
         if (updatedSchedule.teacher.tg_id) {
             const { notifyScheduleChange } = await import('@/utils/notifications');
             const detail = `Date: ${new Date(schedule_date).toLocaleString()}\nSection: ${updatedSchedule.section.section_name}`;
@@ -113,7 +162,6 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 
         const { id } = await params;
 
-        // Fetch before delete to notify
         const schedule = await prisma.schedule.findUnique({
             where: { schedule_id: id },
             include: {
@@ -123,25 +171,34 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
             }
         });
 
-        if (schedule) {
-            await prisma.schedule.delete({
-                where: { schedule_id: id },
-            });
+        if (!schedule) {
+            return NextResponse.json({ error: 'Schedule not found' }, { status: 404 });
+        }
 
-            const changerName = `${currentUser.first_name} ${currentUser.last_name || ''}`.trim() || "Admin";
-
-            if (schedule.teacher.tg_id) {
-                const { notifyScheduleChange } = await import('@/utils/notifications');
-                const detail = `Date: ${new Date(schedule.schedule_date).toLocaleString()}\nSection: ${schedule.section.section_name}`;
-                await notifyScheduleChange(
-                    schedule.teacher.user_id,
-                    schedule.teacher.tg_id.toString(),
-                    'Removed',
-                    schedule.course.course_name || schedule.course.course_description || 'Unknown Course',
-                    changerName,
-                    detail
-                );
+        if (currentUser.user_role === 'MANAGER') {
+            const hasAccess = await managerCanAccessSection(currentUser.user_id, schedule.section.section_id);
+            if (!hasAccess) {
+                return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
             }
+        }
+
+        await prisma.schedule.delete({
+            where: { schedule_id: id },
+        });
+
+        const changerName = `${currentUser.first_name} ${currentUser.last_name || ''}`.trim() || "Admin";
+
+        if (schedule.teacher.tg_id) {
+            const { notifyScheduleChange } = await import('@/utils/notifications');
+            const detail = `Date: ${new Date(schedule.schedule_date).toLocaleString()}\nSection: ${schedule.section.section_name}`;
+            await notifyScheduleChange(
+                schedule.teacher.user_id,
+                schedule.teacher.tg_id.toString(),
+                'Removed',
+                schedule.course.course_name || schedule.course.course_description || 'Unknown Course',
+                changerName,
+                detail
+            );
         }
 
         return NextResponse.json({ message: "Schedule deleted successfully" });
