@@ -1,14 +1,26 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import useToast from '@/hooks/use-toast'
 
+interface TeacherSection {
+  section: { section_id: string; section_name: string }
+}
+
 interface UserEditFormProps {
-  user: { user_id: string; first_name: string; last_name: string; phone_number: string; tg_username: string }
+  user: {
+    user_id: string
+    first_name: string
+    last_name: string
+    phone_number: string
+    tg_username: string
+    teacher_sections?: TeacherSection[]
+  }
   cancelHref: string
   onSuccessHref: string
 }
@@ -21,6 +33,29 @@ export function UserEditForm({ user, cancelHref, onSuccessHref }: UserEditFormPr
   const [lastName, setLastName] = useState(user.last_name)
   const [phoneNumber, setPhoneNumber] = useState(user.phone_number)
   const [tgUsername, setTgUsername] = useState(user.tg_username)
+  const [sections, setSections] = useState<Array<{ section_id: string; section_name: string }>>([])
+  const [selectedSections, setSelectedSections] = useState<string[]>(
+    user.teacher_sections?.map((ts) => ts.section.section_id) || []
+  )
+
+  useEffect(() => {
+    const loadSections = async () => {
+      try {
+        const res = await fetch('/api/sections')
+        const data = await res.json()
+        setSections(data.sections || [])
+      } catch (error) {
+        console.error('Failed to load sections:', error)
+      }
+    }
+    loadSections()
+  }, [])
+
+  const toggleSection = (id: string) => {
+    setSelectedSections((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+    )
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -34,6 +69,7 @@ export function UserEditForm({ user, cancelHref, onSuccessHref }: UserEditFormPr
           last_name: lastName,
           phone_number: phoneNumber,
           tg_username: tgUsername,
+          sectionIds: selectedSections,
         }),
       })
 
@@ -71,12 +107,32 @@ export function UserEditForm({ user, cancelHref, onSuccessHref }: UserEditFormPr
         <Label htmlFor="tg_username">Telegram Username</Label>
         <Input id="tg_username" value={tgUsername} onChange={(e) => setTgUsername(e.target.value)} />
       </div>
+      <div className="px-4 py-3">
+        <Label>ክፍሎች (Sections)</Label>
+        <Select onValueChange={(value) => toggleSection(value)}>
+          <SelectTrigger className="mt-2">
+            <SelectValue placeholder="ክፍል ይምረጡ" />
+          </SelectTrigger>
+          <SelectContent>
+            {sections.map((sec) => (
+              <SelectItem key={sec.section_id} value={sec.section_id}>
+                <span className={selectedSections.includes(sec.section_id) ? 'font-semibold' : ''}>
+                  {sec.section_name}
+                </span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <div className="mt-2 text-sm text-muted-foreground">
+          Selected: {selectedSections.length > 0 ? selectedSections.length : 'None'}
+        </div>
+      </div>
       <div className="flex items-center justify-end gap-2 px-4 py-3">
         <Button type="button" variant="ghost" onClick={() => router.push(cancelHref)}>
           ተመለስ
         </Button>
         <Button type="submit" disabled={loading}>
-          {loading ? 'በመመዝገብ ላይ...' : 'አስተካክል'}
+          {loading ? 'በመመዝገብ ላዋ...' : 'አስተካክል'}
         </Button>
       </div>
     </form>

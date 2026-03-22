@@ -24,7 +24,18 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     if (!user) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
 
     const { id } = await params;
-    const target = await prisma.user.findUnique({ where: { user_id: id } });
+    const target = await prisma.user.findUnique({
+      where: { user_id: id },
+      include: {
+        teacher_sections: {
+          include: {
+            section: {
+              select: { section_id: true, section_name: true }
+            }
+          }
+        }
+      }
+    });
     if (!target) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
     if (user.user_role === 'ADMIN') {
@@ -137,15 +148,32 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       }
     }
 
+    const { sectionIds, ...userData } = body;
+
     const updated = await prisma.user.update({
       where: { user_id: id },
       data: {
-        first_name: body.first_name,
-        last_name: body.last_name,
-        phone_number: body.phone_number,
-        tg_username: body.tg_username,
+        first_name: userData.first_name,
+        last_name: userData.last_name,
+        phone_number: userData.phone_number,
+        tg_username: userData.tg_username,
       }
     });
+
+    if (sectionIds !== undefined) {
+      await prisma.teacherSection.deleteMany({
+        where: { teacher_id: id }
+      });
+
+      if (sectionIds.length > 0) {
+        await prisma.teacherSection.createMany({
+          data: sectionIds.map((sectionId: string) => ({
+            teacher_id: id,
+            section_id: sectionId,
+          })),
+        });
+      }
+    }
 
     return NextResponse.json(updated);
   } catch (err) {
