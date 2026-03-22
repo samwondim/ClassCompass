@@ -12,7 +12,9 @@ export default function ManagerCourseEditPage({ params }: { params: { locale: st
   useEffect(() => {
     const loadCourse = async () => {
       try {
-        const res = await fetch(`/api/courses/${params.id}`)
+        const res = await fetch(`/api/courses/${params.id}`, {
+          credentials: 'include'
+        })
         const data = await res.json()
         if (!res.ok) throw new Error(data.error || 'Failed to load course')
         setCourse(data)

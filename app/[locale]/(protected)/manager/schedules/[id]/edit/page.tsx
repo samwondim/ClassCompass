@@ -11,7 +11,9 @@ export default function ManagerScheduleEditPage({ params }: { params: { locale: 
   useEffect(() => {
     const loadSchedule = async () => {
       try {
-        const res = await fetch(`/api/schedules/${params.id}`)
+        const res = await fetch(`/api/schedules/${params.id}`, {
+          credentials: 'include'
+        })
         const data = await res.json()
         if (!res.ok) throw new Error(data.error || 'Failed to load schedule')
         setSchedule(data.schedule || data)

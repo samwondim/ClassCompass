@@ -11,7 +11,9 @@ export default function AdminManagerEditPage({ params }: { params: { locale: str
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const res = await fetch(`/api/user/${params.id}`)
+        const res = await fetch(`/api/user/${params.id}`, {
+          credentials: 'include'
+        })
         const data = await res.json()
         if (!res.ok) throw new Error(data.error || 'Failed to load user')
         setUser(data)
