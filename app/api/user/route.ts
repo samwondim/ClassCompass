@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
     const userData = await request.json();
 
-    await prisma.user.create({
+    const newUser = await prisma.user.create({
       data: {
         tg_username: userData.tg_username,
         user_role: userData.user_role,
@@ -26,8 +26,18 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    if (userData.user_role === 'MANAGER' && userData.sectionIds?.length > 0) {
+      await prisma.managerSection.createMany({
+        data: userData.sectionIds.map((sectionId: string) => ({
+          manager_id: newUser.user_id,
+          section_id: sectionId,
+        })),
+      });
+    }
+
     return NextResponse.json({ message: 'User created!' }, { status: 200 });
   } catch (error) {
+    console.error('Error creating user:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

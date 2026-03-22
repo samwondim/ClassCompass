@@ -47,6 +47,10 @@ export function ManagerForm({ cancelHref, onSuccessHref }: ManagerFormProps) {
     )
   }
 
+  const handleSectionChange = (value: string) => {
+    toggleSection(value)
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -98,13 +102,13 @@ export function ManagerForm({ cancelHref, onSuccessHref }: ManagerFormProps) {
       </div>
       <div className="px-4 py-3">
         <Label>ሚያስተዳድረው ክፍል</Label>
-        <Select>
+        <Select onValueChange={handleSectionChange}>
           <SelectTrigger className="mt-2">
             <SelectValue placeholder="ክፍል ይምረጡ" />
           </SelectTrigger>
           <SelectContent>
             {sections.map((sec) => (
-              <SelectItem key={sec.section_id} value={sec.section_id} onClick={() => toggleSection(sec.section_id)}>
+              <SelectItem key={sec.section_id} value={sec.section_id}>
                 <span className={selectedSections.includes(sec.section_id) ? 'font-semibold' : ''}>
                   {sec.section_name}
                 </span>
@@ -112,7 +116,7 @@ export function ManagerForm({ cancelHref, onSuccessHref }: ManagerFormProps) {
             ))}
           </SelectContent>
         </Select>
-        <div className="mt-2 text-sm text-slate-500">Selected: {selectedSections.length > 0 ? selectedSections.length : 'None'}</div>
+        <div className="mt-2 text-sm text-muted-foreground">Selected: {selectedSections.length > 0 ? selectedSections.length : 'None'}</div>
       </div>
       <div className="flex items-center justify-end gap-2 px-4 py-3">
         <Button type="button" variant="ghost" onClick={() => router.push(cancelHref)}>
