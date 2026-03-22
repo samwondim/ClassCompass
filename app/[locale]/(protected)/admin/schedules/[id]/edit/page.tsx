@@ -1,10 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
 import { TelegramFormShell } from '@/components/telegram-form-shell'
 import { ScheduleEditForm } from '@/components/forms/schedule-edit-form'
 
-export default function AdminScheduleEditPage({ params }: { params: { locale: string; id: string } }) {
+export default function AdminScheduleEditPage() {
+  const params = useParams()
   const [schedule, setSchedule] = useState<any | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -21,7 +23,7 @@ export default function AdminScheduleEditPage({ params }: { params: { locale: st
         setError(err instanceof Error ? err.message : 'Failed to load schedule')
       }
     }
-    loadSchedule()
+    if (params.id) loadSchedule()
   }, [params.id])
 
   const base = `/${params.locale}/admin`
@@ -29,9 +31,9 @@ export default function AdminScheduleEditPage({ params }: { params: { locale: st
   return (
     <TelegramFormShell title="መርሃግብር አስተካክል" description="የትምህርት መርሃግብር ያዘምኑ">
       {error ? (
-        <div className="px-4 py-4 text-sm text-red-600">{error}</div>
+        <div className="px-4 py-4 text-sm text-destructive">{error}</div>
       ) : !schedule ? (
-        <div className="px-4 py-4 text-sm text-slate-500">Loading...</div>
+        <div className="px-4 py-4 text-sm text-muted-foreground">Loading...</div>
       ) : (
         <ScheduleEditForm schedule={schedule} cancelHref={`${base}/schedules`} onSuccessHref={`${base}/schedules`} />
       )}

@@ -1,11 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useParams } from 'next/navigation'
 import { TelegramFormShell } from '@/components/telegram-form-shell'
 import { CourseEditForm } from '@/components/forms/course-edit-form'
 import { Course } from '@/app/models/models'
 
-export default function AdminCourseEditPage({ params }: { params: { locale: string; id: string } }) {
+export default function AdminCourseEditPage() {
+  const params = useParams()
   const [course, setCourse] = useState<Course | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -22,7 +24,7 @@ export default function AdminCourseEditPage({ params }: { params: { locale: stri
         setError(err instanceof Error ? err.message : 'Failed to load course')
       }
     }
-    loadCourse()
+    if (params.id) loadCourse()
   }, [params.id])
 
   const base = `/${params.locale}/admin`
@@ -30,9 +32,9 @@ export default function AdminCourseEditPage({ params }: { params: { locale: stri
   return (
     <TelegramFormShell title="ትምህርት አስተካክል" description="የትምህርቱን መረጃ ያዘምኑ">
       {error ? (
-        <div className="px-4 py-4 text-sm text-red-600">{error}</div>
+        <div className="px-4 py-4 text-sm text-destructive">{error}</div>
       ) : !course ? (
-        <div className="px-4 py-4 text-sm text-slate-500">Loading...</div>
+        <div className="px-4 py-4 text-sm text-muted-foreground">Loading...</div>
       ) : (
         <CourseEditForm course={course} cancelHref={`${base}/courses`} onSuccessHref={`${base}/courses`} />
       )}
