@@ -197,9 +197,9 @@ export function TeacherDashboard() {
                       .sort((a, b) => new Date(a.schedule_date).getTime() - new Date(b.schedule_date).getTime())
                       .slice(0, 3)
                       .map((schedule) => (
-                        <div key={schedule.schedule_id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-sky-100">
-                            <Calendar className="h-5 w-5 text-sky-600" />
+                        <div key={schedule.schedule_id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+                            <Calendar className="h-5 w-5 text-primary" />
                           </div>
                           <div className="flex-1">
                             <p className="font-medium">

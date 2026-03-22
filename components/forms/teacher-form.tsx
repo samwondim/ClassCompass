@@ -111,17 +111,17 @@ export function TeacherForm({ role = 'MANAGER', cancelHref, onSuccessHref }: Tea
       <div className="px-4 py-3">
         <Label>ክፍል መመድብያ</Label>
         {loadingSections ? (
-          <div className="mt-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500">
+          <div className="mt-2 rounded-lg border border-border bg-muted px-3 py-2 text-sm text-muted-foreground">
             ክፍሎች በመፈለግ ላይ...
           </div>
         ) : sections.length === 0 ? (
-          <div className="mt-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+          <div className="mt-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {role === 'ADMIN'
               ? 'አሁን የተመደበ ክፍል የለም። እባኮ በመጀመሪያ ክፍል ይፍጠሩ።'
               : 'ክፍል አልተመደበሎትም እባኮ አድሚኑን ያናግሩ'}
           </div>
         ) : sections.length === 1 ? (
-          <Input value={sections[0].section_name} disabled className="mt-2 bg-slate-50" />
+          <Input value={sections[0].section_name} disabled className="mt-2 bg-muted" />
         ) : (
           <Select onValueChange={(value) => setFormData({ ...formData, section_id: value })} value={formData.section_id}>
             <SelectTrigger className="mt-2">

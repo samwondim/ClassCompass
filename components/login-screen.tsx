@@ -59,12 +59,12 @@ export function LoginScreen() {
     }
   }
 
-  return (<div className="flex min-h-screen items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100 p-6">
-    <Card className="w-full max-w-md shadow-lg border-0 bg-white">
+  return (<div className="flex min-h-screen items-center justify-center bg-background p-6">
+    <Card className="w-full max-w-md shadow-lg border-0 bg-card">
       <CardHeader className="text-center space-y-2">
-        <Shield className="mx-auto h-12 w-12 text-indigo-600" />
-        <CardTitle className="text-2xl font-semibold text-gray-800">{t('Dashboard')} {/* Translates dynamically */}</CardTitle>
-        <CardDescription className="text-gray-600">
+        <Shield className="mx-auto h-12 w-12 text-primary" />
+        <CardTitle className="text-2xl font-semibold text-card-foreground">{t('Dashboard')}</CardTitle>
+        <CardDescription className="text-muted-foreground">
           {t('Log in with your Telegram account')}
         </CardDescription>
       </CardHeader>

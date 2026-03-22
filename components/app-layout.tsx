@@ -162,18 +162,18 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
       "/am/teacher/notifications"
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
+    <div className="flex min-h-screen flex-col bg-background">
       {/* Top Navigation */}
-      <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-white px-4">
+      <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-card px-4">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" onClick={handleBack} aria-label="Back">
             <ChevronLeft className="h-5 w-5" />
           </Button>
           <Link href="/" className="flex items-center gap-2">
-            <div className="rounded-full bg-sky-100 p-1">
-              <Calendar className="h-5 w-5 text-sky-600" />
+            <div className="rounded-full bg-primary/10 p-1">
+              <Calendar className="h-5 w-5 text-primary" />
             </div>
-            <span className="text-lg font-bold text-sky-700 hidden md:inline-block">{t('Common.Priscila')}</span>
+            <span className="text-lg font-bold text-primary hidden md:inline-block">{t('Common.Priscila')}</span>
           </Link>
         </div>
         <div className="flex items-center gap-4">
@@ -213,7 +213,7 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
                     <option.icon className="h-4 w-4" />
                     <span>{option.label}</span>
                   </div>
-                  {theme === option.value && <Check className="h-4 w-4 text-sky-600" />}
+                  {theme === option.value && <Check className="h-4 w-4 text-primary" />}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -222,7 +222,7 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-sky-100 text-sky-700">
+                  <AvatarFallback className="bg-primary/10 text-primary">
                     {userRole === "admin" ? "AD" : userRole === "manager" ? "MG" : "TC"}
                   </AvatarFallback>
                 </Avatar>
@@ -262,15 +262,15 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
       </div>
       {/* Bottom Navigation (mobile only) - Floating Telegram-style */}
       <div className="md:hidden fixed bottom-4 left-4 right-4 z-50">
-        <nav className="flex items-center justify-around rounded-2xl bg-white/95 shadow-xl border border-slate-200 backdrop-blur px-2 py-1">
+        <nav className="flex items-center justify-around rounded-2xl bg-card/95 shadow-xl border border-border backdrop-blur px-2 py-1">
           {navItems.map((item, index) => (
             <Link
               key={index}
               href={item.href}
-              className={`flex flex-1 flex-col items-center gap-1 py-2 text-[11px] transition ${isActive(item.href) ? "text-sky-700 font-semibold" : "text-slate-600"
+              className={`flex flex-1 flex-col items-center gap-1 py-2 text-[11px] transition ${isActive(item.href) ? "text-primary font-semibold" : "text-muted-foreground"
                 }`}
             >
-              <span className={`flex h-9 w-9 items-center justify-center rounded-full ${isActive(item.href) ? "bg-sky-100" : "bg-slate-100"}`}>
+              <span className={`flex h-9 w-9 items-center justify-center rounded-full ${isActive(item.href) ? "bg-primary/10" : "bg-muted"}`}>
                 <item.icon className="h-5 w-5" />
               </span>
               {item.label}

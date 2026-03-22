@@ -174,7 +174,7 @@ export function LessonDetails() {
                   <CardDescription>{lesson.verse || 'N/A'}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 mb-4">
+                  <div className="bg-muted p-4 rounded-lg border border-border mb-4">
                     <p className="italic">
                       "{verseTexts[index] || lesson.verse || 'No verse text available'}"
                     </p>
@@ -227,9 +227,9 @@ export function LessonDetails() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="rounded-lg border border-slate-200 overflow-hidden">
-                      <div className="bg-slate-100 h-40 flex items-center justify-center">
-                        <FileText className="h-12 w-12 text-slate-400" />
+                    <div className="rounded-lg border border-border overflow-hidden">
+                      <div className="bg-muted h-40 flex items-center justify-center">
+                        <FileText className="h-12 w-12 text-muted-foreground" />
                       </div>
                       <div className="p-3">
                         <h4 className="font-medium">Craft Preview</h4>
@@ -263,7 +263,7 @@ export function LessonDetails() {
                 </CardHeader>
                 <CardContent>
                   <div className="relative">
-                    <div className="absolute left-4 top-0 bottom-0 w-px bg-slate-200" />
+                    <div className="absolute left-4 top-0 bottom-0 w-px bg-border" />
                     <div className="space-y-6 pl-10 relative">
                       {(lesson.schedule || [
                         { time: '9:00 AM', activity: 'Welcome and Opening Prayer' },
@@ -274,7 +274,7 @@ export function LessonDetails() {
                         { time: '9:55 AM', activity: 'Closing Prayer' }
                       ]).map((item: any, schIndex: number) => (
                         <div key={schIndex} className="relative">
-                          <div className="absolute -left-10 mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-sky-100 text-sky-700 ring-4 ring-white">
+                          <div className="absolute -left-10 mt-1 flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary ring-4 ring-background">
                             <Clock className="h-3 w-3" />
                           </div>
                           <div>

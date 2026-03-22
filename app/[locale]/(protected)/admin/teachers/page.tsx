@@ -44,7 +44,7 @@ export default async function TeacherMgmtPage({ params }: { params: { locale: st
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">መምህራን</h1>
         <Link href={`${base}/teachers/new`}>
-          <span className="inline-flex items-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white">መምህር መዝግብ</span>
+          <span className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">መምህር መዝግብ</span>
         </Link>
       </div>
       {data.length === 0 ? (

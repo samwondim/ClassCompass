@@ -45,7 +45,7 @@ export default async function CoursesPage({ params }: { params: { locale: string
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Courses</h1>
         <Link href={`${base}/courses/new`}>
-          <span className="inline-flex items-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white">Add Course</span>
+          <span className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Add Course</span>
         </Link>
       </div>
 
