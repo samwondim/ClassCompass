@@ -42,5 +42,11 @@
     "Success": "Success",
     "Welcome": "Welcome",
     "Priscila": "Priscila"
+  },
+  "Theme": {
+    "Title": "Theme",
+    "Light": "Light",
+    "Dark": "Dark",
+    "System": "System"
   }
 }

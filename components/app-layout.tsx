@@ -3,11 +3,30 @@ import React from "react"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { redirect, usePathname, useRouter } from "next/navigation"
-import { Calendar, Home, BookOpen, Settings, LogOut, User, Bell, LayoutDashboard, BrainCog, LayoutDashboardIcon, ChevronLeft } from "lucide-react"
+import {
+  Calendar,
+  Home,
+  BookOpen,
+  Settings,
+  LogOut,
+  User,
+  Bell,
+  LayoutDashboard,
+  BrainCog,
+  LayoutDashboardIcon,
+  ChevronLeft,
+  Sun,
+  Moon,
+  SunDim,
+  Laptop,
+  Check,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useTranslations } from 'next-intl'
+import { useTheme } from "@/components/theme-provider"
+import type { ThemeMode } from "@/components/theme-provider"
 
 
 interface AppLayoutProps {
@@ -27,6 +46,14 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
   const [isMounted, setIsMounted] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
   const t = useTranslations()
+  const { theme, resolvedTheme, setTheme } = useTheme()
+
+  const themeOptions: { value: ThemeMode; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+    { value: "light", label: t("Theme.Light"), icon: Sun },
+    { value: "dark", label: t("Theme.Dark"), icon: Moon },
+    { value: "system", label: t("Theme.System"), icon: Laptop },
+  ]
+  const ThemeTriggerIcon = theme === "dark" ? Moon : theme === "light" ? Sun : SunDim
 
   useEffect(() => {
     setIsMounted(true)
@@ -160,6 +187,37 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
               )}
             </Button>
           </Link>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full"
+                aria-label={t('Theme.Title')}
+              >
+                <span className="sr-only">{t('Theme.Title')}</span>
+                <ThemeTriggerIcon className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-[160px]">
+              {themeOptions.map((option) => (
+                <DropdownMenuItem
+                  key={option.value}
+                  onSelect={(event) => {
+                    event.preventDefault()
+                    setTheme(option.value)
+                  }}
+                  className="flex items-center justify-between gap-2"
+                >
+                  <div className="flex items-center gap-2">
+                    <option.icon className="h-4 w-4" />
+                    <span>{option.label}</span>
+                  </div>
+                  {theme === option.value && <Check className="h-4 w-4 text-sky-600" />}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">

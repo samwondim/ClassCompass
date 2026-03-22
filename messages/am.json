@@ -45,5 +45,11 @@
     "Success": "ተሳክቷል",
     "Welcome": "እንኳን ደህና መጡ",
     "Priscila": "ጵርስቅላ"
+  },
+  "Theme": {
+    "Title": "ገጽታ",
+    "Light": "ብርሃን",
+    "Dark": "ጨለማ",
+    "System": "ስርዓታዊ"
   }
 }
