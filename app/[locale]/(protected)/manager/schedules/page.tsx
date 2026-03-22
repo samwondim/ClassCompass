@@ -12,13 +12,13 @@ async function getData(): Promise<Schedule[]> {
       process.env.NEXT_PUBLIC_APP_URL ||
       "http://localhost:3000";
 
-    const session = cookies().get("session")?.value;
-    const authHeaders = session ? { cookie: `session=${session}` } : {};
+    const session = (await cookies()).get("session")?.value;
+    const headers: HeadersInit = session ? { cookie: `session=${session}` } : {};
 
     // Use manager-scoped endpoint that returns only schedules for manager's sections
     const res = await fetch(`${baseUrl}/api/managers/schedules`, {
       cache: 'no-store',
-      headers: authHeaders,
+      headers,
     });
 
     if (!res.ok) {

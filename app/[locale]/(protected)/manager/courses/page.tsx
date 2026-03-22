@@ -14,11 +14,11 @@ async function getData(): Promise<Course[]> {
       process.env.NEXT_PUBLIC_APP_URL ||
       "http://localhost:3000";
 
-    const session = cookies().get("session")?.value;
-    const authHeaders = session ? { cookie: `session=${session}` } : {};
+    const session = (await cookies()).get("session")?.value;
+    const headers: HeadersInit = session ? { cookie: `session=${session}` } : {};
     const res = await fetch(`${baseUrl}/api/courses`, {
       cache: 'no-store',
-      headers: authHeaders,
+      headers,
     });
 
     if (!res.ok) {
