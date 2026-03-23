@@ -41,12 +41,47 @@
     "Error": "Error",
     "Success": "Success",
     "Welcome": "Welcome",
-    "Priscila": "Priscila"
+    "Priscila": "Priscila",
+    "Refresh": "Refresh",
+    "ViewAll": "View All"
   },
   "Theme": {
     "Title": "Theme",
     "Light": "Light",
     "Dark": "Dark",
     "System": "System"
+  },
+  "Sections": "Sections",
+  "Dashboard": {
+    "Title": "Admin Dashboard",
+    "ManagerTitle": "Manager Dashboard",
+    "Total": "Total",
+    "Upcoming": "Upcoming",
+    "Next7Days": "Next 7 days",
+    "Alerts": "Alerts",
+    "Unread": "Unread",
+    "AllSections": "All Sections",
+    "AllSectionsDesc": "All sections in the system",
+    "YourSections": "Your Assigned Sections",
+    "YourSectionsDesc": "Sections you are responsible for managing",
+    "NoSections": "No sections found. Create a section to get started.",
+    "NoAssignedSections": "You are not assigned to any sections. Please contact an administrator.",
+    "UpcomingSchedules": "Upcoming Schedules",
+    "UpcomingDesc": "Classes scheduled for the next 7 days",
+    "NoUpcoming": "No upcoming schedules in the next 7 days.",
+    "QuickActions": "Quick Actions",
+    "AddTeacher": "Add Teacher",
+    "AddManager": "Add Manager",
+    "AddCourse": "Add Course",
+    "AddSection": "Add Section",
+    "ManageTeachers": "Manage Teachers",
+    "ViewSchedules": "View Schedules",
+    "BrowseCourses": "Browse Courses",
+    "Notifications": "Notifications",
+    "InYourSections": "In your sections",
+    "YouManage": "You manage",
+    "TotalSchedules": "Total schedules",
+    "Available": "Available",
+    "ErrorLoading": "Failed to load dashboard data"
   }
 }

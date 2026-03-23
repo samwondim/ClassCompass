@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Clock, Users, BookOpen, Bell, AlertCircle, TrendingUp, UserCheck } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { useTranslations } from "next-intl"
 
 interface DashboardStats {
   teachers: number
@@ -34,6 +35,7 @@ interface Section {
 }
 
 export function AdminDashboard() {
+  const t = useTranslations()
   const [stats, setStats] = useState<DashboardStats>({
     teachers: 0,
     managers: 0,
@@ -100,8 +102,8 @@ export function AdminDashboard() {
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to load dashboard data',
+        title: t('Common.Error'),
+        description: error instanceof Error ? error.message : t('Dashboard.ErrorLoading'),
         variant: 'destructive'
       })
     } finally {
@@ -112,9 +114,9 @@ export function AdminDashboard() {
   return (
     <div className="p-4 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-primary">Admin Dashboard</h1>
+        <h1 className="text-2xl font-bold text-primary">{t('Dashboard.Title')}</h1>
         <Button onClick={fetchDashboardData} variant="outline" size="sm">
-          Refresh
+          {t('Common.Refresh')}
         </Button>
       </div>
 
@@ -124,14 +126,14 @@ export function AdminDashboard() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Users className="h-4 w-4" />
-              Teachers
+              {t('Navigation.Teachers')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">
               {loading ? '...' : stats.teachers}
             </div>
-            <p className="text-xs text-muted-foreground">Total</p>
+            <p className="text-xs text-muted-foreground">{t('Dashboard.Total')}</p>
           </CardContent>
         </Card>
 
@@ -139,14 +141,14 @@ export function AdminDashboard() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <UserCheck className="h-4 w-4" />
-              Managers
+              {t('Navigation.Managers')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">
               {loading ? '...' : stats.managers}
             </div>
-            <p className="text-xs text-muted-foreground">Total</p>
+            <p className="text-xs text-muted-foreground">{t('Dashboard.Total')}</p>
           </CardContent>
         </Card>
 
@@ -154,14 +156,14 @@ export function AdminDashboard() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
-              Sections
+              {t('Dashboard.Sections')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">
               {loading ? '...' : stats.sections}
             </div>
-            <p className="text-xs text-muted-foreground">Total</p>
+            <p className="text-xs text-muted-foreground">{t('Dashboard.Total')}</p>
           </CardContent>
         </Card>
 
@@ -169,14 +171,14 @@ export function AdminDashboard() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              Schedules
+              {t('Navigation.Schedules')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">
               {loading ? '...' : stats.schedules}
             </div>
-            <p className="text-xs text-muted-foreground">Total</p>
+            <p className="text-xs text-muted-foreground">{t('Dashboard.Total')}</p>
           </CardContent>
         </Card>
 
@@ -184,14 +186,14 @@ export function AdminDashboard() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Clock className="h-4 w-4" />
-              Upcoming
+              {t('Dashboard.Upcoming')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-amber-600">
               {loading ? '...' : stats.upcomingSchedules}
             </div>
-            <p className="text-xs text-muted-foreground">Next 7 days</p>
+            <p className="text-xs text-muted-foreground">{t('Dashboard.Next7Days')}</p>
           </CardContent>
         </Card>
 
@@ -199,14 +201,14 @@ export function AdminDashboard() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Bell className="h-4 w-4" />
-              Alerts
+              {t('Dashboard.Alerts')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-600">
               {loading ? '...' : stats.unreadNotifications}
             </div>
-            <p className="text-xs text-muted-foreground">Unread</p>
+            <p className="text-xs text-muted-foreground">{t('Dashboard.Unread')}</p>
           </CardContent>
         </Card>
       </div>
@@ -216,17 +218,17 @@ export function AdminDashboard() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BookOpen className="h-5 w-5" />
-            All Sections
+            {t('Dashboard.AllSections')}
           </CardTitle>
-          <CardDescription>All sections in the system</CardDescription>
+          <CardDescription>{t('Dashboard.AllSectionsDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-muted-foreground">Loading...</p>
+            <p className="text-muted-foreground">{t('Common.Loading')}</p>
           ) : sections.length === 0 ? (
             <div className="flex items-center gap-2 text-amber-600">
               <AlertCircle className="h-5 w-5" />
-              <p>No sections found. Create a section to get started.</p>
+              <p>{t('Dashboard.NoSections')}</p>
             </div>
           ) : (
             <div className="flex flex-wrap gap-2">
@@ -247,20 +249,20 @@ export function AdminDashboard() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="h-5 w-5" />
-                Upcoming Schedules
+                {t('Dashboard.UpcomingSchedules')}
               </CardTitle>
-              <CardDescription>Classes scheduled for the next 7 days</CardDescription>
+              <CardDescription>{t('Dashboard.UpcomingDesc')}</CardDescription>
             </div>
             <Link href={`${adminBase}/schedules`}>
-              <Button variant="outline" size="sm">View All</Button>
+              <Button variant="outline" size="sm">{t('Common.ViewAll')}</Button>
             </Link>
           </div>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-muted-foreground">Loading...</p>
+            <p className="text-muted-foreground">{t('Common.Loading')}</p>
           ) : upcomingSchedules.length === 0 ? (
-            <p className="text-muted-foreground">No upcoming schedules in the next 7 days.</p>
+            <p className="text-muted-foreground">{t('Dashboard.NoUpcoming')}</p>
           ) : (
             <div className="space-y-3">
               {upcomingSchedules.map((schedule) => (
@@ -291,7 +293,7 @@ export function AdminDashboard() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
-            Quick Actions
+            {t('Dashboard.QuickActions')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -299,25 +301,25 @@ export function AdminDashboard() {
             <Link href={`${adminBase}/teachers/new`}>
               <Button variant="outline" className="w-full">
                 <Users className="mr-2 h-4 w-4" />
-                Add Teacher
+                {t('Dashboard.AddTeacher')}
               </Button>
             </Link>
             <Link href={`${adminBase}/managers/new`}>
               <Button variant="outline" className="w-full">
                 <UserCheck className="mr-2 h-4 w-4" />
-                Add Manager
+                {t('Dashboard.AddManager')}
               </Button>
             </Link>
             <Link href={`${adminBase}/courses/new`}>
               <Button variant="outline" className="w-full">
                 <BookOpen className="mr-2 h-4 w-4" />
-                Add Course
+                {t('Dashboard.AddCourse')}
               </Button>
             </Link>
             <Link href={`${adminBase}/sections/new`}>
               <Button variant="outline" className="w-full">
                 <Calendar className="mr-2 h-4 w-4" />
-                Add Section
+                {t('Dashboard.AddSection')}
               </Button>
             </Link>
           </div>

@@ -34,6 +34,7 @@ interface UpcomingSchedule {
 }
 
 export function ManagerDashboard() {
+  const t = useTranslations()
   const [stats, setStats] = useState<DashboardStats>({
     teachers: 0,
     sections: 0,
@@ -46,7 +47,6 @@ export function ManagerDashboard() {
   const [upcomingSchedules, setUpcomingSchedules] = useState<UpcomingSchedule[]>([])
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
-  const t = useTranslations();
   const pathname = usePathname()
   const locale = pathname?.split("/")[1] || "am"
   const managerBase = `/${locale}/manager`
@@ -87,13 +87,12 @@ export function ManagerDashboard() {
           schedulesData?.error ||
           coursesData?.error ||
           notificationsData?.error ||
-          "Failed to load dashboard data"
+          t('Dashboard.ErrorLoading')
         throw new Error(errorMessage)
       }
 
       const allSchedules = schedulesData.schedules || []
 
-        // Filter upcoming schedules (next 7 days)
         const now = new Date()
         const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
         const upcoming = allSchedules.filter((s: UpcomingSchedule) => {
@@ -111,12 +110,12 @@ export function ManagerDashboard() {
         })
 
       setSections(sectionsData.sections || [])
-      setUpcomingSchedules(upcoming.slice(0, 5)) // Show top 5
+      setUpcomingSchedules(upcoming.slice(0, 5))
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
       toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to load dashboard data',
+        title: t('Common.Error'),
+        description: error instanceof Error ? error.message : t('Dashboard.ErrorLoading'),
         variant: 'destructive'
       })
     } finally {
@@ -127,101 +126,101 @@ export function ManagerDashboard() {
   return (
     <div className="p-4 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-sky-700">Manager Dashboard</h1>
+        <h1 className="text-2xl font-bold text-primary">{t('Dashboard.ManagerTitle')}</h1>
         <Button onClick={fetchDashboardData} variant="outline" size="sm">
-          Refresh
+          {t('Common.Refresh')}
         </Button>
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <Card className="bg-gradient-to-br from-sky-50 to-white">
+        <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Users className="h-4 w-4" />
-              Teachers
+              {t('Navigation.Teachers')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-sky-700">
+            <div className="text-2xl font-bold text-primary">
               {loading ? '...' : stats.teachers}
             </div>
-            <p className="text-xs text-muted-foreground">In your sections</p>
+            <p className="text-xs text-muted-foreground">{t('Dashboard.InYourSections')}</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-sky-50 to-white">
+        <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
-              Sections
+              {t('Dashboard.Sections')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-sky-700">
+            <div className="text-2xl font-bold text-primary">
               {loading ? '...' : stats.sections}
             </div>
-            <p className="text-xs text-muted-foreground">You manage</p>
+            <p className="text-xs text-muted-foreground">{t('Dashboard.YouManage')}</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-sky-50 to-white">
+        <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              Schedules
+              {t('Navigation.Schedules')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-sky-700">
+            <div className="text-2xl font-bold text-primary">
               {loading ? '...' : stats.schedules}
             </div>
-            <p className="text-xs text-muted-foreground">Total schedules</p>
+            <p className="text-xs text-muted-foreground">{t('Dashboard.TotalSchedules')}</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-amber-50 to-white">
+        <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Clock className="h-4 w-4" />
-              Upcoming
+              {t('Dashboard.Upcoming')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-amber-700">
+            <div className="text-2xl font-bold text-amber-600">
               {loading ? '...' : stats.upcomingSchedules}
             </div>
-            <p className="text-xs text-muted-foreground">Next 7 days</p>
+            <p className="text-xs text-muted-foreground">{t('Dashboard.Next7Days')}</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-sky-50 to-white">
+        <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
-              Courses
+              {t('Navigation.Courses')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-sky-700">
+            <div className="text-2xl font-bold text-primary">
               {loading ? '...' : stats.courses}
             </div>
-            <p className="text-xs text-muted-foreground">Available</p>
+            <p className="text-xs text-muted-foreground">{t('Dashboard.Available')}</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-blue-50 to-white">
+        <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Bell className="h-4 w-4" />
-              Alerts
+              {t('Dashboard.Alerts')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-700">
+            <div className="text-2xl font-bold text-blue-600">
               {loading ? '...' : stats.unreadNotifications}
             </div>
-            <p className="text-xs text-muted-foreground">Unread</p>
+            <p className="text-xs text-muted-foreground">{t('Dashboard.Unread')}</p>
           </CardContent>
         </Card>
       </div>
@@ -231,17 +230,17 @@ export function ManagerDashboard() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BookOpen className="h-5 w-5" />
-            Your Assigned Sections
+            {t('Dashboard.YourSections')}
           </CardTitle>
-          <CardDescription>Sections you are responsible for managing</CardDescription>
+          <CardDescription>{t('Dashboard.YourSectionsDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-muted-foreground">Loading...</p>
+            <p className="text-muted-foreground">{t('Common.Loading')}</p>
           ) : sections.length === 0 ? (
             <div className="flex items-center gap-2 text-amber-600">
               <AlertCircle className="h-5 w-5" />
-              <p>You are not assigned to any sections. Please contact an administrator.</p>
+              <p>{t('Dashboard.NoAssignedSections')}</p>
             </div>
           ) : (
             <div className="flex flex-wrap gap-2">
@@ -262,20 +261,20 @@ export function ManagerDashboard() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="h-5 w-5" />
-                Upcoming Schedules
+                {t('Dashboard.UpcomingSchedules')}
               </CardTitle>
-              <CardDescription>Classes scheduled for the next 7 days</CardDescription>
+              <CardDescription>{t('Dashboard.UpcomingDesc')}</CardDescription>
             </div>
             <Link href={`${managerBase}/schedules`}>
-              <Button variant="outline" size="sm">View All</Button>
+              <Button variant="outline" size="sm">{t('Common.ViewAll')}</Button>
             </Link>
           </div>
         </CardHeader>
         <CardContent>
           {loading ? (
-            <p className="text-muted-foreground">Loading...</p>
+            <p className="text-muted-foreground">{t('Common.Loading')}</p>
           ) : upcomingSchedules.length === 0 ? (
-            <p className="text-muted-foreground">No upcoming schedules in the next 7 days.</p>
+            <p className="text-muted-foreground">{t('Dashboard.NoUpcoming')}</p>
           ) : (
             <div className="space-y-3">
               {upcomingSchedules.map((schedule) => (
@@ -283,7 +282,7 @@ export function ManagerDashboard() {
                   <div className="flex-1">
                     <p className="font-medium">{schedule.course.course_name}</p>
                     <p className="text-sm text-muted-foreground">
-                      {schedule.teacher.first_name} {schedule.teacher.last_name} • {schedule.section.section_name}
+                      {schedule.teacher.first_name} {schedule.teacher.last_name} - {schedule.section.section_name}
                     </p>
                   </div>
                   <div className="text-right">
@@ -306,7 +305,7 @@ export function ManagerDashboard() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
-            Quick Actions
+            {t('Dashboard.QuickActions')}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -314,25 +313,25 @@ export function ManagerDashboard() {
             <Link href={`${managerBase}/teachers`}>
               <Button variant="outline" className="w-full">
                 <Users className="mr-2 h-4 w-4" />
-                Manage Teachers
+                {t('Dashboard.ManageTeachers')}
               </Button>
             </Link>
             <Link href={`${managerBase}/schedules`}>
               <Button variant="outline" className="w-full">
                 <Calendar className="mr-2 h-4 w-4" />
-                View Schedules
+                {t('Dashboard.ViewSchedules')}
               </Button>
             </Link>
             <Link href={`${managerBase}/courses`}>
               <Button variant="outline" className="w-full">
                 <BookOpen className="mr-2 h-4 w-4" />
-                Browse Courses
+                {t('Dashboard.BrowseCourses')}
               </Button>
             </Link>
             <Link href={`${managerBase}/notifications`}>
               <Button variant="outline" className="w-full">
                 <Bell className="mr-2 h-4 w-4" />
-                Notifications
+                {t('Dashboard.Notifications')}
                 {stats.unreadNotifications > 0 && (
                   <Badge variant="destructive" className="ml-2">
                     {stats.unreadNotifications}
