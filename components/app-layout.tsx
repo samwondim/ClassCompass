@@ -262,7 +262,7 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
         </main>
       </div>
       {/* Bottom Navigation - Floating Telegram-style */}
-      <div className="md:hidden fixed bottom-4 left-4 right-4 z-50">
+      <div className="fixed bottom-4 left-4 right-4 z-50 max-w-2xl mx-auto">
         <nav className="flex items-center justify-around rounded-2xl bg-card/95 shadow-xl border border-border backdrop-blur px-2 py-1">
           {roleNavItems.map((item, index) => (
             <Link
@@ -274,27 +274,11 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
               <span className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${isActive(item.href) ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
                 <item.icon className="h-5 w-5" />
               </span>
-              <span className="md:hidden">{item.label}</span>
+              <span className="md:text-[10px]">{item.label}</span>
             </Link>
           ))}
         </nav>
       </div>
-      {/* Desktop Sidebar Navigation */}
-      <aside className="hidden md:flex flex-col w-64 border-r border-border bg-card">
-        <nav className="flex flex-col gap-1 p-4">
-          {roleNavItems.map((item, index) => (
-            <Link
-              key={index}
-              href={item.href}
-              className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition ${isActive(item.href) ? "bg-primary/10 text-primary font-semibold" : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                }`}
-            >
-              <item.icon className="h-5 w-5" />
-              <span>{item.label}</span>
-            </Link>
-          ))}
-        </nav>
-      </aside>
     </div>
   )
 }
