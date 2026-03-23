@@ -125,37 +125,39 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
   }
 
   const isActive = (path: string) => {
-    return pathname?.startsWith(path)
+    if (!pathname) return false
+    const normalizedPath = path.endsWith('/') ? path.slice(0, -1) : path
+    const normalizedCurrent = pathname.endsWith('/') ? pathname.slice(0, -1) : pathname
+    if (normalizedCurrent === normalizedPath) return true
+    const segments = normalizedPath.split('/')
+    const currentSegments = normalizedCurrent.split('/')
+    if (segments.length !== currentSegments.length) return false
+    return segments.every((seg, i) => seg === currentSegments[i])
   }
 
-  let navItems: { label: string; href: string; icon: React.ComponentType<{ className?: string }> }[] = []
+  const navItems: { label: string; href: string; icon: React.ComponentType<{ className?: string }> }[] = []
 
-  switch (userRole) {
-    case "ADMIN":
-      navItems = [
+  const adminNavItems = [
+    { label: t('Navigation.Dashboard'), href: "/am/admin", icon: LayoutDashboardIcon },
+    { label: t('Navigation.Teachers'), href: "/am/admin/teachers", icon: User },
+    { label: t('Navigation.Managers'), href: "/am/admin/managers", icon: User },
+    { label: t('Navigation.Schedules'), href: "/am/admin/schedules", icon: Calendar },
+    { label: t('Navigation.Courses'), href: "/am/admin/courses", icon: BrainCog },
+  ]
 
-        { label: t('Navigation.Dashboard'), href: "/am/admin/", icon: LayoutDashboardIcon },
-        { label: t('Navigation.Teachers'), href: "/am/admin/teachers", icon: User },
-        { label: t('Navigation.Managers'), href: "/am/admin/managers", icon: User },
-        { label: t('Navigation.Schedules'), href: "/am/admin/schedules", icon: Calendar },
-        { label: t('Navigation.Courses'), href: "/am/admin/courses", icon: BrainCog },
-      ]
-      break
-    case "MANAGER":
-      navItems = [
-        { label: t('Navigation.Dashboard'), href: "/am/manager/", icon: LayoutDashboardIcon },
-        { label: t('Navigation.Teachers'), href: "/am/manager/teachers", icon: User },
-        { label: t('Navigation.Courses'), href: "/am/manager/courses", icon: BrainCog },
-        { label: t('Navigation.Schedules'), href: "/am/manager/schedules", icon: Calendar },
-      ]
-      break
-    case "TEACHER":
-      navItems = [
-        { label: t('Navigation.Dashboard'), href: "/am/teacher/", icon: LayoutDashboardIcon },
-        { label: t('Navigation.MySchedules'), href: "/am/teacher/my-schedules", icon: Calendar },
-      ]
-      break
-  }
+  const managerNavItems = [
+    { label: t('Navigation.Dashboard'), href: "/am/manager", icon: LayoutDashboardIcon },
+    { label: t('Navigation.Teachers'), href: "/am/manager/teachers", icon: User },
+    { label: t('Navigation.Courses'), href: "/am/manager/courses", icon: BrainCog },
+    { label: t('Navigation.Schedules'), href: "/am/manager/schedules", icon: Calendar },
+  ]
+
+  const teacherNavItems = [
+    { label: t('Navigation.Dashboard'), href: "/am/teacher", icon: LayoutDashboardIcon },
+    { label: t('Navigation.MySchedules'), href: "/am/teacher/my-schedules", icon: Calendar },
+  ]
+
+  const roleNavItems = userRole === "ADMIN" ? adminNavItems : userRole === "MANAGER" ? managerNavItems : teacherNavItems
 
   const notificationsPath = userRole === "ADMIN" ? "/am/admin/notifications" :
     userRole === "MANAGER" ? "/am/manager/notifications" :
@@ -250,30 +252,29 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
         </div>
       </header>
       {/* Main Content */}
-      <div className="flex flex-1">
-        {/* Content - Added pb-24 on mobile to account for floating bottom nav */}
+      <div className="flex flex-1 pb-20 md:pb-0">
         <main
-          className="flex-1 pb-24 md:pb-0"
+          className="flex-1"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
           {children}
         </main>
       </div>
-      {/* Bottom Navigation (mobile only) - Floating Telegram-style */}
-      <div className="md:hidden fixed bottom-4 left-4 right-4 z-50">
-        <nav className="flex items-center justify-around rounded-2xl bg-card/95 shadow-xl border border-border backdrop-blur px-2 py-1">
-          {navItems.map((item, index) => (
+      {/* Bottom Navigation - Floating Telegram-style */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 md:static md:z-auto md:border-t md:border-border md:bg-card">
+        <nav className="flex items-center justify-around rounded-t-2xl bg-card/95 shadow-xl border-t border-x border-border backdrop-blur px-2 py-1 md:rounded-none md:shadow-none md:border-t md:border-x-0 md:border-b-0">
+          {roleNavItems.map((item, index) => (
             <Link
               key={index}
               href={item.href}
-              className={`flex flex-1 flex-col items-center gap-1 py-2 text-[11px] transition ${isActive(item.href) ? "text-primary font-semibold" : "text-muted-foreground"
+              className={`flex flex-1 flex-col items-center gap-1 py-2 text-[11px] transition md:py-3 ${isActive(item.href) ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground"
                 }`}
             >
-              <span className={`flex h-9 w-9 items-center justify-center rounded-full ${isActive(item.href) ? "bg-primary/10" : "bg-muted"}`}>
+              <span className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${isActive(item.href) ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
                 <item.icon className="h-5 w-5" />
               </span>
-              {item.label}
+              <span className="hidden md:inline">{item.label}</span>
             </Link>
           ))}
         </nav>
