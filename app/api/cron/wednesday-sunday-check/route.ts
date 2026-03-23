@@ -4,24 +4,20 @@ import { runWednesdaySundayCheck } from '@/utils/wednesday-sunday-check';
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const secret = searchParams.get('secret');
     const force = searchParams.get('force') === 'true';
 
-    if (secret !== process.env.CRON_SECRET) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     const result = await runWednesdaySundayCheck({ force });
-    
+
     if ('skipped' in result && result.skipped) {
-      return NextResponse.json({ 
-        message: result.reason, 
+      return NextResponse.json({
+        message: result.reason,
         weekday: result.weekday,
         timeZone: result.timeZone,
         status: 'skipped'
       });
     }
-    
+
     return NextResponse.json(result);
   } catch (error) {
     console.error('Wednesday Sunday check cron error:', error);
