@@ -369,3 +369,84 @@ ${escapeMarkdown(sundayDate.toLocaleDateString())}
   const fullMessage = `${body}\n${deepLink}`;
   await sendTelegramNotification(manager.tg_id.toString(), fullMessage);
 }
+
+/**
+ * 6. Empty schedule board alerts → Managers
+ */
+export async function notifyEmptyScheduleBoard(
+  manager: { user_id: string; tg_id: string | number | null; first_name?: string | null; last_name?: string | null },
+  sectionName: string
+) {
+  if (!manager.tg_id) return;
+
+  const managerName = `${manager.first_name || ""} ${manager.last_name || ""}`.trim() || "Manager";
+  const title = "⚠️ Empty Schedule Board";
+  const plainMessage = `Hello ${managerName},\nYour section "${sectionName}" has no schedules. Please add schedules to the board.`;
+
+  await saveNotification(
+    manager.user_id,
+    title,
+    plainMessage,
+    "warning",
+    "/manager/schedules"
+  );
+
+  const telegramTitle = "⚠️ *Empty Schedule Board*";
+  const body = `
+${telegramTitle}
+
+*Section:*
+${escapeMarkdown(sectionName)}
+
+*Message:*
+Your section has no schedules\. Please add schedules to the board\.
+`;
+
+  const deepLink = `[Add Schedule](${WEB_APP_URL}?startapp=manage_schedules)`;
+  const fullMessage = `${body}\n${deepLink}`;
+  await sendTelegramNotification(manager.tg_id.toString(), fullMessage);
+}
+
+/**
+ * 7. Weekly empty schedule report → All Managers
+ */
+export async function notifyWeeklyEmptyScheduleReport(
+  managers: Array<{ user_id: string; tg_id: string | number | null; first_name?: string | null; last_name?: string | null }>,
+  emptySections: Array<{ section_id: string; section_name: string }>
+) {
+  if (emptySections.length === 0) return;
+
+  for (const manager of managers) {
+    if (!manager.tg_id) continue;
+
+    const managerName = `${manager.first_name || ""} ${manager.last_name || ""}`.trim() || "Manager";
+    const title = "📋 Weekly Schedule Report";
+    const sectionsList = emptySections.map(s => `• ${s.section_name}`).join("\n");
+    const plainMessage = `Hello ${managerName},\nThe following sections under your management have no schedules:\n${sectionsList}`;
+
+    await saveNotification(
+      manager.user_id,
+      title,
+      plainMessage,
+      "warning",
+      "/manager/schedules"
+    );
+
+    const telegramTitle = "📋 *Weekly Schedule Report*";
+    const body = `
+${telegramTitle}
+
+*Hello ${escapeMarkdown(managerName)},*
+
+*Your sections with no schedules:*
+${escapeMarkdown(sectionsList)}
+
+*Action Required:*
+Please add schedules to these sections\.
+`;
+
+    const deepLink = `[View Schedules](${WEB_APP_URL}?startapp=manage_schedules)`;
+    const fullMessage = `${body}\n${deepLink}`;
+    await sendTelegramNotification(manager.tg_id.toString(), fullMessage);
+  }
+}
