@@ -1,11 +1,11 @@
 {
   "crons": [
     {
-      "path": "api/cron/wednesday-sunday-check",
+      "path": "/api/cron/wednesday-sunday-check",
       "schedule": "*/30 * * * *"
     },
     {
-      "path": "api/cron/empty-schedule-alert",
+      "path": "/api/cron/empty-schedule-alert",
       "schedule": "*/30 * * * *"
     }
   ]
