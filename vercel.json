@@ -1,11 +1,12 @@
 {
-  "buildCommand": "npm run build",
-  "installCommand": "npm install",
-  "framework": "nextjs",
   "crons": [
     {
-      "path": "/api/cron/schedule-notification",
-      "schedule": "0 15 * * 3,5"
+      "path": "api/cron/wednesday-sunday-check",
+      "schedule": "0 9 * * 3"
+    },
+    {
+      "path": "api/cron/empty-schedule-alert",
+      "schedule": "0 10 * * 3"
     }
   ]
 }
