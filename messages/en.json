@@ -20,6 +20,35 @@
   "Courses": "Courses",
   "NoDataFound": "No {type} found.",
   "Welcome": "Welcome, {name} ({role})",
+  "BulkUpload": {
+    "Title": "Bulk User Upload",
+    "Description": "Upload an Excel or CSV file to bulk register users",
+    "DragDrop": "Drag and drop your file here, or",
+    "BrowseFiles": "browse files",
+    "SupportedFormats": "Supported formats: .xlsx, .xls, .csv",
+    "ScheduleForLater": "Schedule for Later",
+    "ScheduleDescription": "Leave empty to register users immediately",
+    "Preview": "Preview",
+    "ValidRows": "valid",
+    "InvalidRows": "with errors",
+    "FirstName": "First Name",
+    "LastName": "Last Name",
+    "Telegram": "Telegram",
+    "Phone": "Phone",
+    "Section": "Section",
+    "Status": "Status",
+    "UploadButton": "Register Users",
+    "ScheduleButton": "Schedule Registration",
+    "CancelButton": "Cancel",
+    "Uploading": "Uploading...",
+    "Success": "Upload Complete",
+    "Scheduled": "Scheduled Successfully",
+    "Error": "Upload Failed",
+    "ValidationErrors": "Validation Errors",
+    "NoData": "No data found in the file",
+    "InvalidFileType": "Invalid File Type",
+    "FileRequired": "No file provided"
+  },
   "Navigation": {
     "Dashboard": "Dashboard",
     "Teachers": "Teachers",
@@ -34,7 +63,8 @@
     "Settings": "Settings",
     "Profile": "Profile",
     "LogOut": "Log Out",
-    "Menu": "Menu"
+    "Menu": "Menu",
+    "BulkUpload": "Bulk Upload"
   },
   "Common": {
     "Loading": "Loading...",
@@ -82,6 +112,7 @@
     "YouManage": "You manage",
     "TotalSchedules": "Total schedules",
     "Available": "Available",
-    "ErrorLoading": "Failed to load dashboard data"
+    "ErrorLoading": "Failed to load dashboard data",
+    "BulkUpload": "Bulk Upload"
   }
 }

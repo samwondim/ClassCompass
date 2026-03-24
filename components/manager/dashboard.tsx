@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Calendar, Clock, Users, BookOpen, Bell, AlertCircle, TrendingUp } from "lucide-react"
+import { Calendar, Clock, Users, BookOpen, Bell, AlertCircle, TrendingUp, Upload } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -309,7 +309,7 @@ export function ManagerDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <Link href={`${managerBase}/teachers`}>
               <Button variant="outline" className="w-full">
                 <Users className="mr-2 h-4 w-4" />
@@ -337,6 +337,12 @@ export function ManagerDashboard() {
                     {stats.unreadNotifications}
                   </Badge>
                 )}
+              </Button>
+            </Link>
+            <Link href={`${managerBase}/bulk-upload`}>
+              <Button variant="outline" className="w-full">
+                <Upload className="mr-2 h-4 w-4" />
+                {t('Dashboard.BulkUpload')}
               </Button>
             </Link>
           </div>

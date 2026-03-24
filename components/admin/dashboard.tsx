@@ -7,7 +7,7 @@ import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, Users, BookOpen, Bell, AlertCircle, TrendingUp, UserCheck } from "lucide-react"
+import { Calendar, Clock, Users, BookOpen, Bell, AlertCircle, TrendingUp, UserCheck, Upload } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslations } from "next-intl"
 
@@ -297,7 +297,7 @@ export function AdminDashboard() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             <Link href={`${adminBase}/teachers/new`}>
               <Button variant="outline" className="w-full">
                 <Users className="mr-2 h-4 w-4" />
@@ -320,6 +320,12 @@ export function AdminDashboard() {
               <Button variant="outline" className="w-full">
                 <Calendar className="mr-2 h-4 w-4" />
                 {t('Dashboard.AddSection')}
+              </Button>
+            </Link>
+            <Link href={`${adminBase}/bulk-upload`}>
+              <Button variant="outline" className="w-full">
+                <Upload className="mr-2 h-4 w-4" />
+                {t('Dashboard.BulkUpload')}
               </Button>
             </Link>
           </div>

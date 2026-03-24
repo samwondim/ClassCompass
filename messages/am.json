@@ -37,7 +37,23 @@
     "Settings": "ቅንብሮች",
     "Profile": "መገለጫ",
     "LogOut": "ውጣ",
-    "Menu": "ማውጫ"
+    "Menu": "ማውጫ",
+    "BulkUpload": "ስብስብ ማስገባት"
+  },
+  "BulkUpload": {
+    "Title": "ስብስብ ማስገባት",
+    "Description": "የተጠቃሚዎችን ወይም መርሃ ግብሮችን ስብስብ ለመፍጠር ኤክሴል ወይም ሲኤስቪ ፋይል ይስቀሉ",
+    "DragDrop": "ፋይልዎን እዚህ ይጎትቱ ወይም",
+    "BrowseFiles": "ፋይሎችን ይሻሩ",
+    "SupportedFormats": "የሚደገፉ ፎርማቶች: .xlsx, .xls, .csv",
+    "Preview": "ቅድመ እይታ",
+    "ValidRows": "ትክክለኛ",
+    "InvalidRows": "ከስህተት ጋር",
+    "UploadButton": "ማስገባት",
+    "Uploading": "በማስገባት ላይ...",
+    "Success": "ማስገባት ተጠናቋል",
+    "Error": "ማስገባት አልተሳካም",
+    "ValidationErrors": "የማረጋገጫ ስህተቶች"
   },
   "Common": {
     "Loading": "በመጫን ላይ...",
@@ -85,6 +101,7 @@
     "YouManage": "ያስተዳድራሉ",
     "TotalSchedules": "ጠቅላላ መርሃ ግብሮች",
     "Available": "ይገኛል",
-    "ErrorLoading": "ዳታውን ማስተካከል አልተቻለም"
+    "ErrorLoading": "ዳታውን ማስተካከል አልተቻለም",
+    "BulkUpload": "ስብስብ ማስገባት"
   }
 }

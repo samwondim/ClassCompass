@@ -1,0 +1,4 @@
+first_name,last_name,tg_username,phone_number,user_role,section_name
+John,Doe,@johndoe,+1234567890,TEACHER,Section A
+Jane,Smith,@janesmith,+0987654321,TEACHER,Section A
+Mike,Johnson,@mikejohnson,+1122334455,MANAGER,Section B
