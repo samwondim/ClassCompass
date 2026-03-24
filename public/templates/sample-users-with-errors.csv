@@ -1,0 +1,7 @@
+first_name,last_name,tg_username,phone_number,user_role,section_name
+Valid User,Test,@validtest,+251900000001,TEACHER,Section A
+Missing Last Name,,@nonametest,+251900000002,TEACHER,Section A
+Short Username,A,@ab,1234567,TEACHER,Section A
+Invalid Role,Test,@invalidrole,+251900000003,INVALID_ROLE,Section A
+Short Phone,Test,@shortphone,+123,TEACHER,Section A
+Admin Upload (manager test),Test,@admintest,+251900000004,ADMIN,Section A
