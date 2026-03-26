@@ -1,7 +1,6 @@
-// app/(protected)/teacher/schedules/page.tsx (sample page using the table)
 import { myScheduleColumns } from '@/components/schedules/my-schedules-columns';
 import { MySchedulesTable } from '@/components/schedules/my-schedules-table';
-import { Schedule } from '@/app/models/models'; // Adjust import
+import { Schedule } from '@/app/models/models';
 import { cookies } from "next/headers";
 
 async function getMySchedules(): Promise<Schedule[]> {
@@ -32,8 +31,7 @@ async function getMySchedules(): Promise<Schedule[]> {
   }
 }
 
-export default async function TeacherSchedulesPage() {
-
+export default async function AdminMySchedulesPage() {
   const schedules = await getMySchedules();
 
   return (

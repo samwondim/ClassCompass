@@ -142,6 +142,7 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
     { label: t('Navigation.Teachers'), href: "/am/admin/teachers", icon: User },
     { label: t('Navigation.Managers'), href: "/am/admin/managers", icon: User },
     { label: t('Navigation.Schedules'), href: "/am/admin/schedules", icon: Calendar },
+    { label: t('Navigation.MySchedules'), href: "/am/admin/my-schedules", icon: Calendar },
     { label: t('Navigation.Courses'), href: "/am/admin/courses", icon: BrainCog },
   ]
 
@@ -150,6 +151,7 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
     { label: t('Navigation.Teachers'), href: "/am/manager/teachers", icon: User },
     { label: t('Navigation.Courses'), href: "/am/manager/courses", icon: BrainCog },
     { label: t('Navigation.Schedules'), href: "/am/manager/schedules", icon: Calendar },
+    { label: t('Navigation.MySchedules'), href: "/am/manager/my-schedules", icon: Calendar },
   ]
 
   const teacherNavItems = [
