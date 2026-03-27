@@ -1,0 +1,70 @@
+import { NextRequest, NextResponse } from 'next/server';
+import prisma from '@/models/client';
+
+export const dynamic = 'force-dynamic';
+
+import { getSession } from '@/utils/session';
+import { Course } from '@/app/models/models';
+
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getSession(request);
+    const created_by = session?.fetched_user?.user_id;
+    const { course_name, verse, course_description, objectives } = await request.json();
+
+    if (!created_by) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const safeObjectives = Array.isArray(objectives) ? objectives : [];
+    if (!course_description) {
+      return NextResponse.json({ error: "Course description is required" }, { status: 400 });
+    }
+
+    const course = await prisma.course.create({
+      data: {
+        course_name: course_name || null,
+        verse: verse || null,
+        course_description,
+        created_by,
+        objectives: {
+          create: safeObjectives.map((obj: string) => ({
+            objective: obj,
+          }))
+        }
+      },
+      include: {
+        objectives: true
+      }
+    });
+
+    return NextResponse.json(course, { status: 201 });
+
+  } catch (error) {
+    console.error("Course creation error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+export async function GET(request: NextRequest) {
+  try {
+    const courses = await prisma.course.findMany({
+      orderBy: { created_at: "desc" },
+      include: {
+        objectives: true, // <-- include all objectives for each course
+        created_by_user: {
+          select: {
+            first_name: true,
+            last_name: true,
+            tg_username: true,
+          },
+
+        },
+      }
+    });
+
+    return NextResponse.json({ courses });
+  } catch (error) {
+    console.error('Get courses error:', error);
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Internal error' }, { status: 500 });
+  }
+}

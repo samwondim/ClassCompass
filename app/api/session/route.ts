@@ -1,0 +1,17 @@
+import { getSession, updateSession } from "@/utils/session";
+import { NextRequest, NextResponse } from "next/server";
+
+export async function GET(request: NextRequest) {
+  const session = await getSession(request);
+
+  if (session) {
+    return NextResponse.json({ isAuthenticated: true });
+  } else {
+    return NextResponse.json({ isAuthenticated: false }, { status: 401 });
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  const res = await updateSession(request);
+  return res ?? NextResponse.json({ error: "No session" }, { status: 401 });
+}

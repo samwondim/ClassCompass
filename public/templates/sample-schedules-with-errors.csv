@@ -1,0 +1,6 @@
+course_name,teacher_username,section_name,schedule_date
+Bible Study 101,@teacher1,Section A,2024-03-25T09:00:00
+Missing Teacher,,Section A,2024-03-25T10:30:00
+Non-existent Course,@teacher1,Section A,2024-03-26T08:00:00
+Invalid Section,@teacher1,NonExistent,2024-03-27T14:00:00
+Bad Date Format,@teacher1,Section A,not-a-date
