@@ -42,18 +42,34 @@
   },
   "BulkUpload": {
     "Title": "ስብስብ ማስገባት",
+    "Users": "ተጠቃሚዎች",
+    "Schedules": "መርሃ ግብሮች",
     "Description": "የተጠቃሚዎችን ወይም መርሃ ግብሮችን ስብስብ ለመፍጠር ኤክሴል ወይም ሲኤስቪ ፋይል ይስቀሉ",
     "DragDrop": "ፋይልዎን እዚህ ይጎትቱ ወይም",
     "BrowseFiles": "ፋይሎችን ይሻሩ",
     "SupportedFormats": "የሚደገፉ ፎርማቶች: .xlsx, .xls, .csv",
+    "ScheduleForLater": "ከኋላ ለማስቀመጥ",
+    "ScheduleDescription": "በፍጥነት ለመመዝገብ ባዶ ይተዉ",
     "Preview": "ቅድመ እይታ",
     "ValidRows": "ትክክለኛ",
     "InvalidRows": "ከስህተት ጋር",
+    "FirstName": "ስም",
+    "LastName": "የአባት ስም",
+    "Telegram": "ተሌግራም",
+    "Phone": "ስልክ",
+    "Section": "ክፍል",
+    "Status": "ሁኔታ",
     "UploadButton": "ማስገባት",
+    "ScheduleButton": "መርሃ ግብር አስቀምጥ",
+    "CancelButton": "ይቅር",
     "Uploading": "በማስገባት ላይ...",
     "Success": "ማስገባት ተጠናቋል",
+    "Scheduled": "በተሳካ ሁኔታ ታቀጠረ",
     "Error": "ማስገባት አልተሳካም",
-    "ValidationErrors": "የማረጋገጫ ስህተቶች"
+    "ValidationErrors": "የማረጋገጫ ስህተቶች",
+    "NoData": "በፋይሉ ውስጥ ምንም ዳታ አልተገኘም",
+    "InvalidFileType": "የፋይል አይነት አልተረጋገጠም",
+    "FileRequired": "ምንም ፋይል አልተሰጠም"
   },
   "Common": {
     "Loading": "በመጫን ላይ...",
@@ -62,7 +78,15 @@
     "Welcome": "እንኳን ደህና መጡ",
     "Priscila": "ጵርስቅላ",
     "Refresh": "አድስ",
-    "ViewAll": "ሁሉንም ስትዩ"
+    "ViewAll": "ሁሉንም ስትዩ",
+    "Edit": "አስተካክል",
+    "Delete": "ሰርዝ",
+    "CopyId": "መለያ ቅዳ",
+    "Actions": "ተግባራት",
+    "Yes": "አዎ",
+    "No": "አይደለም",
+    "Confirm": "አረጋግጥ",
+    "Search": "ፈልግ"
   },
   "Theme": {
     "Title": "ገጽታ",
@@ -103,5 +127,91 @@
     "Available": "ይገኛል",
     "ErrorLoading": "ዳታውን ማስተካከል አልተቻለም",
     "BulkUpload": "ስብስብ ማስገባት"
+  },
+  "Columns": {
+    "FirstName": "ስም",
+    "LastName": "የአባት ስም",
+    "TelegramUsername": "ተሌግራም ዩዘርኔም",
+    "PhoneNumber": "የስልክ ቁጥር",
+    "Section": "ክፍል",
+    "CourseName": "የትምህርት ስም",
+    "Course": "ትምህርት",
+    "Teacher": "መምህር",
+    "Date": "ቀን",
+    "Time": "ሰዓት",
+    "KeyVerse": "መሪ ጥቅሥ",
+    "Description": "ማብራሪያ",
+    "Objectives": "አላማዎች",
+    "CreatedBy": "ፈጣሪ",
+    "Actions": "ተግባራት",
+    "NoSections": "ምንም ክፍል አልተመደበም",
+    "Untitled": "ርዕስ የለም",
+    "NoObjectives": "ምንም አላማ የለም",
+    "Unknown": "ያልታወቀ",
+    "New": "አዲስ"
+  },
+  "Pages": {
+    "Teachers": {
+      "Title": "መምህራን",
+      "Add": "መምህር ጨምር",
+      "Edit": "መምህር አስተካክል",
+      "New": "አዲስ መምህር",
+      "NoData": "ምንም መምህር አልተገኘም።",
+      "DeleteConfirm": "ይህን መምህር ለማስወገድ ማረጋገጥ ይፈልጋሉ?"
+    },
+    "Managers": {
+      "Title": "አስተዳዳሪዎች",
+      "Add": "አስተዳዳሪ ጨምር",
+      "Edit": "አስተዳዳሪ አስተካክል",
+      "New": "አዲስ አስተዳዳሪ",
+      "NoData": "ምንም አስተዳዳሪ አልተገኘም።",
+      "DeleteConfirm": "ይህን አስተዳዳሪ ለማስወገድ ማረጋገጥ ይፈልጋሉ?"
+    },
+    "Courses": {
+      "Title": "ትምህርቶች",
+      "Add": "ትምህርት ጨምር",
+      "Edit": "ትምህርት አስተካክል",
+      "New": "አዲስ ትምህርት",
+      "NoData": "ምንም ትምህርት አልተገኘም።",
+      "DeleteConfirm": "ይህን ትምህርት ለማስወገድ ማረጋገጥ ይፈልጋሉ?"
+    },
+    "Schedules": {
+      "Title": "መርሃ ግብሮች",
+      "Add": "መርሃ ግብር ጨምር",
+      "Edit": "መርሃ ግብር አስተካክል",
+      "New": "አዲስ መርሃ ግብር",
+      "NoData": "ምንም መርሃ ግብር አልተገኘም።",
+      "DeleteConfirm": "ይህን መርሃ ግብር ለማስወገድ ማረጋገጥ ይፈልጋሉ?"
+    },
+    "Notifications": {
+      "Title": "ማስታወቂያዎች",
+      "Unread": "ያልተነበብ",
+      "MarkAllRead": "ሁሉንም እንደተነበብ ምልክ",
+      "NoData": "ምንም ማስታወቂያ የለም",
+      "MarkRead": "እንደተነበብ ምልክ",
+      "Delete": "ሰርዝ",
+      "New": "አዲስ",
+      "ViewDetails": "ዝርዝር ይመልከቱ"
+    }
+  },
+  "Delete": {
+    "ConfirmTitle": "ማስወገድን አረጋግጥ",
+    "Success": "በተሳካ ሁኔታ ተሰርዟል",
+    "Failed": "ማስወገድ አልተሳካም"
+  },
+  "Form": {
+    "FirstName": "ስም",
+    "LastName": "የአባት ስም",
+    "PhoneNumber": "የስልክ ቁጥር",
+    "TelegramUsername": "ተሌግራም ዩዘርኔም",
+    "Section": "ክፍል",
+    "CourseName": "የትምህርት ስም",
+    "KeyVerse": "መሪ ጥቅሥ",
+    "CourseDescription": "ስለ ትምህርቱ ማብራሪያ",
+    "ScheduleDate": "የመርሃ ግብር ቀን",
+    "SelectSection": "ክፍል ይምረጡ",
+    "SelectCourse": "ትምህርት ይምረጡ",
+    "SelectTeacher": "መምህር ይምረጡ",
+    "Required": "ይህ ቦታ ግዴታ ነው"
   }
 }

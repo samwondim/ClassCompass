@@ -1,12 +1,13 @@
 
 // app/manager/teachers/page.tsx
 import { Teacher } from "@/app/models/models";
-import { columns } from "./columns";
+import { getColumns } from "./columns";
 import { DataTable } from "./data-table";
 import Link from "next/link";
 import { getUserRole } from "@/utils/data-access";
 import prisma from "@/models/client";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 async function getData(): Promise<Teacher[]> {
   try {
@@ -88,17 +89,19 @@ async function getData(): Promise<Teacher[]> {
 export default async function TeacherMgmtPage({ params }: { params: { locale: string } }) {
   const data = await getData();
   const base = `/${params.locale}/manager`;
+  const t = await getTranslations();
+  const columns = getColumns(params.locale, t);
 
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Teachers</h1>
+        <h1 className="text-2xl font-bold">{t('Pages.Teachers.Title')}</h1>
         <Link href={`${base}/teachers/new`}>
-          <span className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Add Teacher</span>
+          <span className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">{t('Pages.Teachers.Add')}</span>
         </Link>
       </div>
       {data.length === 0 ? (
-        <p className="text-muted-foreground">No teachers found.</p>
+        <p className="text-muted-foreground">{t('Pages.Teachers.NoData')}</p>
       ) : (
         <DataTable columns={columns} data={data} />
       )}

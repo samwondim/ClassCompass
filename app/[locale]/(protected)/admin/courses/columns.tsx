@@ -15,13 +15,13 @@ import { Course } from "@/app/models/models";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-const ActionCell = ({ course }: { course: Course }) => {
+const ActionCell = ({ course, t }: { course: Course; t: any }) => {
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "am";
   const editHref = `/${locale}/admin/courses/${course.course_id}/edit`;
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this course?")) return;
+    if (!confirm(t('Pages.Courses.DeleteConfirm'))) return;
     try {
       const res = await fetch(`/api/courses/${course.course_id}`, {
         method: 'DELETE'
@@ -29,11 +29,11 @@ const ActionCell = ({ course }: { course: Course }) => {
       if (res.ok) {
         window.location.reload();
       } else {
-        alert("Failed to delete");
+        alert(t('Delete.Failed'));
       }
     } catch (e) {
       console.error(e);
-      alert("Error deleting");
+      alert(t('Delete.Failed'));
     }
   };
 
@@ -45,92 +45,94 @@ const ActionCell = ({ course }: { course: Course }) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuLabel>{t('Common.Actions')}</DropdownMenuLabel>
         <DropdownMenuItem onClick={() => navigator.clipboard.writeText(course.course_id)}>
-          Copy ID
+          {t('Common.CopyId')}
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={editHref}>Edit Course</Link>
+          <Link href={editHref}>{t('Common.Edit')}</Link>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive">
-          Delete
+          {t('Common.Delete')}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
 
-export const columns: ColumnDef<Course>[] = [
-  {
-    accessorKey: "course_name",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() =>
-          column.toggleSorting(column.getIsSorted() === "asc")
-        }
-      >
-        የትምህርት ዓርዕሥ
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => (
-      <div className="font-medium flex items-center">
-        <BookIcon className="inline h-4 w-4 mr-1 text-primary" />
-        {row.getValue("course_name") || <span className="text-muted-foreground italic">Untitled</span>}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "verse",
-    header: "መሪ ጥቅሥ",
-    cell: ({ row }) => (
-      <div className="italic text-muted-foreground">
-        {row.getValue("verse") || "-"}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "course_description",
-    header: "ስለ ትምህርቱ አጭርር ማብራርያ",
-    cell: ({ row }) => (
-      <div className="max-w-xs truncate" title={row.getValue("course_description")}>
-        {row.getValue("course_description")}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "objectives",
-    header: "የትምህርቱ አላማዎች / ተማሪዎች እንዲገነዘቡ ሚፈለጉ ነገሮች ",
-    cell: ({ row }) => {
-      const objectives = row.original.objectives || [];
-      return (
-        <div className="flex flex-col gap-1">
-          {objectives.length === 0 ? (
-            <Badge variant="outline">No objectives</Badge>
-          ) : (
-            objectives.map((obj) => (
-              <Badge key={obj.id} variant="outline">
-                {obj.objective}
-              </Badge>
-            ))
-          )}
+export function getColumns(locale: string, t: any): ColumnDef<Course>[] {
+  return [
+    {
+      accessorKey: "course_name",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() =>
+            column.toggleSorting(column.getIsSorted() === "asc")
+          }
+        >
+          {t('Columns.CourseName')}
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="font-medium flex items-center">
+          <BookIcon className="inline h-4 w-4 mr-1 text-primary" />
+          {row.getValue("course_name") || <span className="text-muted-foreground italic">{t('Columns.Untitled')}</span>}
         </div>
-      );
+      ),
     },
-  },
-  {
-    accessorKey: "created_by_user",
-    header: "ትምህርቱን የመዘገበው አካል",
-    cell: ({ row }) => {
-      const creator = row.original.created_by_user;
-      if (!creator) return <div>Unknown</div>;
-      return <div>{`${creator.first_name} ${creator.last_name}`}</div>;
+    {
+      accessorKey: "verse",
+      header: t('Columns.KeyVerse'),
+      cell: ({ row }) => (
+        <div className="italic text-muted-foreground">
+          {row.getValue("verse") || "-"}
+        </div>
+      ),
     },
-  },
-  {
-    id: "actions",
-    header: "ተጨማሪ ተግባራት",
-    cell: ({ row }) => <ActionCell course={row.original} />,
-  },
-];
+    {
+      accessorKey: "course_description",
+      header: t('Columns.Description'),
+      cell: ({ row }) => (
+        <div className="max-w-xs truncate" title={row.getValue("course_description")}>
+          {row.getValue("course_description")}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "objectives",
+      header: t('Columns.Objectives'),
+      cell: ({ row }) => {
+        const objectives = row.original.objectives || [];
+        return (
+          <div className="flex flex-col gap-1">
+            {objectives.length === 0 ? (
+              <Badge variant="outline">{t('Columns.NoObjectives')}</Badge>
+            ) : (
+              objectives.map((obj) => (
+                <Badge key={obj.id} variant="outline">
+                  {obj.objective}
+                </Badge>
+              ))
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "created_by_user",
+      header: t('Columns.CreatedBy'),
+      cell: ({ row }) => {
+        const creator = row.original.created_by_user;
+        if (!creator) return <div>{t('Columns.Unknown')}</div>;
+        return <div>{`${creator.first_name} ${creator.last_name}`}</div>;
+      },
+    },
+    {
+      id: "actions",
+      header: t('Columns.Actions'),
+      cell: ({ row }) => <ActionCell course={row.original} t={t} />,
+    },
+  ];
+}

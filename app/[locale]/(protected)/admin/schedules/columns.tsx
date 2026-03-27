@@ -10,13 +10,13 @@ import { Schedule } from "@/app/models/models";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-const ActionCell = ({ schedule }: { schedule: Schedule }) => {
+const ActionCell = ({ schedule, t }: { schedule: Schedule; t: any }) => {
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "am";
   const editHref = `/${locale}/admin/schedules/${schedule.schedule_id}/edit`;
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this schedule?")) return;
+    if (!confirm(t('Pages.Schedules.DeleteConfirm'))) return;
     try {
       const res = await fetch(`/api/schedules/${schedule.schedule_id}`, {
         method: 'DELETE'
@@ -24,12 +24,12 @@ const ActionCell = ({ schedule }: { schedule: Schedule }) => {
       if (res.ok) {
         window.location.reload();
       } else {
-        console.error("Failed to delete");
-        alert("Failed to delete");
+        console.error(t('Delete.Failed'));
+        alert(t('Delete.Failed'));
       }
     } catch (e) {
       console.error(e);
-      alert("Error deleting");
+      alert(t('Delete.Failed'));
     }
   };
 
@@ -41,54 +41,56 @@ const ActionCell = ({ schedule }: { schedule: Schedule }) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuItem onClick={() => navigator.clipboard.writeText(schedule.schedule_id)}>Copy ID</DropdownMenuItem>
+        <DropdownMenuLabel>{t('Common.Actions')}</DropdownMenuLabel>
+        <DropdownMenuItem onClick={() => navigator.clipboard.writeText(schedule.schedule_id)}>{t('Common.CopyId')}</DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link href={editHref}>Edit Schedule</Link>
+          <Link href={editHref}>{t('Common.Edit')}</Link>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive">Delete</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive">{t('Common.Delete')}</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
 
-export const columns: ColumnDef<Schedule>[] = [
-  {
-    accessorKey: "schedule_date",
-    header: ({ column }) => (
-      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-        ቀን
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => (
-      <div className="font-medium">
-        <CalIcon className="inline h-4 w-4 mr-1" />
-        {(() => {
-          const dateVal = row.getValue("schedule_date");
-          const date = typeof dateVal === 'string' ? parseISO(dateVal) : dateVal as Date;
-          return format(date, 'MMM dd, yyyy h:mm a');
-        })()}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "course.course_description",
-    header: "ትምህርት",
-    cell: ({ row }) => <Badge variant="outline">{row.original.course.course_description || 'Untitled'}</Badge>,
-  },
-  {
-    accessorKey: "teacher.first_name",
-    header: "መምህር",
-    cell: ({ row }) => {
-      const first = row.original.teacher.first_name;
-      const last = row.original.teacher.last_name;
-      return <div className="font-medium">{`${first} ${last}`}</div>;
+export function getColumns(locale: string, t: any): ColumnDef<Schedule>[] {
+  return [
+    {
+      accessorKey: "schedule_date",
+      header: ({ column }) => (
+        <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
+          {t('Columns.Date')}
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => (
+        <div className="font-medium">
+          <CalIcon className="inline h-4 w-4 mr-1" />
+          {(() => {
+            const dateVal = row.getValue("schedule_date");
+            const date = typeof dateVal === 'string' ? parseISO(dateVal) : dateVal as Date;
+            return format(date, 'MMM dd, yyyy h:mm a');
+          })()}
+        </div>
+      ),
     },
-  },
-  {
-    id: "actions",
-    header: "ተጨማሪ ተግባራት",
-    cell: ({ row }) => <ActionCell schedule={row.original} />,
-  },
-];
+    {
+      accessorKey: "course.course_description",
+      header: t('Columns.Course'),
+      cell: ({ row }) => <Badge variant="outline">{row.original.course.course_description || t('Columns.Untitled')}</Badge>,
+    },
+    {
+      accessorKey: "teacher.first_name",
+      header: t('Columns.Teacher'),
+      cell: ({ row }) => {
+        const first = row.original.teacher.first_name;
+        const last = row.original.teacher.last_name;
+        return <div className="font-medium">{`${first} ${last}`}</div>;
+      },
+    },
+    {
+      id: "actions",
+      header: t('Columns.Actions'),
+      cell: ({ row }) => <ActionCell schedule={row.original} t={t} />,
+    },
+  ];
+}

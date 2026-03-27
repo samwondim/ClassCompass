@@ -1,9 +1,10 @@
 // app/manager/page.tsx
 import { Manager } from "@/app/models/models";
-import { columns } from "./columns";
+import { getColumns } from "./columns";
 import { DataTable } from "./data-table";
 import Link from "next/link";
 import { cookies } from "next/headers";
+import { getTranslations } from "next-intl/server";
 
 // import prisma from "@/models/client"; // removed
 
@@ -37,17 +38,19 @@ async function getData(): Promise<Manager[]> {
 export default async function DemoPage({ params }: { params: { locale: string } }) {
   const data = await getData();
   const base = `/${params.locale}/admin`;
+  const t = await getTranslations();
+  const columns = getColumns(params.locale, t);
 
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">አስተዳዳሪዎች</h1>
+        <h1 className="text-2xl font-bold">{t('Pages.Managers.Title')}</h1>
         <Link href={`${base}/managers/new`}>
-          <span className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">አዲስ አስተዳዳሪ</span>
+          <span className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">{t('Pages.Managers.Add')}</span>
         </Link>
       </div>
       {data.length === 0 ? (
-        <p className="text-muted-foreground">አስተዳዳሪዎች አልተገኙም</p>
+        <p className="text-muted-foreground">{t('Pages.Managers.NoData')}</p>
       ) : (
         <DataTable columns={columns} data={data} />
       )}

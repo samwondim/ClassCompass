@@ -4,7 +4,15 @@ import prisma from '@/models/client';
 const botToken = process.env.BOT_TOKEN;
 const bot = botToken ? new Bot(botToken) : null;
 
-const WEB_APP_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://t.me/class_compass_bot/app';
+const MINI_APP_URL = 'https://t.me/class_compass_bot/Priscilla';
+
+// Helper to get notification template
+async function getNotificationTemplate(key: string, defaultMessage: string): Promise<string> {
+  const template = await prisma.notificationTemplate.findUnique({
+    where: { key },
+  });
+  return template?.message || defaultMessage;
+}
 
 // Helper to escape MarkdownV2 special characters
 function escapeMarkdown(text: string): string {
@@ -94,16 +102,11 @@ export async function notifySectionChange(
   changerName: string,
   changeDetails: string
 ) {
-  console.log('🔔 notifySectionChange called:', {
-    managerUserId,
-    managerTgId,
-    sectionName,
-    changerName,
-    changeDetails
-  });
-
+  const defaultMessage = `Section: ${sectionName}\nWhat Changed: ${changeDetails}\nBy: ${changerName}`;
+  const customMessage = await getNotificationTemplate('SECTION_CHANGE', defaultMessage);
+  
   const title = "📢 Section Update";
-  const plainMessage = `Section: ${sectionName}\nWhat Changed: ${changeDetails}\nBy: ${changerName}`;
+  const plainMessage = `${customMessage}\n\nSection: ${sectionName}\nDetails: ${changeDetails}\nBy: ${changerName}`;
 
   // Save to database
   await saveNotification(
@@ -133,7 +136,7 @@ ${escapeMarkdown(sectionName)}
 ${escapeMarkdown(new Date().toLocaleString())}
 `;
 
-  const deepLink = `[Open App](${WEB_APP_URL})`;
+  const deepLink = `[Open App](${MINI_APP_URL})`;
   const fullMessage = `${body}\n${deepLink}`;
 
   const sent = await sendTelegramNotification(managerTgId, fullMessage);
@@ -155,17 +158,11 @@ export async function notifyScheduleChange(
   changerName: string,
   details: string
 ) {
-  console.log('🔔 notifyScheduleChange called:', {
-    teacherUserId,
-    teacherTgId,
-    action,
-    courseName,
-    changerName,
-    details
-  });
-
-  const title = `🗓 የመርሃ ግብር ለውጥ: ${action}`;
-  const plainMessage = `ትምህር: ${courseName}\n${details}\n`;
+  const defaultMessage = `Schedule update: ${action}\nCourse: ${courseName}\nDetails: ${details}`;
+  const customMessage = await getNotificationTemplate('SCHEDULE_CHANGE', defaultMessage);
+  
+  const title = `🗓 ${action} - የመርሃ ግብር ለውጥ`;
+  const plainMessage = `${customMessage}\n\nCourse: ${courseName}\nDetails: ${details}`;
 
   // Save to database
   await saveNotification(
@@ -195,7 +192,7 @@ ${escapeMarkdown(changerName)}
 ${escapeMarkdown(new Date().toLocaleString())}
 `;
 
-  const deepLink = `[Check Schedule](${WEB_APP_URL}?startapp=my_schedule)`;
+  const deepLink = `[Check Schedule](${MINI_APP_URL}?startapp=my_schedule)`;
   const fullMessage = `${body}\n${deepLink}`;
 
   const sent = await sendTelegramNotification(teacherTgId, fullMessage);
@@ -225,8 +222,11 @@ export async function notifyUnavailability(
     date
   });
 
+  const defaultMessage = `Teacher: ${teacherName}\nClass: ${affectedClass}\nDate: ${date}\nReason: ${reason}`;
+  const customMessage = await getNotificationTemplate('UNAVAILABILITY', defaultMessage);
+  
   const title = "⚠️ Teacher Unavailability Report";
-  const plainMessage = `Teacher: ${teacherName}\nClass: ${affectedClass}\nDate: ${date}\nReason: ${reason}`;
+  const plainMessage = `${customMessage}\n\nTeacher: ${teacherName}\nClass: ${affectedClass}\nDate: ${date}\nReason: ${reason}`;
 
   // Save to database for all recipients
   await Promise.all(
@@ -263,7 +263,7 @@ ${escapeMarkdown(reason)}
 ${escapeMarkdown(new Date().toLocaleString())}
 `;
 
-  const deepLink = `[Manage Substitutes](${WEB_APP_URL}?startapp=manage_schedules)`;
+  const deepLink = `[Manage Substitutes](${MINI_APP_URL}?startapp=manage_schedules)`;
   const fullMessage = `${body}\n${deepLink}`;
 
   const results = await Promise.all(
@@ -306,7 +306,12 @@ export async function notifySundayScheduleReminder(
     return `• ${course} (${section}) at ${time}`;
   });
 
-  const plainMessage = `Hello ${teacherName},\nYour upcoming Sunday (${sundayDate.toLocaleDateString()}) schedule:\n${lines.join("\n")}`;
+  const defaultMessage = `Hello ${teacherName},\nYour upcoming Sunday (${sundayDate.toLocaleDateString()}) schedule:\n${lines.join("\n")}`;
+  const customMessage = await getNotificationTemplate('SUNDAY_REMINDER', defaultMessage);
+
+  const plainMessage = `${customMessage}`;
+
+
 
   await saveNotification(
     teacher.user_id,
@@ -327,7 +332,7 @@ ${escapeMarkdown(sundayDate.toLocaleDateString())}
 ${escapeMarkdown(lines.join("\n"))}
 `;
 
-  const deepLink = `[View Schedule](${WEB_APP_URL}?startapp=my_schedule)`;
+  const deepLink = `[View Schedule](${MINI_APP_URL}?startapp=my_schedule)`;
   const fullMessage = `${body}\n${deepLink}`;
   await sendTelegramNotification(teacher.tg_id.toString(), fullMessage);
 }
@@ -365,7 +370,7 @@ ${escapeMarkdown(sectionName)}
 ${escapeMarkdown(sundayDate.toLocaleDateString())}
 `;
 
-  const deepLink = `[Add Schedule](${WEB_APP_URL}?startapp=manage_schedules)`;
+  const deepLink = `[Add Schedule](${MINI_APP_URL}?startapp=manage_schedules)`;
   const fullMessage = `${body}\n${deepLink}`;
   await sendTelegramNotification(manager.tg_id.toString(), fullMessage);
 }
@@ -402,7 +407,7 @@ ${escapeMarkdown(sectionName)}
 Your section has no schedules\. Please add schedules to the board\.
 `;
 
-  const deepLink = `[Add Schedule](${WEB_APP_URL}?startapp=manage_schedules)`;
+  const deepLink = `[Add Schedule](${MINI_APP_URL}?startapp=manage_schedules)`;
   const fullMessage = `${body}\n${deepLink}`;
   await sendTelegramNotification(manager.tg_id.toString(), fullMessage);
 }
@@ -445,7 +450,7 @@ ${escapeMarkdown(sectionsList)}
 Please add schedules to these sections\.
 `;
 
-    const deepLink = `[View Schedules](${WEB_APP_URL}?startapp=manage_schedules)`;
+    const deepLink = `[View Schedules](${MINI_APP_URL}?startapp=manage_schedules)`;
     const fullMessage = `${body}\n${deepLink}`;
     await sendTelegramNotification(manager.tg_id.toString(), fullMessage);
   }

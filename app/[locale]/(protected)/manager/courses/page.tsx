@@ -1,9 +1,10 @@
 
 import { Course } from "@/app/models/models";
-import { columns } from "./columns";
+import { getColumns } from "./columns";
 import { DataTable } from "./data-table";
 import Link from "next/link";
 import { cookies } from "next/headers";
+import { getTranslations } from "next-intl/server";
 
 
 // -------- FETCH COURSES --------
@@ -39,18 +40,20 @@ async function getData(): Promise<Course[]> {
 export default async function CoursesPage({ params }: { params: { locale: string } }) {
   const data = await getData();
   const base = `/${params.locale}/manager`;
+  const t = await getTranslations();
+  const columns = getColumns(params.locale, t);
 
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Courses</h1>
+        <h1 className="text-2xl font-bold">{t('Pages.Courses.Title')}</h1>
         <Link href={`${base}/courses/new`}>
-          <span className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Add Course</span>
+          <span className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">{t('Pages.Courses.Add')}</span>
         </Link>
       </div>
 
       {data.length === 0 ? (
-        <p className="text-muted-foreground">No courses found.</p>
+        <p className="text-muted-foreground">{t('Pages.Courses.NoData')}</p>
       ) : (
         <DataTable columns={columns} data={data} />
       )}

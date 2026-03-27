@@ -11,82 +11,73 @@ import {
 
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { usePathname } from "next/navigation";
 import Link from "next/link";
 
-const TeacherActions = ({ teacherId }: { teacherId: string }) => {
-  const pathname = usePathname();
-  const locale = pathname?.split("/")[1] || "am";
-  const editHref = `/${locale}/admin/teachers/${teacherId}/edit`;
+export const getColumns = (locale: string, t: (key: string) => string): ColumnDef<Teacher>[] => {
+  return [
+    {
+      accessorKey: "first_name",
+      header: () => t('Columns.FirstName'),
+    },
+    {
+      accessorKey: "last_name",
+      header: () => t('Columns.LastName'),
+    },
+    {
+      accessorKey: "tg_username",
+      header: () => t('Columns.TelegramUsername'),
+    },
+    {
+      accessorKey: "phone_number",
+      header: () => t('Columns.PhoneNumber'),
+    },
+    {
+      accessorKey: "sections",
+      header: () => t('Columns.Section'),
+    },
+    {
+      id: "actions",
+      header: () => t('Columns.Actions'),
+      cell: ({ row }) => {
+        const teacher = row.original;
 
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
+        const deleteUser = async () => {
+          const ok = confirm(t('Pages.Teachers.DeleteConfirm'));
+          if (!ok) return;
 
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem asChild>
-          <Link href={editHref}>መረጃ አስተካክል</Link>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+          const res = await fetch(`/api/user/${teacher.user_id}`, {
+            method: "DELETE",
+          });
+
+          if (res.ok) {
+            window.location.reload();
+          } else {
+            alert(t('Delete.Failed'));
+          }
+        };
+
+        return (
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href={`/${locale}/admin/teachers/${teacher.user_id}/edit`}>{t('Common.Edit')}</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button variant="ghost" className="h-8 px-2 text-destructive" onClick={deleteUser}>
+              {t('Common.Delete')}
+            </Button>
+          </div>
+        );
+      },
+    },
+  ];
 };
 
-export const columns: ColumnDef<Teacher>[] = [
-  {
-    accessorKey: "first_name",
-    header: "ስም",
-  },
-  {
-    accessorKey: "last_name",
-    header: "የአባት ስም",
-  },
-  {
-    accessorKey: "tg_username",
-    header: "ተሌግራም ዩዘርኔም",
-  },
-  {
-    accessorKey: "phone_number",
-    header: "የስልክ ቁጥር",
-  },
-  {
-    accessorKey: "sections",
-    header: "ክፍል",
-  },
-  {
-    id: "actions",
-    header: "ተጨማሪ ተግባራት",
-    cell: ({ row }) => {
-      const teacher = row.original;
-
-      // DELETE ACTION
-      const deleteUser = async () => {
-        const ok = confirm("Are you sure?");
-        if (!ok) return;
-
-        const res = await fetch(`/api/user/${teacher.user_id}`, {
-          method: "DELETE",
-        });
-
-        if (res.ok) {
-          window.location.reload();
-        } else {
-          alert("Failed to delete user");
-        }
-      };
-
-      return (
-        <div className="flex items-center gap-2">
-          <TeacherActions teacherId={teacher.user_id} />
-          <Button variant="ghost" className="h-8 px-2 text-destructive" onClick={deleteUser}>
-            አጥፋ
-          </Button>
-        </div>
-      );
-    },
-  },
-];
+export const columns: ColumnDef<Teacher>[] = [];

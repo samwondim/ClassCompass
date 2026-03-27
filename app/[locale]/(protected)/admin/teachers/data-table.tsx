@@ -21,21 +21,21 @@ import { User, Phone, MessageCircle, MapPin, MoreHorizontal } from "lucide-react
 import { Teacher } from "@/app/models/models"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { usePathname } from "next/navigation"
 import Link from "next/link"
+import { useTranslations } from "next-intl"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  locale?: string
 }
 
 // Mobile Card Component for Teachers
-function TeacherCard({ teacher }: { teacher: Teacher }) {
-  const pathname = usePathname();
-  const locale = pathname?.split("/")[1] || "am";
+function TeacherCard({ teacher, locale }: { teacher: Teacher; locale: string }) {
+  const t = useTranslations();
   const editHref = `/${locale}/admin/teachers/${teacher.user_id}/edit`;
   const deleteUser = async () => {
-    const ok = confirm("Are you sure you want to delete this teacher?");
+    const ok = confirm(t('Pages.Teachers.DeleteConfirm'));
     if (!ok) return;
 
     const res = await fetch(`/api/user/${teacher.user_id}`, {
@@ -45,7 +45,7 @@ function TeacherCard({ teacher }: { teacher: Teacher }) {
     if (res.ok) {
       window.location.reload();
     } else {
-      alert("Failed to delete user");
+      alert(t('Delete.Failed'));
     }
   };
 
@@ -67,13 +67,13 @@ function TeacherCard({ teacher }: { teacher: Teacher }) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem asChild>
-                  <Link href={editHref}>Edit</Link>
+                  <Link href={editHref}>{t('Common.Edit')}</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={deleteUser}
                   className="text-destructive focus:text-destructive"
                 >
-                  Delete
+                  {t('Common.Delete')}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -109,7 +109,9 @@ function TeacherCard({ teacher }: { teacher: Teacher }) {
 export function DataTable<TData, TValue>({
   columns,
   data,
+  locale = "am",
 }: DataTableProps<TData, TValue>) {
+  const t = useTranslations();
   const table = useReactTable({
     data,
     columns,
@@ -123,12 +125,12 @@ export function DataTable<TData, TValue>({
         {data.length === 0 ? (
           <Card>
             <CardContent className="py-8 text-center text-muted-foreground">
-              No teachers found.
+              {t('Pages.Teachers.NoData')}
             </CardContent>
           </Card>
         ) : (
           data.map((item) => (
-            <TeacherCard key={(item as any).user_id} teacher={item as any} />
+            <TeacherCard key={(item as any).user_id} teacher={item as any} locale={locale} />
           ))
         )}
       </div>
@@ -171,7 +173,7 @@ export function DataTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                  {t('Pages.Teachers.NoData')}
                 </TableCell>
               </TableRow>
             )}

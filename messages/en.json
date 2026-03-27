@@ -21,8 +21,10 @@
   "NoDataFound": "No {type} found.",
   "Welcome": "Welcome, {name} ({role})",
   "BulkUpload": {
-    "Title": "Bulk User Upload",
-    "Description": "Upload an Excel or CSV file to bulk register users",
+    "Title": "Bulk Upload",
+    "Users": "Users",
+    "Schedules": "Schedules",
+    "Description": "Upload an Excel or CSV file to bulk create {type}",
     "DragDrop": "Drag and drop your file here, or",
     "BrowseFiles": "browse files",
     "SupportedFormats": "Supported formats: .xlsx, .xls, .csv",
@@ -37,7 +39,7 @@
     "Phone": "Phone",
     "Section": "Section",
     "Status": "Status",
-    "UploadButton": "Register Users",
+    "UploadButton": "Upload {type}",
     "ScheduleButton": "Schedule Registration",
     "CancelButton": "Cancel",
     "Uploading": "Uploading...",
@@ -73,7 +75,15 @@
     "Welcome": "Welcome",
     "Priscila": "Priscila",
     "Refresh": "Refresh",
-    "ViewAll": "View All"
+    "ViewAll": "View All",
+    "Edit": "Edit",
+    "Delete": "Delete",
+    "CopyId": "Copy ID",
+    "Actions": "Actions",
+    "Yes": "Yes",
+    "No": "No",
+    "Confirm": "Confirm",
+    "Search": "Search"
   },
   "Theme": {
     "Title": "Theme",
@@ -114,5 +124,91 @@
     "Available": "Available",
     "ErrorLoading": "Failed to load dashboard data",
     "BulkUpload": "Bulk Upload"
+  },
+  "Columns": {
+    "FirstName": "First Name",
+    "LastName": "Last Name",
+    "TelegramUsername": "Telegram Username",
+    "PhoneNumber": "Phone Number",
+    "Section": "Section",
+    "CourseName": "Course Name",
+    "Course": "Course",
+    "Teacher": "Teacher",
+    "Date": "Date",
+    "Time": "Time",
+    "KeyVerse": "Key Verse",
+    "Description": "Description",
+    "Objectives": "Objectives",
+    "CreatedBy": "Created By",
+    "Actions": "Actions",
+    "NoSections": "No Sections Assigned",
+    "Untitled": "Untitled",
+    "NoObjectives": "No objectives",
+    "Unknown": "Unknown",
+    "New": "New"
+  },
+  "Pages": {
+    "Teachers": {
+      "Title": "Teachers",
+      "Add": "Add Teacher",
+      "Edit": "Edit Teacher",
+      "New": "New Teacher",
+      "NoData": "No teachers found.",
+      "DeleteConfirm": "Are you sure you want to delete this teacher?"
+    },
+    "Managers": {
+      "Title": "Managers",
+      "Add": "Add Manager",
+      "Edit": "Edit Manager",
+      "New": "New Manager",
+      "NoData": "No managers found.",
+      "DeleteConfirm": "Are you sure you want to delete this manager?"
+    },
+    "Courses": {
+      "Title": "Courses",
+      "Add": "Add Course",
+      "Edit": "Edit Course",
+      "New": "New Course",
+      "NoData": "No courses found.",
+      "DeleteConfirm": "Are you sure you want to delete this course?"
+    },
+    "Schedules": {
+      "Title": "Schedules",
+      "Add": "Add Schedule",
+      "Edit": "Edit Schedule",
+      "New": "New Schedule",
+      "NoData": "No schedules found.",
+      "DeleteConfirm": "Are you sure you want to delete this schedule?"
+    },
+    "Notifications": {
+      "Title": "Notifications",
+      "Unread": "unread",
+      "MarkAllRead": "Mark all as read",
+      "NoData": "No notifications yet",
+      "MarkRead": "Mark as read",
+      "Delete": "Delete",
+      "New": "New",
+      "ViewDetails": "View Details"
+    }
+  },
+  "Delete": {
+    "ConfirmTitle": "Confirm Delete",
+    "Success": "Deleted successfully",
+    "Failed": "Failed to delete"
+  },
+  "Form": {
+    "FirstName": "First Name",
+    "LastName": "Last Name",
+    "PhoneNumber": "Phone Number",
+    "TelegramUsername": "Telegram Username",
+    "Section": "Section",
+    "CourseName": "Course Name",
+    "KeyVerse": "Key Verse",
+    "CourseDescription": "Course Description",
+    "ScheduleDate": "Schedule Date",
+    "SelectSection": "Select a section",
+    "SelectCourse": "Select a course",
+    "SelectTeacher": "Select a teacher",
+    "Required": "This field is required"
   }
 }

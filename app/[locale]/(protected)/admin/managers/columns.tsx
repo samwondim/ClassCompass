@@ -10,7 +10,7 @@ import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 
-const ManagerActions = ({ managerId }: { managerId: string }) => {
+const ManagerActions = ({ managerId, t }: { managerId: string; t: any }) => {
   const pathname = usePathname();
   const locale = pathname?.split("/")[1] || "am";
   const editHref = `/${locale}/admin/managers/${managerId}/edit`;
@@ -25,72 +25,72 @@ const ManagerActions = ({ managerId }: { managerId: string }) => {
 
       <DropdownMenuContent align="end">
         <DropdownMenuItem asChild>
-          <Link href={editHref}>መረጃ አስተካክል</Link>
+          <Link href={editHref}>{t('Common.Edit')}</Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
-export const columns: ColumnDef<Manager>[] = [
-  {
-    accessorKey: "first_name",
-    header: "ስም",
-  },
-  {
-    accessorKey: "last_name",
-    header: "የአባት ስም",
-  },
-  {
-    accessorKey: "tg_username",
-    header: "ተሌግራም ዩዘርኔም",
-  },
-  {
-    accessorKey: "phone_number",
-    header: "የስልክ ቁጥር",
-  },
-  {
-    accessorKey: "sections",
-    header: "ክፍል",
-    cell: ({ row }) => {
-      if (!row.original.sections) {
-        return <Badge variant="outline">No Sections Assigned</Badge>
-      }
-      return <>
-        {row.original.sections?.map(section => <Badge key={section.section_id} variant="outline">{section.section_name}</Badge>)}
-      </>
+
+export function getColumns(locale: string, t: any): ColumnDef<Manager>[] {
+  return [
+    {
+      accessorKey: "first_name",
+      header: t('Columns.FirstName'),
     },
-  },
-  {
-
-    id: "actions",
-    header: "ተጨማሪ ተግባራት",
-    cell: ({ row }) => {
-      const manager = row.original;
-
-
-      // DELETE ACTION
-      const deleteUser = async () => {
-        const ok = confirm("Are you sure?");
-        if (!ok) return;
-
-        const res = await fetch(`/api/user/${manager.user_id}`, {
-          method: "DELETE",
-        });
-
-        if (res.ok) {
-          window.location.reload();
-        } else {
-          alert("Failed to delete user");
+    {
+      accessorKey: "last_name",
+      header: t('Columns.LastName'),
+    },
+    {
+      accessorKey: "tg_username",
+      header: t('Columns.TelegramUsername'),
+    },
+    {
+      accessorKey: "phone_number",
+      header: t('Columns.PhoneNumber'),
+    },
+    {
+      accessorKey: "sections",
+      header: t('Columns.Section'),
+      cell: ({ row }) => {
+        if (!row.original.sections) {
+          return <Badge variant="outline">{t('Columns.NoSections')}</Badge>
         }
-      };
-      return (
-        <div className="flex items-center gap-2">
-          <ManagerActions managerId={manager.user_id} />
-          <Button variant="ghost" className="h-8 px-2 text-destructive" onClick={deleteUser}>
-            አጥፋ
-          </Button>
-        </div>
-      );
+        return <>
+          {row.original.sections?.map((section: any) => <Badge key={section.section_id} variant="outline">{section.section_name}</Badge>)}
+        </>
+      },
     },
-  }
-]
+    {
+      id: "actions",
+      header: t('Columns.Actions'),
+      cell: ({ row }) => {
+        const manager = row.original;
+
+        const deleteUser = async () => {
+          const ok = confirm(t('Pages.Managers.DeleteConfirm'));
+          if (!ok) return;
+
+          const res = await fetch(`/api/user/${manager.user_id}`, {
+            method: "DELETE",
+          });
+
+          if (res.ok) {
+            window.location.reload();
+          } else {
+            alert(t('Delete.Failed'));
+          }
+        };
+        return (
+          <div className="flex items-center gap-2">
+            <ManagerActions managerId={manager.user_id} t={t} />
+            <Button variant="ghost" className="h-8 px-2 text-destructive" onClick={deleteUser}>
+              {t('Common.Delete')}
+            </Button>
+          </div>
+        );
+      },
+    }
+  ];
+}
