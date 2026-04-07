@@ -8,9 +8,9 @@ import {
   Home,
   BookOpen,
   Settings,
-  LogOut,
   User,
   Bell,
+
   LayoutDashboard,
   BrainCog,
   LayoutDashboardIcon,
@@ -32,12 +32,6 @@ import type { ThemeMode } from "@/components/theme-provider"
 interface AppLayoutProps {
   children: React.ReactNode
   userRole: string | null
-}
-
-async function logout() {
-  const res = await fetch("/api/auth/logout", { method: "POST" });
-  console.log(res)
-  window.location.href = "/am";
 }
 
 export function AppLayout({ children, userRole }: AppLayoutProps) {
@@ -240,14 +234,6 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
               <DropdownMenuItem>
                 <Settings className="mr-2 h-4 w-4" />
                 <span>{t('Navigation.Settings')}</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>
-                  <form action={logout}>
-                    <button className="nav-link">{t('Navigation.LogOut')}</button>
-                  </form>
-                </span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

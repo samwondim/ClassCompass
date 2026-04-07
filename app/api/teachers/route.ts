@@ -15,8 +15,17 @@ export async function GET(request: NextRequest) {
     if (!["MANAGER", "ADMIN"].includes(user.user_role || '')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
     }
+    const { searchParams } = new URL(request.url);
+    const sectionId = searchParams.get('sectionId');
+
+    const whereClause: any = {};
+    if (sectionId) {
+        whereClause.section_id = sectionId;
+    }
+
     const teacherSections = await prisma.teacherSection.findMany({
-      include: {
+        where: whereClause,
+        include: {
         teacher: {
           select: {
             user_id: true,
@@ -33,6 +42,7 @@ export async function GET(request: NextRequest) {
         },
       },
     })
+
     return NextResponse.json({ teachers: teacherSections });
   } catch (error) {
     console.error('Get teachers error:', error)

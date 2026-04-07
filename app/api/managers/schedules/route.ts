@@ -42,11 +42,19 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ schedules: [] }, { status: 200 });
         }
 
+        const { searchParams } = new URL(request.url);
+        const teacherId = searchParams.get('teacherId');
+
         // Fetch schedules for those sections
+        const whereClause: any = {
+            section_id: { in: sectionIds }
+        };
+        if (teacherId) {
+            whereClause.teacher_id = teacherId;
+        }
+
         const schedules = await prisma.schedule.findMany({
-            where: {
-                section_id: { in: sectionIds }
-            },
+            where: whereClause,
             include: {
                 course: {
                     select: {

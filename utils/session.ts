@@ -44,9 +44,4 @@ export async function updateSession(request: NextRequest) {
 
 
 
-export async function logout() {
-  const cookieStore = await cookies();
 
-  cookieStore.delete("session");
-  redirect('/');
-}

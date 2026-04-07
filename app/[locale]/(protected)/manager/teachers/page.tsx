@@ -1,5 +1,4 @@
 
-// app/manager/teachers/page.tsx
 import { Teacher } from "@/app/models/models";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
@@ -7,42 +6,33 @@ import Link from "next/link";
 import { getUserRole } from "@/utils/data-access";
 import prisma from "@/models/client";
 import { redirect } from "next/navigation";
+import { Filter } from "@/components/filter";
 
-async function getData(): Promise<Teacher[]> {
-  try {
-    // Get authenticated user directly (server component has access to cookies)
-    const user = await getUserRole();
-
-    if (!user) {
-      redirect('/');
-    }
-
-    if (user.user_role !== 'MANAGER') {
-      console.error('Unauthorized: User is not a manager');
-      return [];
-    }
-
-    // Get sections managed by this manager
+async function getSections(managerId: string) {
     const managerSections = await prisma.managerSection.findMany({
-      where: {
-        manager_id: user.user_id
-      },
-      select: {
-        section_id: true
-      }
+        where: { manager_id: managerId },
+        include: { section: true }
     });
+    return managerSections.map(ms => ms.section);
+}
 
+async function getData(managerId: string, sectionId?: string): Promise<Teacher[]> {
+  try {
+    const managerSections = await prisma.managerSection.findMany({
+      where: { manager_id: managerId },
+      select: { section_id: true }
+    });
     const sectionIds = managerSections.map(ms => ms.section_id);
 
-    if (sectionIds.length === 0) {
-      return [];
-    }
+    if (sectionIds.length === 0) return [];
 
-    // Fetch teachers assigned to those sections
+    const whereClause: any = {
+      section_id: sectionId ? { in: [sectionId] } : { in: sectionIds }
+    };
+    if (sectionId && !sectionIds.includes(sectionId)) return [];
+
     const teacherSections = await prisma.teacherSection.findMany({
-      where: {
-        section_id: { in: sectionIds }
-      },
+      where: whereClause,
       include: {
         teacher: {
           select: {
@@ -63,20 +53,17 @@ async function getData(): Promise<Teacher[]> {
       }
     });
 
-    // Transform to match the Teacher model format and filter out invalid entries
-    const teachers = teacherSections
-      .filter(ts => ts.teacher.user_role !== null) // Filter out teachers with null role
+    return teacherSections
+      .filter(ts => ts.teacher.user_role !== null)
       .map(ts => ({
         user_id: ts.teacher.user_id,
-        user_role: ts.teacher.user_role as any,  // Type assertion for Enum compatibility
+        user_role: ts.teacher.user_role as any,
         first_name: ts.teacher.first_name,
         last_name: ts.teacher.last_name,
         tg_username: ts.teacher.tg_username,
         phone_number: ts.teacher.phone_number,
         sections: ts.section.section_name
       }));
-
-    return teachers;
   } catch (error) {
     console.error('Error fetching teachers:', error);
     return [];
@@ -85,17 +72,28 @@ async function getData(): Promise<Teacher[]> {
   }
 }
 
-export default async function TeacherMgmtPage({ params }: { params: { locale: string } }) {
-  const data = await getData();
+export default async function TeacherMgmtPage({ params, searchParams }: { params: { locale: string }, searchParams: { sectionId?: string } }) {
+  const user = await getUserRole();
+  if (!user) redirect('/');
+  
+  const sections = await getSections(user.user_id);
+  const data = await getData(user.user_id, searchParams.sectionId);
   const base = `/${params.locale}/manager`;
 
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Teachers</h1>
-        <Link href={`${base}/teachers/new`}>
-          <span className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Add Teacher</span>
-        </Link>
+        <div className="flex gap-4">
+          <Filter 
+            options={sections.map(s => ({ label: s.section_name || 'Unnamed Section', value: s.section_id }))} 
+            placeholder="Select Section" 
+            paramName="sectionId"
+          />
+          <Link href={`${base}/teachers/new`}>
+            <span className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Add Teacher</span>
+          </Link>
+        </div>
       </div>
       {data.length === 0 ? (
         <p className="text-muted-foreground">No teachers found.</p>
