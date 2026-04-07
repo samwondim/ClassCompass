@@ -1,4 +1,5 @@
 
+import { Suspense } from 'react';
 import { Teacher } from "@/app/models/models";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
@@ -85,11 +86,13 @@ export default async function TeacherMgmtPage({ params, searchParams }: { params
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Teachers</h1>
         <div className="flex gap-4">
-          <Filter 
-            options={sections.map(s => ({ label: s.section_name || 'Unnamed Section', value: s.section_id }))} 
-            placeholder="Select Section" 
-            paramName="sectionId"
-          />
+          <Suspense fallback={<div>Loading filters...</div>}>
+            <Filter 
+              options={sections.map(s => ({ label: s.section_name || 'Unnamed Section', value: s.section_id }))} 
+              placeholder="Select Section" 
+              paramName="sectionId"
+            />
+          </Suspense>
           <Link href={`${base}/teachers/new`}>
             <span className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Add Teacher</span>
           </Link>
