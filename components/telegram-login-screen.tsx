@@ -1,7 +1,7 @@
 'use client'
 
 import { useTelegram } from '@/components/telegram-provider'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useToast } from "@/hooks/use-toast"
 import { useRouter } from 'next/navigation'
 import { Shield } from 'lucide-react'
@@ -45,6 +45,14 @@ export function LoginScreen() {
     }
     setLoading(false)
   }
+
+  // Auto-authenticate if phone number is available
+  useEffect(() => {
+    if (user?.phone_number) {
+      setPhoneNumberInput(user.phone_number)
+      authenticate(user.phone_number)
+    }
+  }, [user])
 
   const handleLogin = () => {
     if (!phoneNumberInput) {

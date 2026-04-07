@@ -49,6 +49,8 @@ export function LoginScreen() {
       window.location.href = '/'; // Hard redirect: Ensures server request + middleware
     } catch (error) {
       console.error('Error authenticating user:', error);
+      // Only show toast if it's NOT just the initial "not initialized" error, 
+      // or if it's a real failure. Let's keep it for now.
       toast({
         title: 'Login Failed',
         description: error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.',
@@ -58,6 +60,11 @@ export function LoginScreen() {
       setIsLoading(false);
     }
   }
+
+  useEffect(() => {
+    // Automatically attempt authentication on mount
+    authenticateUser();
+  }, []);
 
   return (<div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-emerald-50 to-sky-50 p-6">
     <Card className="w-full max-w-md shadow-2xl border-emerald-100 bg-white/80 backdrop-blur-sm">
