@@ -240,7 +240,7 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
         </div>
       </header>
       {/* Main Content */}
-      <div className="flex flex-1 md:flex">
+      <div className="flex flex-1 md:pl-64">
         <main
           className="flex-1 pb-24 md:pb-0"
           onTouchStart={handleTouchStart}
@@ -249,24 +249,38 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
           {children}
         </main>
       </div>
-      {/* Bottom Navigation - Floating Telegram-style */}
-      <div className="fixed bottom-4 left-4 right-4 z-50 max-w-2xl mx-auto">
+      {/* Bottom Navigation - Floating Telegram-style (Only visible on mobile) */}
+      <div className="fixed bottom-4 left-4 right-4 z-50 max-w-2xl mx-auto md:hidden">
         <nav className="flex items-center justify-around rounded-2xl bg-card/95 shadow-xl border border-border backdrop-blur px-2 py-1">
           {roleNavItems.map((item, index) => (
             <Link
               key={index}
               href={item.href}
-              className={`flex flex-1 flex-col items-center gap-1 py-2 text-[11px] transition ${isActive(item.href) ? "text-primary font-semibold" : "text-muted-foreground"
+              className={`flex flex-1 flex-col items-center gap-1 py-2 text-[13px] transition ${isActive(item.href) ? "text-primary font-semibold" : "text-muted-foreground"
                 }`}
             >
               <span className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${isActive(item.href) ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
                 <item.icon className="h-5 w-5" />
               </span>
-              <span className="md:text-[10px]">{item.label}</span>
+              <span className="md:text-[12px]">{item.label}</span>
             </Link>
           ))}
         </nav>
       </div>
+
+      {/* Desktop Sidebar Navigation (Only visible on desktop) */}
+      <aside className="hidden md:flex flex-col w-64 border-r bg-card fixed left-0 top-16 bottom-0 p-4 gap-2">
+        {roleNavItems.map((item, index) => (
+          <Link
+            key={index}
+            href={item.href}
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg transition ${isActive(item.href) ? "bg-primary/10 text-primary font-semibold" : "text-muted-foreground hover:bg-muted"}`}
+          >
+            <item.icon className="h-5 w-5" />
+            <span className="text-[14px]">{item.label}</span>
+          </Link>
+        ))}
+      </aside>
     </div>
   )
 }
