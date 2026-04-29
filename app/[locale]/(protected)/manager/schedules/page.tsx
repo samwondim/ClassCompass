@@ -36,7 +36,6 @@ async function getData(teacherId?: string): Promise<Schedule[]> {
     const session = (await cookies()).get("session")?.value;
     const headers: HeadersInit = session ? { cookie: `session=${session}` } : {};
 
-    // Use manager-scoped endpoint that returns only schedules for manager's sections
     const url = new URL(`${baseUrl}/api/managers/schedules`);
     if (teacherId) url.searchParams.set('teacherId', teacherId);
 
@@ -67,16 +66,18 @@ export default async function SchedulesPage({ params, searchParams }: { params: 
 
   return (
     <div className="container mx-auto py-10 px-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Schedules</h1>
-        <div className="flex gap-4">
-          <Filter 
-            options={teachers.map(t => ({ label: `${t.first_name} ${t.last_name || ''}`, value: t.user_id }))} 
-            placeholder="Select Teacher" 
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-6">
+        <h1 className="text-2xl font-bold">መርሃ ግብሮች</h1>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <Filter
+            options={teachers.map(t => ({ label: `${t.first_name} ${t.last_name || ''}`.trim(), value: t.user_id }))}
+            placeholder="መምህር ምረጥ"
             paramName="teacherId"
           />
-          <Link href={`${base}/schedules/new`}>
-            <span className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Add Schedule</span>
+          <Link href={`${base}/schedules/new`} className="w-full sm:w-auto">
+            <span className="inline-flex w-full sm:w-auto justify-center items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
+              መርሃግብር ጨምር
+            </span>
           </Link>
         </div>
       </div>

@@ -43,14 +43,16 @@ export default async function CoursesPage({ params }: { params: { locale: string
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Courses</h1>
+        <h1 className="text-2xl font-bold">ትምህርቶች</h1>
         <Link href={`${base}/courses/new`}>
-          <span className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Add Course</span>
+          <span className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
+            ትምህርት ጨምር
+          </span>
         </Link>
       </div>
 
       {data.length === 0 ? (
-        <p className="text-muted-foreground">No courses found.</p>
+        <p className="text-muted-foreground">ምንም ትምህርት አልተገኘም።</p>
       ) : (
         <DataTable columns={columns} data={data} />
       )}

@@ -71,7 +71,6 @@ export async function sendTelegramNotification(telegramId: string, message: stri
       parameters: error.parameters
     });
 
-    // Log specific common errors
     if (error.error_code === 400) {
       console.error('⚠️  Bad Request - Check message formatting or chat ID validity');
     } else if (error.error_code === 403) {
@@ -98,14 +97,12 @@ export async function notifySectionChange(
     managerUserId,
     managerTgId,
     sectionName,
-    changerName,
     changeDetails
   });
 
-  const title = "📢 Section Update";
-  const plainMessage = `Section: ${sectionName}\nWhat Changed: ${changeDetails}\nBy: ${changerName}`;
+  const title = '📢 የክፍል ዝማኔ';
+  const plainMessage = `ክፍል: ${sectionName}\nምን ተቀየረ: ${changeDetails}`;
 
-  // Save to database
   await saveNotification(
     managerUserId,
     title,
@@ -115,25 +112,21 @@ export async function notifySectionChange(
   );
   console.log('✅ Section change notification saved to database');
 
-  // Send Telegram message
-  const telegramTitle = "📢 *Section Update*";
+  const telegramTitle = '📢 *የክፍል ዝማኔ*';
   const body = `
 ${telegramTitle}
 
-*What Changed:*
+*ምን ተቀየረ:*
 ${escapeMarkdown(changeDetails)}
 
-*Triggered By:*
-${escapeMarkdown(changerName)}
-
-*Section:*
+*ክፍል:*
 ${escapeMarkdown(sectionName)}
 
-*Time:*
+*ጊዜ:*
 ${escapeMarkdown(new Date().toLocaleString())}
 `;
 
-  const deepLink = `[Open App](${WEB_APP_URL})`;
+  const deepLink = `[ወደ ቦቱ ግባ](${WEB_APP_URL})`;
   const fullMessage = `${body}\n${deepLink}`;
 
   const sent = await sendTelegramNotification(managerTgId, fullMessage);
@@ -155,19 +148,26 @@ export async function notifyScheduleChange(
   changerName: string,
   details: string
 ) {
+  // Amharic action labels
+  const actionLabels: Record<string, string> = {
+    Added: 'ተጨምሯል',
+    Removed: 'ተሰርዟል',
+    Changed: 'ተቀይሯል',
+    Reassigned: 'ተመድቧል',
+  };
+  const actionLabel = actionLabels[action] || action;
+
   console.log('🔔 notifyScheduleChange called:', {
     teacherUserId,
     teacherTgId,
     action,
     courseName,
-    changerName,
     details
   });
 
-  const title = `🗓 የመርሃ ግብር ለውጥ: ${action}`;
-  const plainMessage = `ትምህር: ${courseName}\n${details}\n`;
+  const title = `🗓 የመርሃ ግብር ለውጥ: ${actionLabel}`;
+  const plainMessage = `ትምህርት: ${courseName}\n${details}`;
 
-  // Save to database
   await saveNotification(
     teacherUserId,
     title,
@@ -177,25 +177,21 @@ export async function notifyScheduleChange(
   );
   console.log('✅ Schedule change notification saved to database');
 
-  // Send Telegram message
-  const telegramTitle = `🗓 *Schedule Update: ${action}*`;
+  const telegramTitle = `🗓 *የመርሃ ግብር ዝማኔ: ${escapeMarkdown(actionLabel)}*`;
   const body = `
 ${telegramTitle}
 
-*Course:*
+*ትምህርት:*
 ${escapeMarkdown(courseName)}
 
-*Details:*
+*ዝርዝር:*
 ${escapeMarkdown(details)}
 
-*Updated By:*
-${escapeMarkdown(changerName)}
-
-*Time:*
+*ጊዜ:*
 ${escapeMarkdown(new Date().toLocaleString())}
 `;
 
-  const deepLink = `[Check Schedule](${WEB_APP_URL}?startapp=my_schedule)`;
+  const deepLink = `[መርሃ ግብሬን ይመልከቱ](${WEB_APP_URL}?startapp=my_schedule)`;
   const fullMessage = `${body}\n${deepLink}`;
 
   const sent = await sendTelegramNotification(teacherTgId, fullMessage);
@@ -218,17 +214,15 @@ export async function notifyUnavailability(
 ) {
   console.log('🔔 notifyUnavailability called:', {
     recipientCount: recipients.length,
-    recipients: recipients.map(r => ({ userId: r.userId, tgId: r.tgId })),
     teacherName,
     reason,
     affectedClass,
     date
   });
 
-  const title = "⚠️ Teacher Unavailability Report";
-  const plainMessage = `Teacher: ${teacherName}\nClass: ${affectedClass}\nDate: ${date}\nReason: ${reason}`;
+  const title = '⚠️ መምህር አይገኝም';
+  const plainMessage = `መምህር: ${teacherName}\nክፍል: ${affectedClass}\nቀን: ${date}\nምክንያት: ${reason}`;
 
-  // Save to database for all recipients
   await Promise.all(
     recipients.map(recipient =>
       saveNotification(
@@ -242,28 +236,24 @@ export async function notifyUnavailability(
   );
   console.log(`✅ Unavailability notifications saved to database for ${recipients.length} recipients`);
 
-  // Send Telegram messages
-  const telegramTitle = "⚠️ *Teacher Unavailability Report*";
+  const telegramTitle = '⚠️ *መምህር አይገኝም*';
   const body = `
 ${telegramTitle}
 
-*Teacher:*
+*መምህር:*
 ${escapeMarkdown(teacherName)}
 
-*Class Affected:*
+*ክፍል:*
 ${escapeMarkdown(affectedClass)}
 
-*Date:*
+*ቀን:*
 ${escapeMarkdown(date)}
 
-*Reason:*
+*ምክንያት:*
 ${escapeMarkdown(reason)}
-
-*Time Reported:*
-${escapeMarkdown(new Date().toLocaleString())}
 `;
 
-  const deepLink = `[Manage Substitutes](${WEB_APP_URL}?startapp=manage_schedules)`;
+  const deepLink = `[መርሃ ግብሮችን ያስተዳድሩ](${WEB_APP_URL}?startapp=manage_schedules)`;
   const fullMessage = `${body}\n${deepLink}`;
 
   const results = await Promise.all(
@@ -296,38 +286,38 @@ export async function notifySundayScheduleReminder(
 ) {
   if (!teacher.tg_id) return;
 
-  const teacherName = `${teacher.first_name || ""} ${teacher.last_name || ""}`.trim() || "Teacher";
-  const title = "📅 Upcoming Sunday Schedule";
+  const teacherName = `${teacher.first_name || ''} ${teacher.last_name || ''}`.trim() || 'መምህር';
+  const title = '📅 የሚቀጥለው እሁድ መርሃ ግብር';
 
   const lines = schedules.map((s) => {
-    const course = s.course.course_name || s.course.course_description || "Unknown Course";
-    const section = s.section.section_name || "Unknown Section";
-    const time = new Date(s.schedule_date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-    return `• ${course} (${section}) at ${time}`;
+    const course = s.course.course_name || s.course.course_description || 'ትምህርት';
+    const section = s.section.section_name || 'ክፍል';
+    const time = new Date(s.schedule_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return `• ${course} (${section}) - ${time}`;
   });
 
-  const plainMessage = `Hello ${teacherName},\nYour upcoming Sunday (${sundayDate.toLocaleDateString()}) schedule:\n${lines.join("\n")}`;
+  const plainMessage = `ሰላም ${teacherName},\nለሚቀጥለው እሁድ (${sundayDate.toLocaleDateString()}) የሚከተሉ መርሃ ግብሮች አሉዎት:\n${lines.join('\n')}`;
 
   await saveNotification(
     teacher.user_id,
     title,
     plainMessage,
-    "info",
-    "/teacher/my-schedules"
+    'info',
+    '/teacher/my-schedules'
   );
 
-  const telegramTitle = "📅 *Sunday Schedule Reminder*";
+  const telegramTitle = '📅 *የእሁድ መርሃ ግብር ማስታወሻ*';
   const body = `
 ${telegramTitle}
 
-*Date:*
+*ቀን:*
 ${escapeMarkdown(sundayDate.toLocaleDateString())}
 
-*Schedules:*
-${escapeMarkdown(lines.join("\n"))}
+*መርሃ ግብሮች:*
+${escapeMarkdown(lines.join('\n'))}
 `;
 
-  const deepLink = `[View Schedule](${WEB_APP_URL}?startapp=my_schedule)`;
+  const deepLink = `[መርሃ ግብሬን ይመልከቱ](${WEB_APP_URL}?startapp=my_schedule)`;
   const fullMessage = `${body}\n${deepLink}`;
   await sendTelegramNotification(teacher.tg_id.toString(), fullMessage);
 }
@@ -342,30 +332,32 @@ export async function notifyMissingSundaySchedule(
 ) {
   if (!manager.tg_id) return;
 
-  const managerName = `${manager.first_name || ""} ${manager.last_name || ""}`.trim() || "Manager";
-  const title = "⚠️ Missing Sunday Schedule";
-  const plainMessage = `Hello ${managerName},\nNo schedule found for section "${sectionName}" on ${sundayDate.toLocaleDateString()}. Please add schedules.`;
+  const title = '⚠️ የእሁድ መርሃ ግብር አልተሞላም';
+  const plainMessage = `ለ"${sectionName}" ክፍል ${sundayDate.toLocaleDateString()} ቀን ምንም መርሃ ግብር አልተመዘገበም። እባክዎ መርሃ ግብር ይጨምሩ።`;
 
   await saveNotification(
     manager.user_id,
     title,
     plainMessage,
-    "warning",
-    "/manager/schedules"
+    'warning',
+    '/manager/schedules'
   );
 
-  const telegramTitle = "⚠️ *Missing Sunday Schedule*";
+  const telegramTitle = '⚠️ *የእሁድ መርሃ ግብር አልተሞላም*';
   const body = `
 ${telegramTitle}
 
-*Section:*
+*ክፍል:*
 ${escapeMarkdown(sectionName)}
 
-*Date:*
+*ቀን:*
 ${escapeMarkdown(sundayDate.toLocaleDateString())}
+
+*ምልክት:*
+ለዚህ ክፍል ምንም መርሃ ግብር አልተመዘገበም\\. እባክዎ ይጨምሩ\\.
 `;
 
-  const deepLink = `[Add Schedule](${WEB_APP_URL}?startapp=manage_schedules)`;
+  const deepLink = `[መርሃ ግብር ጨምር](${WEB_APP_URL}?startapp=manage_schedules)`;
   const fullMessage = `${body}\n${deepLink}`;
   await sendTelegramNotification(manager.tg_id.toString(), fullMessage);
 }
@@ -379,30 +371,29 @@ export async function notifyEmptyScheduleBoard(
 ) {
   if (!manager.tg_id) return;
 
-  const managerName = `${manager.first_name || ""} ${manager.last_name || ""}`.trim() || "Manager";
-  const title = "⚠️ Empty Schedule Board";
-  const plainMessage = `Hello ${managerName},\nYour section "${sectionName}" has no schedules. Please add schedules to the board.`;
+  const title = '⚠️ ባዶ የመርሃ ግብር ሰሌዳ';
+  const plainMessage = `"${sectionName}" ክፍልዎ ምንም መርሃ ግብር የለም። እባክዎ ይጨምሩ።`;
 
   await saveNotification(
     manager.user_id,
     title,
     plainMessage,
-    "warning",
-    "/manager/schedules"
+    'warning',
+    '/manager/schedules'
   );
 
-  const telegramTitle = "⚠️ *Empty Schedule Board*";
+  const telegramTitle = '⚠️ *ባዶ የመርሃ ግብር ሰሌዳ*';
   const body = `
 ${telegramTitle}
 
-*Section:*
+*ክፍል:*
 ${escapeMarkdown(sectionName)}
 
-*Message:*
-Your section has no schedules\. Please add schedules to the board\.
+*ምልክት:*
+ለዚህ ክፍል ምንም መርሃ ግብር የለም\\. እባክዎ ይጨምሩ\\.
 `;
 
-  const deepLink = `[Add Schedule](${WEB_APP_URL}?startapp=manage_schedules)`;
+  const deepLink = `[መርሃ ግብር ጨምር](${WEB_APP_URL}?startapp=manage_schedules)`;
   const fullMessage = `${body}\n${deepLink}`;
   await sendTelegramNotification(manager.tg_id.toString(), fullMessage);
 }
@@ -419,33 +410,30 @@ export async function notifyWeeklyEmptyScheduleReport(
   for (const manager of managers) {
     if (!manager.tg_id) continue;
 
-    const managerName = `${manager.first_name || ""} ${manager.last_name || ""}`.trim() || "Manager";
-    const title = "📋 Weekly Schedule Report";
-    const sectionsList = emptySections.map(s => `• ${s.section_name}`).join("\n");
-    const plainMessage = `Hello ${managerName},\nThe following sections under your management have no schedules:\n${sectionsList}`;
+    const title = '📋 የሳምንቱ የመርሃ ግብር ሪፖርት';
+    const sectionsList = emptySections.map(s => `• ${s.section_name}`).join('\n');
+    const plainMessage = `ምንም መርሃ ግብር ያልተሞሉ ክፍሎች:\n${sectionsList}`;
 
     await saveNotification(
       manager.user_id,
       title,
       plainMessage,
-      "warning",
-      "/manager/schedules"
+      'warning',
+      '/manager/schedules'
     );
 
-    const telegramTitle = "📋 *Weekly Schedule Report*";
+    const telegramTitle = '📋 *የሳምንቱ የመርሃ ግብር ሪፖርት*';
     const body = `
 ${telegramTitle}
 
-*Hello ${escapeMarkdown(managerName)},*
-
-*Your sections with no schedules:*
+*ምንም መርሃ ግብር ያልተሞሉ ክፍሎች:*
 ${escapeMarkdown(sectionsList)}
 
-*Action Required:*
-Please add schedules to these sections\.
+*ትዕዛዝ:*
+ለእነዚህ ክፍሎች መርሃ ግብር ይጨምሩ\\.
 `;
 
-    const deepLink = `[View Schedules](${WEB_APP_URL}?startapp=manage_schedules)`;
+    const deepLink = `[መርሃ ግብሮችን ይመልከቱ](${WEB_APP_URL}?startapp=manage_schedules)`;
     const fullMessage = `${body}\n${deepLink}`;
     await sendTelegramNotification(manager.tg_id.toString(), fullMessage);
   }

@@ -8,9 +8,9 @@ import { getSession } from './utils/session';
 // 1. next-intl middleware
 // -------------------------
 const intlMiddleware = createMiddleware({
-  locales: ['en', 'am'],
+  locales: ['am'],
   defaultLocale: 'am',
-  localePrefix: 'always', // ensures /en/* and /am/* both exist
+  localePrefix: 'always',
 });
 
 // -------------------------

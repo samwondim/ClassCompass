@@ -1,21 +1,13 @@
 // src/components/login-screen.tsx
 'use client';
-import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Shield, ChevronRight, Loader2 } from 'lucide-react';
 import useToast from '@/hooks/use-toast';
 
 export function LoginScreen() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [dotCount, setDotCount] = useState(1);
   const { toast } = useToast();
-  const router = useRouter();
-  const t = useTranslations();
 
   async function authenticateUser() {
-    setIsLoading(true);
     try {
       const webApp = (await import("@twa-dev/sdk")).default;
       webApp.ready();
@@ -27,70 +19,95 @@ export function LoginScreen() {
 
       const res = await fetch('/api/auth', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ initData }),
       });
 
       const data = await res.json();
-      console.log('Auth response:', data); // Keep for debugging
+      console.log('Auth response:', data);
 
       if (!res.ok) {
         throw new Error(data.message || 'Authentication failed');
       }
 
-      // Success: Force full page reload to trigger server-side middleware with new cookie
-      // Client-side router.push('/') may not re-run middleware on same path
-      toast({
-        title: 'Welcome!',
-        description: `Logged in as ${data.user.first_name}. Redirecting...`,
-      });
-      window.location.href = '/'; // Hard redirect: Ensures server request + middleware
+      window.location.href = '/';
     } catch (error) {
       console.error('Error authenticating user:', error);
-      // Only show toast if it's NOT just the initial "not initialized" error, 
-      // or if it's a real failure. Let's keep it for now.
       toast({
         title: 'Login Failed',
         description: error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.',
         variant: 'destructive',
       });
-    } finally {
-      setIsLoading(false);
     }
   }
 
+  // Animate the dots: 1 → 2 → 3 → 1 …
   useEffect(() => {
-    // Automatically attempt authentication on mount
-    authenticateUser();
+    const interval = setInterval(() => {
+      setDotCount(prev => (prev % 3) + 1);
+    }, 500);
+    return () => clearInterval(interval);
   }, []);
 
-  return (<div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-emerald-50 to-sky-50 p-6">
-    <Card className="w-full max-w-md shadow-2xl border-emerald-100 bg-white/80 backdrop-blur-sm">
-      <CardHeader className="text-center space-y-2">
-        <Shield className="mx-auto h-12 w-12 text-primary" />
-        <CardTitle className="text-2xl font-semibold text-card-foreground">{t('Dashboard')}</CardTitle>
-        <CardDescription className="text-muted-foreground">
-          {t('Log in with your Telegram account')}
-        </CardDescription>
-      </CardHeader>
-      {/* ... */}
-      <Button onClick={authenticateUser} disabled={isLoading} className="w-full" size="lg">
-        {isLoading ? (
-          <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            {t('Authenticating')}
-          </>
-        ) : (
-          <>
-            {t('Login with Telegram')}
-            <ChevronRight className="ml-auto h-4 w-4" />
-          </>
-        )}
-      </Button>
-      {/* ... */}
-    </Card>
-  </div>
+  // Auto-authenticate on mount
+  useEffect(() => {
+    authenticateUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const dots = '.'.repeat(dotCount);
+
+  return (
+    <div
+      className="flex min-h-screen items-center justify-center"
+      style={{
+        background: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
+      }}
+    >
+      <div className="flex flex-col items-center gap-8 select-none">
+        {/* Pulsing orb */}
+        <div className="relative flex items-center justify-center">
+          <span
+            className="absolute inline-flex h-24 w-24 rounded-full opacity-30 animate-ping"
+            style={{ background: 'radial-gradient(circle, #818cf8, #6366f1)' }}
+          />
+          <span
+            className="relative inline-flex h-16 w-16 rounded-full"
+            style={{ background: 'radial-gradient(circle, #a5b4fc, #6366f1)' }}
+          />
+        </div>
+
+        {/* Animated text */}
+        <div className="text-center">
+          <p
+            className="text-3xl sm:text-4xl font-bold tracking-wide"
+            style={{
+              color: '#e0e7ff',
+              fontFamily: "'Noto Sans Ethiopic', 'Segoe UI', sans-serif",
+              textShadow: '0 0 24px rgba(129, 140, 248, 0.8)',
+              letterSpacing: '0.04em',
+            }}
+          >
+            loading bot{' '}
+            <span
+              style={{
+                display: 'inline-block',
+                minWidth: '2.5ch',
+                color: '#a5b4fc',
+                textShadow: '0 0 12px rgba(165, 180, 252, 0.9)',
+              }}
+            >
+              {dots}
+            </span>
+          </p>
+          <p
+            className="mt-3 text-sm tracking-widest uppercase"
+            style={{ color: '#6366f1', letterSpacing: '0.2em' }}
+          >
+            ጵርስቅላ
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }

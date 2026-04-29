@@ -2,10 +2,11 @@
 import { getRequestConfig } from 'next-intl/server';
 
 export default getRequestConfig(async ({ requestLocale }) => {
-  const locale = await requestLocale || 'am'; // Fallback to 'am' if undefined
+  // Only Amharic is supported; guard against any stale 'en' links
+  const requested = await requestLocale;
+  const locale = requested === 'en' ? 'am' : requested || 'am';
   return {
     locale,
-    // Use ./messages/ for sibling folder (adjust if messages/ is elsewhere)
-    messages: (await import(`../messages/${locale}.json`)).default,
+    messages: (await import(`../messages/am.json`)).default,
   };
 });

@@ -82,21 +82,23 @@ export default async function TeacherMgmtPage({ params, searchParams }: { params
 
   return (
     <div className="container mx-auto py-10 px-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Teachers</h1>
-        <div className="flex gap-4">
-          <Filter 
-            options={sections.map(s => ({ label: s.section_name || 'Unnamed Section', value: s.section_id }))} 
-            placeholder="Select Section" 
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-6">
+        <h1 className="text-2xl font-bold">መምህራን</h1>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <Filter
+            options={sections.map(s => ({ label: s.section_name || 'ክፍል', value: s.section_id }))}
+            placeholder="ክፍል ምረጥ"
             paramName="sectionId"
           />
-          <Link href={`${base}/teachers/new`}>
-            <span className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Add Teacher</span>
+          <Link href={`${base}/teachers/new`} className="w-full sm:w-auto">
+            <span className="inline-flex w-full sm:w-auto justify-center items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
+              መምህር ጨምር
+            </span>
           </Link>
         </div>
       </div>
       {data.length === 0 ? (
-        <p className="text-muted-foreground">No teachers found.</p>
+        <p className="text-muted-foreground">ምንም መምህር አልተገኘም።</p>
       ) : (
         <DataTable columns={columns} data={data} />
       )}
