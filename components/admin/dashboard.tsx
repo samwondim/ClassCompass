@@ -7,6 +7,7 @@ import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Calendar, Clock, Users, BookOpen, Bell, AlertCircle, TrendingUp, UserCheck, Upload } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslations } from "next-intl"
@@ -52,22 +53,23 @@ export function AdminDashboard() {
   const pathname = usePathname()
   const locale = pathname?.split("/")[1] || "am"
   const adminBase = `/${locale}/admin`
+  const [selectedSectionId, setSelectedSectionId] = useState<string | undefined>(undefined)
 
   useEffect(() => {
-    fetchDashboardData()
-  }, [])
+    fetchDashboardData(selectedSectionId)
+  }, [selectedSectionId])
 
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = async (sectionId?: string) => {
     setLoading(true)
     try {
       const requestOptions: RequestInit = { credentials: 'include' };
       const [teachersRes, managersRes, sectionsRes, schedulesRes, coursesRes, notificationsRes] = await Promise.all([
-        fetch('/api/user/get-teachers', requestOptions),
-        fetch('/api/user/get-managers', requestOptions),
-        fetch('/api/sections', requestOptions),
-        fetch('/api/schedules', requestOptions),
-        fetch('/api/courses', requestOptions),
-        fetch('/api/notifications', requestOptions)
+        fetch(`/api/user/get-teachers${sectionId ? `?section_id=${sectionId}` : ''}`, requestOptions),
+        fetch(`/api/user/get-managers${sectionId ? `?section_id=${sectionId}` : ''}`, requestOptions),
+        fetch(`/api/sections${sectionId ? `?section_id=${sectionId}` : ''}`, requestOptions),
+        fetch(`/api/schedules${sectionId ? `?section_id=${sectionId}` : ''}`, requestOptions),
+        fetch(`/api/courses${sectionId ? `?section_id=${sectionId}` : ''}`, requestOptions),
+        fetch(`/api/notifications${sectionId ? `?section_id=${sectionId}` : ''}`, requestOptions)
       ])
 
       const [teachersData, managersData, sectionsData, schedulesData, coursesData, notificationsData] = await Promise.all([
@@ -115,9 +117,26 @@ export function AdminDashboard() {
     <div className="p-4 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-primary">{t('Dashboard.Title')}</h1>
-        <Button onClick={fetchDashboardData} variant="outline" size="sm">
+        <Button onClick={() => fetchDashboardData(selectedSectionId)} variant="outline" size="sm">
           {t('Common.Refresh')}
         </Button>
+      </div>
+
+      {/* Section Filter */}
+      <div className="flex items-center gap-2">
+        <Select onValueChange={setSelectedSectionId} value={selectedSectionId}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder={t('Dashboard.AllSections')} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t('Dashboard.AllSections')}</SelectItem>
+            {sections.map((section) => (
+              <SelectItem key={section.section_id} value={section.section_id}>
+                {section.section_name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Stats Grid */}
