@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import { Schedule, Teacher } from "@/app/models/models";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
@@ -71,13 +70,11 @@ export default async function SchedulesPage({ params, searchParams }: { params: 
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Schedules</h1>
         <div className="flex gap-4">
-          <Suspense fallback={<div>Loading filters...</div>}>
-            <Filter 
-              options={teachers.map(t => ({ label: `${t.first_name} ${t.last_name || ''}`, value: t.user_id }))} 
-              placeholder="Select Teacher" 
-              paramName="teacherId"
-            />
-          </Suspense>
+          <Filter 
+            options={teachers.map(t => ({ label: `${t.first_name} ${t.last_name || ''}`, value: t.user_id }))} 
+            placeholder="Select Teacher" 
+            paramName="teacherId"
+          />
           <Link href={`${base}/schedules/new`}>
             <span className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Add Schedule</span>
           </Link>
