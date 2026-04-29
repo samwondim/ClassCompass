@@ -15,6 +15,7 @@ const toPublicManager = (user: any): Manager => {
     first_name: user.first_name,
     last_name: user.last_name,
     tg_username: user.tg_username,
+    photo_url: user.photo_url,
     phone_number: user.phone_number,
     sections: user.sections_managed
   }
@@ -32,6 +33,7 @@ export async function GET(request: NextRequest) {
         first_name: true,
         last_name: true,
         tg_username: true,
+        photo_url: true,
         phone_number: true,
         sections_managed: {
           select: {

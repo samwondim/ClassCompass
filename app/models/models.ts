@@ -11,6 +11,7 @@ export type Manager = {
   tg_username: string | null
   first_name: string | null
   last_name: string | null
+  photo_url: string | null
   user_role: UserRole
   phone_number: string | null
   sections: any
@@ -21,6 +22,7 @@ export type Teacher = {
   tg_username: string | null
   first_name: string | null
   last_name: string | null
+  photo_url: string | null
   user_role: UserRole
   phone_number: string | null
   sections: string | null
@@ -56,6 +58,7 @@ export interface UserSummary {
   first_name: string;
   last_name: string;
   tg_username: string;
+  photo_url: string | null;
 }
 
 export interface Course {

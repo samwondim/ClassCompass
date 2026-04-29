@@ -20,9 +20,11 @@ import {
   SunDim,
   Laptop,
   Check,
+  GraduationCap,
+  Briefcase
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { useTranslations } from 'next-intl'
 import { useTheme } from "@/components/theme-provider"
@@ -32,9 +34,11 @@ import type { ThemeMode } from "@/components/theme-provider"
 interface AppLayoutProps {
   children: React.ReactNode
   userRole: string | null
+  photoUrl?: string | null
+  firstName?: string | null
 }
 
-export function AppLayout({ children, userRole }: AppLayoutProps) {
+export function AppLayout({ children, userRole, photoUrl, firstName }: AppLayoutProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [isMounted, setIsMounted] = useState(false)
@@ -133,8 +137,8 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
 
   const adminNavItems = [
     { label: t('Navigation.Dashboard'), href: "/am/admin", icon: LayoutDashboardIcon },
-    { label: t('Navigation.Teachers'), href: "/am/admin/teachers", icon: User },
-    { label: t('Navigation.Managers'), href: "/am/admin/managers", icon: User },
+    { label: t('Navigation.Teachers'), href: "/am/admin/teachers", icon: GraduationCap },
+    { label: t('Navigation.Managers'), href: "/am/admin/managers", icon: Briefcase },
     { label: t('Navigation.Schedules'), href: "/am/admin/schedules", icon: Calendar },
     { label: t('Navigation.MySchedules'), href: "/am/admin/my-schedules", icon: Calendar },
     { label: t('Navigation.Courses'), href: "/am/admin/courses", icon: BrainCog },
@@ -142,7 +146,7 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
 
   const managerNavItems = [
     { label: t('Navigation.Dashboard'), href: "/am/manager", icon: LayoutDashboardIcon },
-    { label: t('Navigation.Teachers'), href: "/am/manager/teachers", icon: User },
+    { label: t('Navigation.Teachers'), href: "/am/manager/teachers", icon: GraduationCap },
     { label: t('Navigation.Courses'), href: "/am/manager/courses", icon: BrainCog },
     { label: t('Navigation.Schedules'), href: "/am/manager/schedules", icon: Calendar },
     { label: t('Navigation.MySchedules'), href: "/am/manager/my-schedules", icon: Calendar },
@@ -220,6 +224,7 @@ export function AppLayout({ children, userRole }: AppLayoutProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Avatar className="h-8 w-8">
+                  {photoUrl && <AvatarImage src={photoUrl} alt={firstName || ""} />}
                   <AvatarFallback className="bg-primary/10 text-primary">
                     {userRole === "admin" ? "AD" : userRole === "manager" ? "MG" : "TC"}
                   </AvatarFallback>

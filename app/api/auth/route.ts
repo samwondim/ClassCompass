@@ -26,18 +26,20 @@ export async function POST(request: NextRequest) {
 
     if (validationRes.validatedData) {
       const user = { tg_username: validationRes.user.username };
+      const photo_url = validationRes.user.photo_url || null;
 
       await prisma.user.update({
         where: {
           tg_username: user.tg_username
         },
         data: {
-          tg_id: validationRes.user.id ? +validationRes.user.id : null
+          tg_id: validationRes.user.id ? +validationRes.user.id : null,
+          photo_url: photo_url
         }
       });
       const fetched_user = await prisma.user.findUnique({
         where: { tg_username: user.tg_username },
-        select: { user_role: true, first_name: true, last_name: true, tg_username: true, user_id: true, tg_id: true }
+        select: { user_role: true, first_name: true, last_name: true, tg_username: true, user_id: true, tg_id: true, photo_url: true }
       })
 
       const expires = new Date(Date.now() + SESSION_DURATION);

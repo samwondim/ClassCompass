@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const TeacherActions = ({ teacherId }: { teacherId: string }) => {
   const pathname = usePathname();
@@ -40,6 +41,18 @@ export const columns: ColumnDef<Teacher>[] = [
   {
     accessorKey: "first_name",
     header: "ስም",
+    cell: ({ row }) => {
+      const { first_name, last_name, photo_url } = row.original;
+      return (
+        <div className="flex items-center gap-2">
+          <Avatar className="h-8 w-8">
+            {photo_url && <AvatarImage src={photo_url} alt={first_name || ""} />}
+            <AvatarFallback>{(first_name?.[0] || "")}{(last_name?.[0] || "")}</AvatarFallback>
+          </Avatar>
+          <span>{first_name}</span>
+        </div>
+      );
+    }
   },
   {
     accessorKey: "last_name",

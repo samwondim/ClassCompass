@@ -28,6 +28,7 @@ model User {
   tg_username      String           @unique
   first_name       String?
   last_name        String?
+  photo_url        String?
   phone_number     String?          @unique
   created_at       DateTime         @default(now())
   updated_at       DateTime         @updatedAt

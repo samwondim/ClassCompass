@@ -23,6 +23,7 @@ const toPublicTeacher = (userData: any): Teacher => {
     last_name: userData.last_name,
     tg_username: userData.tg_username,
     phone_number: userData.phone_number,
+    photo_url: userData.photo_url,
     sections: sections
   }
 }
@@ -69,6 +70,7 @@ export async function GET(request: NextRequest) {
       first_name: true,
       last_name: true,
       tg_username: true,
+      photo_url: true,
       phone_number: true,
       teacher_sections: {
         select: {
