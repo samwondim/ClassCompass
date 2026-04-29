@@ -21,7 +21,7 @@ export const myScheduleColumns: ColumnDef<Schedule>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Date
+        ቀን
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
@@ -40,7 +40,7 @@ export const myScheduleColumns: ColumnDef<Schedule>[] = [
   },
   {
     accessorKey: "schedule_date",
-    header: "Time",
+    header: "ሰዓት",
     cell: ({ row }) => (
       <div className="text-sm">
         {new Date(row.getValue("schedule_date")).toLocaleTimeString("en-US", {
@@ -58,20 +58,20 @@ export const myScheduleColumns: ColumnDef<Schedule>[] = [
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Course
+        ትምህርት
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
     cell: ({ row }) => (
       <div className="font-medium max-w-md truncate">
         <BookOpen className="inline h-4 w-4 mr-1 text-sky-600" />
-        {row.original.course.course_description || "Untitled Course"}
+        {row.original.course.course_description || "ስም የሌለው ትምህርት"}
       </div>
     ),
   },
   {
     id: "section",
-    header: "Section",
+    header: "ክፍል",
     cell: ({ row }) => {
       const sectionName = row.original.section?.section_name || "N/A";
       return (
@@ -88,13 +88,13 @@ export const myScheduleColumns: ColumnDef<Schedule>[] = [
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
+              <span className="sr-only">ምናሌ ክፈት</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem>View Details</DropdownMenuItem>
+            <DropdownMenuLabel>ተጨማሪ ተግባራት</DropdownMenuLabel>
+            <DropdownMenuItem>ዝርዝር እይታ</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

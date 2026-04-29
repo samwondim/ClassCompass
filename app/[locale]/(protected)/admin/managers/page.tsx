@@ -41,13 +41,13 @@ export default async function DemoPage({ params }: { params: { locale: string } 
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">አስተዳዳሪዎች</h1>
+        <h1 className="text-2xl font-bold">ማናጀሮች</h1>
         <Link href={`${base}/managers/new`}>
-          <span className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">አዲስ አስተዳዳሪ</span>
+          <span className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">አዲስ ማናጀር</span>
         </Link>
       </div>
       {data.length === 0 ? (
-        <p className="text-muted-foreground">አስተዳዳሪዎች አልተገኙም</p>
+        <p className="text-muted-foreground">ማናጀሮች አልተገኙም</p>
       ) : (
         <DataTable columns={columns} data={data} />
       )}

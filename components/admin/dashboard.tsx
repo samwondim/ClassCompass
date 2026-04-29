@@ -116,7 +116,7 @@ export function AdminDashboard() {
   return (
     <div className="p-4 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-primary">{t('Dashboard.Title')}</h1>
+        <h1 className="text-2xl font-bold text-primary">የአድሚን ዳሽቦርድ</h1>
         <Button onClick={() => fetchDashboardData(selectedSectionId)} variant="outline" size="sm">
           {t('Common.Refresh')}
         </Button>
@@ -126,10 +126,10 @@ export function AdminDashboard() {
       <div className="flex items-center gap-2">
         <Select onValueChange={setSelectedSectionId} value={selectedSectionId}>
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder={t('Dashboard.AllSections')} />
+            <SelectValue placeholder="ሁሉንም ክፍሎች" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">{t('Dashboard.AllSections')}</SelectItem>
+            <SelectItem value="all">ሁሉንም ክፍሎች</SelectItem>
             {sections.map((section) => (
               <SelectItem key={section.section_id} value={section.section_id}>
                 {section.section_name}
@@ -160,7 +160,7 @@ export function AdminDashboard() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <UserCheck className="h-4 w-4" />
-              {t('Navigation.Managers')}
+              ማናጀሮች
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -175,7 +175,7 @@ export function AdminDashboard() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
-              {t('Dashboard.Sections')}
+              ክፍሎች
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -212,7 +212,7 @@ export function AdminDashboard() {
             <div className="text-2xl font-bold text-amber-600">
               {loading ? '...' : stats.upcomingSchedules}
             </div>
-            <p className="text-xs text-muted-foreground">{t('Dashboard.Next7Days')}</p>
+            <p className="text-xs text-muted-foreground">በቅርብ ቀናት የተመደቡ</p>
           </CardContent>
         </Card>
 
@@ -273,7 +273,7 @@ export function AdminDashboard() {
               <CardDescription>{t('Dashboard.UpcomingDesc')}</CardDescription>
             </div>
             <Link href={`${adminBase}/schedules`}>
-              <Button variant="outline" size="sm">{t('Common.ViewAll')}</Button>
+              <Button variant="outline" size="sm">ሁሉንም ይመልከቱ</Button>
             </Link>
           </div>
         </CardHeader>
@@ -312,7 +312,7 @@ export function AdminDashboard() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
-            {t('Dashboard.QuickActions')}
+            ፈጣን እርምጃዎች
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -344,7 +344,7 @@ export function AdminDashboard() {
             <Link href={`${adminBase}/bulk-upload`}>
               <Button variant="outline" className="w-full">
                 <Upload className="mr-2 h-4 w-4" />
-                {t('Dashboard.BulkUpload')}
+                ስብስብ መረጃ ማስገቢያ
               </Button>
             </Link>
           </div>

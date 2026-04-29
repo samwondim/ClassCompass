@@ -74,7 +74,7 @@ export function MySchedulesTable<TData, TValue>({
         {data.length === 0 ? (
           <Card>
             <CardContent className="py-8 text-center text-muted-foreground">
-              No schedules found.
+              ምንም መርሃ ግብር አልተገኘም።
             </CardContent>
           </Card>
         ) : (
@@ -121,7 +121,7 @@ export function MySchedulesTable<TData, TValue>({
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
+                  ምንም ውጤት የለም።
                 </TableCell>
               </TableRow>
             )}

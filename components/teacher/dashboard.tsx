@@ -104,14 +104,14 @@ export function TeacherDashboard() {
 
   return (
     <div className="p-4 space-y-6">
-      <h1 className="text-2xl font-bold text-sky-700">Teacher Dashboard</h1>
+      <h1 className="text-2xl font-bold text-sky-700">የመምህር ዳሽቦርድ</h1>
 
       {loading ? (
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-center space-x-2">
               <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-              <span>Loading your schedule...</span>
+              <span>መርሃ ግብር በመጫን ላይ...</span>
             </div>
           </CardContent>
         </Card>
@@ -121,7 +121,7 @@ export function TeacherDashboard() {
             <div className="text-center space-y-4">
               <p className="text-red-600">{error}</p>
               <Button onClick={fetchSchedules} variant="outline">
-                Try Again
+                እንደገና ሞክር
               </Button>
             </div>
           </CardContent>
@@ -131,8 +131,8 @@ export function TeacherDashboard() {
           {/* Next Assignment Card */}
           <Card className="bg-gradient-to-br from-sky-50 to-white">
             <CardHeader>
-              <CardTitle>Next Teaching Assignment</CardTitle>
-              <CardDescription>Your upcoming class</CardDescription>
+              <CardTitle>ቀጣይ መርሃ ግብር</CardTitle>
+              <CardDescription>የሚቀጥለው ክፍለ ጊዜ</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {upcomingSchedule ? (
@@ -143,7 +143,7 @@ export function TeacherDashboard() {
                     </div>
                     <div className="flex-1">
                       <h3 className="text-lg font-medium">
-                        {upcomingSchedule.course.course_description || 'Teaching Assignment'}
+                        {upcomingSchedule.course.course_description || 'መርሃ ግብር'}
                       </h3>
                       <p className="text-sm text-muted-foreground">
                         {new Date(upcomingSchedule.schedule_date).toLocaleDateString('en-US', {
@@ -169,14 +169,14 @@ export function TeacherDashboard() {
                   </div>
                   {teacherSections.length > 0 && (
                     <div className="text-sm text-muted-foreground">
-                      Sections: {teacherSections.join(', ')}
+                      ክፍሎች: {teacherSections.join(', ')}
                     </div>
                   )}
                 </div>
               ) : (
                 <div className="text-center py-8">
                   <Calendar className="h-12 w-12 mx-auto mb-2 text-gray-300" />
-                  <p className="text-muted-foreground">No upcoming classes scheduled</p>
+                  <p className="text-muted-foreground">ምንም መርሃ ግብር የለም</p>
                 </div>
               )}
             </CardContent>
@@ -185,8 +185,8 @@ export function TeacherDashboard() {
           {/* Quick View Card */}
           <Card>
             <CardHeader>
-              <CardTitle>Quick Schedule View</CardTitle>
-              <CardDescription>Your upcoming teaching sessions</CardDescription>
+              <CardTitle>የመርሃ ግብር ማጠቃለያ</CardTitle>
+              <CardDescription>የሚቀጥሉ መርሃ ግብሮች</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
@@ -228,9 +228,9 @@ export function TeacherDashboard() {
                 ) : (
                   <div className="text-center py-8">
                     <Calendar className="h-12 w-12 mx-auto mb-2 text-gray-300" />
-                    <p className="text-muted-foreground">No schedules found</p>
+                    <p className="text-muted-foreground">ምንም መርሃ ግብር አልተገኘም</p>
                     <Button variant="outline" onClick={fetchSchedules} className="mt-4">
-                      Refresh
+                      አድስ
                     </Button>
                   </div>
                 )}
