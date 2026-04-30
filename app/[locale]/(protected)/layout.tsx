@@ -28,7 +28,7 @@ export default async function ProtectedLayout({
   // but for server-side, you'd need headers() or searchParams. For simplicity, rely on root redirects.
 
   return (
-    <AppLayout userRole={role} photoUrl={user.photo_url} firstName={user.first_name}>
+    <AppLayout userRole={role} photoUrl={user.photo_url} firstName={user.first_name} lastName={user.last_name}>
       {children}
     </AppLayout>
   )

@@ -21,7 +21,8 @@ import {
   Laptop,
   Check,
   GraduationCap,
-  Briefcase
+  Briefcase,
+  CalendarCheck
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -36,9 +37,10 @@ interface AppLayoutProps {
   userRole: string | null
   photoUrl?: string | null
   firstName?: string | null
+  lastName?: string | null
 }
 
-export function AppLayout({ children, userRole, photoUrl, firstName }: AppLayoutProps) {
+export function AppLayout({ children, userRole, photoUrl, firstName, lastName }: AppLayoutProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [isMounted, setIsMounted] = useState(false)
@@ -140,7 +142,7 @@ export function AppLayout({ children, userRole, photoUrl, firstName }: AppLayout
     { label: t('Navigation.Teachers'), href: "/am/admin/teachers", icon: GraduationCap },
     { label: t('Navigation.Managers'), href: "/am/admin/managers", icon: Briefcase },
     { label: t('Navigation.Schedules'), href: "/am/admin/schedules", icon: Calendar },
-    { label: t('Navigation.MySchedules'), href: "/am/admin/my-schedules", icon: Calendar },
+    { label: t('Navigation.MySchedules'), href: "/am/admin/my-schedules", icon: CalendarCheck },
     { label: t('Navigation.Courses'), href: "/am/admin/courses", icon: BrainCog },
   ]
 
@@ -149,12 +151,12 @@ export function AppLayout({ children, userRole, photoUrl, firstName }: AppLayout
     { label: t('Navigation.Teachers'), href: "/am/manager/teachers", icon: GraduationCap },
     { label: t('Navigation.Courses'), href: "/am/manager/courses", icon: BrainCog },
     { label: t('Navigation.Schedules'), href: "/am/manager/schedules", icon: Calendar },
-    { label: t('Navigation.MySchedules'), href: "/am/manager/my-schedules", icon: Calendar },
+    { label: t('Navigation.MySchedules'), href: "/am/manager/my-schedules", icon: CalendarCheck },
   ]
 
   const teacherNavItems = [
     { label: t('Navigation.Dashboard'), href: "/am/teacher", icon: LayoutDashboardIcon },
-    { label: t('Navigation.MySchedules'), href: "/am/teacher/my-schedules", icon: Calendar },
+    { label: t('Navigation.MySchedules'), href: "/am/teacher/my-schedules", icon: CalendarCheck },
   ]
 
   const roleNavItems = userRole === "ADMIN" ? adminNavItems : userRole === "MANAGER" ? managerNavItems : teacherNavItems
@@ -162,6 +164,20 @@ export function AppLayout({ children, userRole, photoUrl, firstName }: AppLayout
   const notificationsPath = userRole === "ADMIN" ? "/am/admin/notifications" :
     userRole === "MANAGER" ? "/am/manager/notifications" :
       "/am/teacher/notifications"
+
+  const getInitials = () => {
+    if (firstName && lastName) {
+      return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase()
+    }
+    if (firstName) {
+      return firstName.substring(0, 2).toUpperCase()
+    }
+    if (userRole) {
+       const role = userRole.toUpperCase()
+       return role === "ADMIN" ? "AD" : role === "MANAGER" ? "MG" : "TC"
+    }
+    return "US"
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -226,7 +242,7 @@ export function AppLayout({ children, userRole, photoUrl, firstName }: AppLayout
                 <Avatar className="h-8 w-8">
                   {photoUrl && <AvatarImage src={photoUrl} alt={firstName || ""} />}
                   <AvatarFallback className="bg-primary/10 text-primary">
-                    {userRole === "admin" ? "AD" : userRole === "manager" ? "MG" : "TC"}
+                    {getInitials()}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -256,20 +272,22 @@ export function AppLayout({ children, userRole, photoUrl, firstName }: AppLayout
       </div>
       {/* Bottom Navigation - Floating Telegram-style (Only visible on mobile) */}
       <div className="fixed bottom-4 left-4 right-4 z-50 max-w-2xl mx-auto md:hidden">
-        <nav className="flex items-center justify-around rounded-2xl bg-card/95 shadow-xl border border-border backdrop-blur px-2 py-1">
-          {roleNavItems.map((item, index) => (
-            <Link
-              key={index}
-              href={item.href}
-              className={`flex flex-1 flex-col items-center gap-1 py-2 text-[13px] transition ${isActive(item.href) ? "text-primary font-semibold" : "text-muted-foreground"
-                }`}
-            >
-              <span className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${isActive(item.href) ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
-                <item.icon className="h-5 w-5" />
-              </span>
-              <span className="md:text-[12px]">{item.label}</span>
-            </Link>
-          ))}
+        <nav className="flex items-center overflow-x-auto rounded-2xl bg-card/95 shadow-xl border border-border backdrop-blur px-2 py-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div className="flex w-full justify-start sm:justify-around gap-2">
+            {roleNavItems.map((item, index) => (
+              <Link
+                key={index}
+                href={item.href}
+                className={`flex min-w-[72px] shrink-0 flex-col items-center gap-1 py-2 px-1 text-[13px] transition ${isActive(item.href) ? "text-primary font-semibold" : "text-muted-foreground"
+                  }`}
+              >
+                <span className={`flex h-9 w-9 items-center justify-center rounded-full transition-colors ${isActive(item.href) ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
+                  <item.icon className="h-5 w-5" />
+                </span>
+                <span className="md:text-[12px]">{item.label}</span>
+              </Link>
+            ))}
+          </div>
         </nav>
       </div>
 
