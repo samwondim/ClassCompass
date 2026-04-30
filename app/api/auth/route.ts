@@ -25,20 +25,32 @@ export async function POST(request: NextRequest) {
     const validationRes = validateTelegramWebAppData(initData, BOT_TOKEN);
 
     if (validationRes.validatedData) {
-      const user = { tg_username: validationRes.user.username };
+      const tgUsername = validationRes.user.username?.replace(/^@/, '').trim();
       const photo_url = validationRes.user.photo_url || null;
 
-      await prisma.user.update({
-        where: {
-          tg_username: user.tg_username
-        },
-        data: {
-          tg_id: validationRes.user.id ? +validationRes.user.id : null,
-          photo_url: photo_url
+      if (!tgUsername) {
+        return NextResponse.json({ message: "Telegram username is required" }, { status: 400 });
+      }
+
+      try {
+        await prisma.user.update({
+          where: {
+            tg_username: tgUsername
+          },
+          data: {
+            tg_id: validationRes.user.id ? +validationRes.user.id : null,
+            photo_url: photo_url
+          }
+        });
+      } catch (err: any) {
+        if (err.code === 'P2025') { // Record to update not found.
+          return NextResponse.json({ message: "User not found in the system. Please ask an admin to add you." }, { status: 404 });
         }
-      });
+        throw err;
+      }
+
       const fetched_user = await prisma.user.findUnique({
-        where: { tg_username: user.tg_username },
+        where: { tg_username: tgUsername },
         select: { user_role: true, first_name: true, last_name: true, tg_username: true, user_id: true, tg_id: true, photo_url: true }
       })
 
@@ -60,9 +72,9 @@ export async function POST(request: NextRequest) {
     } else {
       return NextResponse.json({ message: validationRes.message }, { status: 401 })
     }
-  } catch (error) {
+  } catch (error: any) {
     console.log("AUTH ERROR", error)
-    return NextResponse.json({ error })
+    return NextResponse.json({ message: error.message || "Internal server error", error }, { status: 500 })
 
   }
 }

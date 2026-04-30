@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
 
     // Sanitize and validate input
     const sanitizedFirstName = first_name.trim()
-    const sanitizedtgUsername = tg_username.trim()
+    const sanitizedtgUsername = tg_username?.replace(/^@/, '').trim()
     const sanitizedLastName = last_name ? last_name.trim() : null
     const sanitizedPhone = phone_number.trim().replace(/\s/g, '')
 

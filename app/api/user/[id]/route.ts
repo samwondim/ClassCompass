@@ -160,7 +160,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         first_name: userData.first_name,
         last_name: userData.last_name,
         phone_number: userData.phone_number,
-        tg_username: userData.tg_username,
+        tg_username: userData.tg_username?.replace(/^@/, '').trim(),
       }
     });
 

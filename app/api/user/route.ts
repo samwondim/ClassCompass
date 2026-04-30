@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
 
     const newUser = await prisma.user.create({
       data: {
-        tg_username: userData.tg_username,
+        tg_username: userData.tg_username?.replace(/^@/, '').trim(),
         user_role: userData.user_role,
         first_name: userData.first_name,
         last_name: userData.last_name,
