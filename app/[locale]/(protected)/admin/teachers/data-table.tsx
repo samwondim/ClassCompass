@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -54,7 +55,10 @@ function TeacherCard({ teacher }: { teacher: Teacher }) {
         <CardContent className="p-4">
           <div className="flex justify-between items-start mb-3">
             <div className="flex items-center">
-              <User className="h-5 w-5 mr-2 text-primary" />
+              <Avatar className="h-8 w-8 mr-2">
+                {teacher.photo_url && <AvatarImage src={teacher.photo_url} alt={teacher.first_name || ""} />}
+                <AvatarFallback>{(teacher.first_name?.[0] || "")}{(teacher.last_name?.[0] || "")}</AvatarFallback>
+              </Avatar>
               <div className="font-semibold text-base">
                 {teacher.first_name} {teacher.last_name}
               </div>

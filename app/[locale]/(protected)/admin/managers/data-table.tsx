@@ -24,6 +24,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -55,7 +56,10 @@ function ManagerCard({ manager }: { manager: Manager }) {
         <CardContent className="p-4">
           <div className="flex justify-between items-start mb-3">
             <div className="flex items-center">
-              <User className="h-5 w-5 mr-2 text-primary" />
+              <Avatar className="h-8 w-8 mr-2">
+                {manager.photo_url && <AvatarImage src={manager.photo_url} alt={manager.first_name || ""} />}
+                <AvatarFallback>{(manager.first_name?.[0] || "")}{(manager.last_name?.[0] || "")}</AvatarFallback>
+              </Avatar>
               <div className="font-semibold text-base">
                 {manager.first_name} {manager.last_name}
               </div>
