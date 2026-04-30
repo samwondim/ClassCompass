@@ -64,21 +64,17 @@ export function ManagerDashboard() {
         authHeaders['x-telegram-init-data'] = webApp.initData
       }
       const requestOptions: RequestInit = { credentials: 'include', headers: authHeaders };
-      const [teachersRes, sectionsRes, schedulesRes, coursesRes, notificationsRes] = await Promise.all([
-        fetch('/api/managers/teachers', requestOptions),
-        fetch('/api/managers/sections', requestOptions),
-        fetch('/api/managers/schedules', requestOptions),
-        fetch('/api/courses', requestOptions),
-        fetch('/api/notifications', requestOptions)
-      ])
+      const teachersRes = await fetch('/api/managers/teachers', requestOptions)
+      const sectionsRes = await fetch('/api/managers/sections', requestOptions)
+      const schedulesRes = await fetch('/api/managers/schedules', requestOptions)
+      const coursesRes = await fetch('/api/courses', requestOptions)
+      const notificationsRes = await fetch('/api/notifications', requestOptions)
 
-      const [teachersData, sectionsData, schedulesData, coursesData, notificationsData] = await Promise.all([
-        teachersRes.json(),
-        sectionsRes.json(),
-        schedulesRes.json(),
-        coursesRes.json(),
-        notificationsRes.json()
-      ])
+      const teachersData = await teachersRes.json()
+      const sectionsData = await sectionsRes.json()
+      const schedulesData = await schedulesRes.json()
+      const coursesData = await coursesRes.json()
+      const notificationsData = await notificationsRes.json()
 
       if (!teachersRes.ok || !sectionsRes.ok || !schedulesRes.ok || !coursesRes.ok || !notificationsRes.ok) {
         const errorMessage =
@@ -145,7 +141,7 @@ export function ManagerDashboard() {
             <div className="text-2xl font-bold text-primary">
               {loading ? '...' : stats.teachers}
             </div>
-            <p className="text-xs text-muted-foreground">{t('Dashboard.InYourSections')}</p>
+            <p className="text-xs text-muted-foreground">{t('Dashboard.Total')}</p>
           </CardContent>
         </Card>
 
@@ -160,7 +156,7 @@ export function ManagerDashboard() {
             <div className="text-2xl font-bold text-primary">
               {loading ? '...' : stats.sections}
             </div>
-            <p className="text-xs text-muted-foreground">{t('Dashboard.YouManage')}</p>
+            <p className="text-xs text-muted-foreground">{t('Dashboard.Total')}</p>
           </CardContent>
         </Card>
 
@@ -175,7 +171,7 @@ export function ManagerDashboard() {
             <div className="text-2xl font-bold text-primary">
               {loading ? '...' : stats.schedules}
             </div>
-            <p className="text-xs text-muted-foreground">{t('Dashboard.TotalSchedules')}</p>
+            <p className="text-xs text-muted-foreground">{t('Dashboard.Total')}</p>
           </CardContent>
         </Card>
 
@@ -190,7 +186,7 @@ export function ManagerDashboard() {
             <div className="text-2xl font-bold text-amber-600">
               {loading ? '...' : stats.upcomingSchedules}
             </div>
-            <p className="text-xs text-muted-foreground">{t('Dashboard.Next7Days')}</p>
+            <p className="text-xs text-muted-foreground">በቅርብ ቀናት የተመደቡ</p>
           </CardContent>
         </Card>
 
@@ -205,7 +201,7 @@ export function ManagerDashboard() {
             <div className="text-2xl font-bold text-primary">
               {loading ? '...' : stats.courses}
             </div>
-            <p className="text-xs text-muted-foreground">{t('Dashboard.Available')}</p>
+            <p className="text-xs text-muted-foreground">{t('Dashboard.Total')}</p>
           </CardContent>
         </Card>
 
@@ -266,7 +262,7 @@ export function ManagerDashboard() {
               <CardDescription>{t('Dashboard.UpcomingDesc')}</CardDescription>
             </div>
             <Link href={`${managerBase}/schedules`}>
-              <Button variant="outline" size="sm">{t('Common.ViewAll')}</Button>
+              <Button variant="outline" size="sm">ሁሉንም ይመልከቱ</Button>
             </Link>
           </div>
         </CardHeader>
@@ -305,7 +301,7 @@ export function ManagerDashboard() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
-            {t('Dashboard.QuickActions')}
+            ፈጣን እርምጃዎች
           </CardTitle>
         </CardHeader>
         <CardContent>

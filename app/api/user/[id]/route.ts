@@ -137,9 +137,13 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   const body = await request.json();
 
   try {
+    const target = await prisma.user.findUnique({ where: { user_id: id } });
+    if (!target) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
     if (user.user_role === 'MANAGER') {
-      const target = await prisma.user.findUnique({ where: { user_id: id } });
-      if (!target || target.user_role !== 'TEACHER') {
+      if (target.user_role !== 'TEACHER') {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
       }
       const allowed = await managerCanAccessTeacher(user.user_id, id);
@@ -161,17 +165,32 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     });
 
     if (sectionIds !== undefined) {
-      await prisma.teacherSection.deleteMany({
-        where: { teacher_id: id }
-      });
-
-      if (sectionIds.length > 0) {
-        await prisma.teacherSection.createMany({
-          data: sectionIds.map((sectionId: string) => ({
-            teacher_id: id,
-            section_id: sectionId,
-          })),
+      if (target.user_role === 'MANAGER') {
+        await prisma.managerSection.deleteMany({
+          where: { manager_id: id }
         });
+
+        if (sectionIds.length > 0) {
+          await prisma.managerSection.createMany({
+            data: sectionIds.map((sectionId: string) => ({
+              manager_id: id,
+              section_id: sectionId,
+            })),
+          });
+        }
+      } else {
+        await prisma.teacherSection.deleteMany({
+          where: { teacher_id: id }
+        });
+
+        if (sectionIds.length > 0) {
+          await prisma.teacherSection.createMany({
+            data: sectionIds.map((sectionId: string) => ({
+              teacher_id: id,
+              section_id: sectionId,
+            })),
+          });
+        }
       }
     }
 
