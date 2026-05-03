@@ -80,12 +80,7 @@ export function BulkUploadForm({ role = 'ADMIN' }: BulkUploadFormProps) {
       errors.push('Phone number is required (min 8 characters)')
     }
     
-    if (isManager) {
-      const userRole = row.user_role?.toString().toUpperCase().trim()
-      if (userRole && userRole !== 'TEACHER' && userRole !== '') {
-        errors.push('Managers can only create TEACHER users')
-      }
-    } else {
+    if (!isManager) {
       const validRoles = ['TEACHER', 'MANAGER', 'ADMIN', '']
       const userRole = row.user_role?.toString().toUpperCase().trim()
       if (userRole && !validRoles.includes(userRole)) {
@@ -147,7 +142,7 @@ export function BulkUploadForm({ role = 'ADMIN' }: BulkUploadFormProps) {
             last_name: row.last_name || row.lastName || row['Last Name'] || row['የአባት ስም'] || '',
             tg_username: row.tg_username || row.tgUsername || row['Telegram Username'] || row.username || row['ተሌግራም ዩዘርኔም'] || '',
             phone_number: row.phone_number || row.phoneNumber || row['Phone Number'] || row['የስልክ ቁጥር'] || '',
-            user_role: row.user_role || row.userRole || row['User Role'] || row.role || 'TEACHER',
+            user_role: isManager ? 'TEACHER' : (row.user_role || row.userRole || row['User Role'] || row.role || 'TEACHER'),
             section_name: row.section_name || row.sectionName || row['Section Name'] || row['ክፍል'] || ''
           }
           const rowErrors = validateUserRow(normalizedRow, index + 2)
@@ -431,7 +426,7 @@ export function BulkUploadForm({ role = 'ADMIN' }: BulkUploadFormProps) {
               <AlertDescription>
                 <code className="text-xs">
                   {isManager 
-                    ? 'first_name, last_name, tg_username, phone_number, user_role (TEACHER only), section_name'
+                    ? 'first_name, last_name, tg_username, phone_number, section_name'
                     : 'first_name, last_name, tg_username, phone_number, user_role (TEACHER/MANAGER/ADMIN), section_name'
                   }
                 </code>
@@ -473,7 +468,10 @@ export function BulkUploadForm({ role = 'ADMIN' }: BulkUploadFormProps) {
               <table className="w-full text-sm">
                 <thead className="sticky top-0 bg-muted">
                   <tr>
-                    {(uploadType === 'users' ? userColumns : scheduleColumns).map((col, i) => (
+                    {(uploadType === 'users' 
+                      ? (isManager ? userColumns.filter(c => c !== 'Role') : userColumns) 
+                      : scheduleColumns
+                    ).map((col, i) => (
                       <th key={i} className="px-3 py-2 text-left">{col}</th>
                     ))}
                   </tr>
@@ -488,15 +486,17 @@ export function BulkUploadForm({ role = 'ADMIN' }: BulkUploadFormProps) {
                           <td className="px-3 py-2">{row.last_name || '-'}</td>
                           <td className="px-3 py-2">{row.tg_username}</td>
                           <td className="px-3 py-2">{row.phone_number}</td>
-                          <td className="px-3 py-2">
-                            <span className={`px-2 py-1 rounded text-xs ${
-                              row.user_role === 'ADMIN' ? 'bg-purple-100 text-purple-800' :
-                              row.user_role === 'MANAGER' ? 'bg-blue-100 text-blue-800' :
-                              'bg-gray-100 text-gray-800'
-                            }`}>
-                              {row.user_role || 'TEACHER'}
-                            </span>
-                          </td>
+                          {!isManager && (
+                            <td className="px-3 py-2">
+                              <span className={`px-2 py-1 rounded text-xs ${
+                                row.user_role === 'ADMIN' ? 'bg-purple-100 text-purple-800' :
+                                row.user_role === 'MANAGER' ? 'bg-blue-100 text-blue-800' :
+                                'bg-gray-100 text-gray-800'
+                              }`}>
+                                {row.user_role || 'TEACHER'}
+                              </span>
+                            </td>
+                          )}
                           <td className="px-3 py-2">{row.section_name || '-'}</td>
                         </>
                       ) : (

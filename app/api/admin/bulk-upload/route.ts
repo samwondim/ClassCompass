@@ -98,17 +98,7 @@ function validateUserRow(row: UserRow, rowIndex: number, isManager: boolean = fa
     })
   }
 
-  if (isManager) {
-    const role = row.user_role?.toString().toUpperCase().trim()
-    if (role && role !== 'TEACHER' && role !== '') {
-      errors.push({
-        row: rowIndex,
-        field: 'user_role',
-        message: 'Managers can only create TEACHER users',
-        value: row.user_role?.toString()
-      })
-    }
-  } else {
+  if (!isManager) {
     const validRoles = ['TEACHER', 'MANAGER', 'ADMIN', '']
     const role = row.user_role?.toString().toUpperCase().trim()
     if (role && !validRoles.includes(role)) {
@@ -211,17 +201,19 @@ async function processUserUploads(rows: UserRow[], user: any): Promise<UploadRes
         continue
       }
 
+      const finalRole = isManager ? 'TEACHER' : normalizeUserRole(row.user_role)
+
       const createdUser = await prisma.user.create({
         data: {
           first_name: row.first_name!.trim(),
           last_name: row.last_name?.trim() || null,
           tg_username: row.tg_username!.trim(),
           phone_number: row.phone_number!.trim().replace(/\s/g, ''),
-          user_role: normalizeUserRole(row.user_role)
+          user_role: finalRole
         }
       })
 
-      if (row.section_name && normalizeUserRole(row.user_role) === 'TEACHER') {
+      if (row.section_name && finalRole === 'TEACHER') {
         const section = await prisma.section.findFirst({
           where: { section_name: { equals: row.section_name!.trim(), mode: 'insensitive' } }
         })
@@ -260,7 +252,7 @@ async function processUserUploads(rows: UserRow[], user: any): Promise<UploadRes
             value: row.section_name
           })
         }
-      } else if (row.section_name && normalizeUserRole(row.user_role) === 'MANAGER' && !isManager) {
+      } else if (row.section_name && finalRole === 'MANAGER' && !isManager) {
         const section = await prisma.section.findFirst({
           where: { section_name: { equals: row.section_name!.trim(), mode: 'insensitive' } }
         })
