@@ -34,6 +34,8 @@ const toPublicTeacher = (userData: any): Teacher => {
 export async function GET(request: NextRequest) {
   const user = await getUserRole(request);
   let sectionIds: string[] = [];
+  const searchParams = request.nextUrl.searchParams;
+  const requestedSectionId = searchParams.get('section_id');
 
   if (user?.user_role === 'MANAGER') {
     const [managerSections, directSections] = await Promise.all([
@@ -51,6 +53,17 @@ export async function GET(request: NextRequest) {
       ...managerSections.map(ms => ms.section_id),
       ...directSections.map(s => s.section_id),
     ];
+
+    if (requestedSectionId && requestedSectionId !== 'all') {
+      if (!sectionIds.includes(requestedSectionId)) {
+        return NextResponse.json({ error: 'Unauthorized: You do not manage this section' }, { status: 403 });
+      }
+      sectionIds = [requestedSectionId];
+    }
+  } else if (user?.user_role === 'ADMIN') {
+    if (requestedSectionId && requestedSectionId !== 'all') {
+      sectionIds = [requestedSectionId];
+    }
   }
 
   const whereClause: any = {

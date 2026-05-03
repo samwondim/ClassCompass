@@ -23,10 +23,26 @@ const toPublicManager = (user: any): Manager => {
 
 export async function GET(request: NextRequest) {
   try {
+    const user = await getUserRole(request);
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (user.user_role !== 'ADMIN') return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+
+    const searchParams = request.nextUrl.searchParams;
+    const requestedSectionId = searchParams.get('section_id');
+
+    const whereClause: any = {
+      user_role: "MANAGER"
+    };
+
+    if (requestedSectionId && requestedSectionId !== 'all') {
+      whereClause.OR = [
+        { sections_managed: { some: { section_id: requestedSectionId } } },
+        { ManagerSection: { some: { section_id: requestedSectionId } } }
+      ];
+    }
+
     const users = await prisma.user.findMany({
-      where: {
-        user_role: "MANAGER"
-      },
+      where: whereClause,
       select: {
         user_role: true,
         user_id: true,
@@ -54,11 +70,11 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    const managers = users.map(user => ({
-      ...toPublicManager(user),
+    const managers = users.map(u => ({
+      ...toPublicManager(u),
       sections: [
-        ...user.sections_managed,
-        ...user.ManagerSection.map(ms => ms.section)
+        ...u.sections_managed,
+        ...u.ManagerSection.map((ms: any) => ms.section)
       ]
     }));
     return NextResponse.json({ managers });

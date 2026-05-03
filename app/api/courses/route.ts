@@ -74,16 +74,30 @@ export async function GET(request: NextRequest) {
     const session = await getSession(request);
     const user = session?.fetched_user;
 
+    const searchParams = request.nextUrl.searchParams;
+    const requestedSectionId = searchParams.get('sectionId');
+
     const whereClause: any = {};
 
-    // Managers only see courses for sections they manage
     if (user?.user_role === 'MANAGER') {
       const managerSections = await prisma.managerSection.findMany({
         where: { manager_id: user.user_id },
         select: { section_id: true }
       });
       const sectionIds = managerSections.map(ms => ms.section_id);
-      whereClause.section_id = { in: sectionIds };
+      
+      if (requestedSectionId && requestedSectionId !== 'all') {
+        if (!sectionIds.includes(requestedSectionId)) {
+          return NextResponse.json({ error: 'Unauthorized: You do not manage this section' }, { status: 403 });
+        }
+        whereClause.section_id = requestedSectionId;
+      } else {
+        whereClause.section_id = { in: sectionIds };
+      }
+    } else if (user?.user_role === 'ADMIN') {
+      if (requestedSectionId && requestedSectionId !== 'all') {
+        whereClause.section_id = requestedSectionId;
+      }
     }
 
     const courses = await prisma.course.findMany({

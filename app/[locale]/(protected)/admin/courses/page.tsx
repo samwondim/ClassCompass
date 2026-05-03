@@ -1,13 +1,12 @@
-
 import { Course } from "@/app/models/models";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import Link from "next/link";
 import { cookies } from "next/headers";
+import { Filter } from "@/components/filter";
+import prisma from "@/models/client";
 
-// import prisma from "@/models/client"; // removed
-
-async function getData(): Promise<Course[]> {
+async function getData(sectionId?: string): Promise<Course[]> {
   try {
     const baseUrl =
       process.env.NEXT_PUBLIC_BASE_URL ||
@@ -16,7 +15,13 @@ async function getData(): Promise<Course[]> {
 
     const session = (await cookies()).get("session")?.value;
     const headers: HeadersInit = session ? { cookie: `session=${session}` } : {};
-    const res = await fetch(`${baseUrl}/api/courses`, {
+    
+    const url = new URL(`${baseUrl}/api/courses`);
+    if (sectionId && sectionId !== 'all') {
+      url.searchParams.set('sectionId', sectionId);
+    }
+
+    const res = await fetch(url.toString(), {
       cache: "no-store",
       headers,
     });
@@ -34,19 +39,35 @@ async function getData(): Promise<Course[]> {
   }
 }
 
+async function getSections() {
+  return await prisma.section.findMany({
+    select: { section_id: true, section_name: true },
+    orderBy: { section_name: 'asc' }
+  });
+}
 
 // -------- PAGE --------
-export default async function CoursesPage({ params }: { params: { locale: string } }) {
-  const data = await getData();
+export default async function CoursesPage({ params, searchParams }: { params: { locale: string }, searchParams: { sectionId?: string } }) {
+  const data = await getData(searchParams.sectionId);
+  const sections = await getSections();
   const base = `/${params.locale}/admin`;
 
   return (
     <div className="container mx-auto py-10 px-4">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-6">
         <h1 className="text-2xl font-bold">ትምህርቶች</h1>
-        <Link href={`${base}/courses/new`}>
-          <span className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">አዲስ ትምህርት</span>
-        </Link>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <Filter
+            options={sections.map(s => ({ label: s.section_name, value: s.section_id }))}
+            placeholder="ክፍል ምረጥ"
+            paramName="sectionId"
+          />
+          <Link href={`${base}/courses/new`} className="w-full sm:w-auto">
+            <span className="inline-flex w-full sm:w-auto justify-center items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
+              አዲስ ትምህርት
+            </span>
+          </Link>
+        </div>
       </div>
 
       {data.length === 0 ? (
