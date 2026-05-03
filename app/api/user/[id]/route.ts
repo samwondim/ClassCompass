@@ -29,9 +29,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       include: {
         teacher_sections: {
           include: {
-            section: {
-              select: { section_id: true, section_name: true }
-            }
+            section: { select: { section_id: true, section_name: true } }
+          }
+        },
+        ManagerSection: {
+          include: {
+            section: { select: { section_id: true, section_name: true } }
           }
         }
       }

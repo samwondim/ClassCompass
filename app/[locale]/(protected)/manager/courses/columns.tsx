@@ -120,6 +120,14 @@ export const columns: ColumnDef<Course>[] = [
     },
   },
   {
+    accessorKey: "section",
+    header: "Section",
+    cell: ({ row }) => {
+      const section = row.original.section;
+      return <div>{section?.section_name || "-"}</div>;
+    },
+  },
+  {
     accessorKey: "created_by_user",
     header: "Created By",
     cell: ({ row }) => {

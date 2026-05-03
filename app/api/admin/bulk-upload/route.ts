@@ -343,20 +343,6 @@ async function processScheduleUploads(rows: ScheduleRow[], request: NextRequest)
         continue
       }
 
-      const teacher = await prisma.user.findFirst({
-        where: { tg_username: { equals: normalizedRow.teacher_username!.trim(), mode: 'insensitive' } }
-      })
-
-      if (!teacher) {
-        errors.push({
-          row: rowIndex,
-          field: 'teacher_username',
-          message: `Teacher with username "${normalizedRow.teacher_username}" not found`,
-          value: normalizedRow.teacher_username
-        })
-        continue
-      }
-
       const section = await prisma.section.findFirst({
         where: { section_name: { equals: normalizedRow.section_name!.trim(), mode: 'insensitive' } }
       })
@@ -367,6 +353,31 @@ async function processScheduleUploads(rows: ScheduleRow[], request: NextRequest)
           field: 'section_name',
           message: `Section "${normalizedRow.section_name}" not found`,
           value: normalizedRow.section_name
+        })
+        continue
+      }
+
+      // Check if course belongs to the section
+      if (course.section_id && course.section_id !== section.section_id) {
+        errors.push({
+          row: rowIndex,
+          field: 'course_name',
+          message: `Course "${normalizedRow.course_name}" does not belong to section "${normalizedRow.section_name}"`,
+          value: normalizedRow.course_name
+        })
+        continue
+      }
+
+      const teacher = await prisma.user.findFirst({
+        where: { tg_username: { equals: normalizedRow.teacher_username!.trim(), mode: 'insensitive' } }
+      })
+
+      if (!teacher) {
+        errors.push({
+          row: rowIndex,
+          field: 'teacher_username',
+          message: `Teacher with username "${normalizedRow.teacher_username}" not found`,
+          value: normalizedRow.teacher_username
         })
         continue
       }

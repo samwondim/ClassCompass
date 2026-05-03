@@ -17,6 +17,8 @@ export function ScheduleForm({ cancelHref, onSuccessHref }: ScheduleFormProps) {
   const { toast } = useToast()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [allCourses, setAllCourses] = useState<any[]>([])
+  const [allTeachers, setAllTeachers] = useState<any[]>([])
   const [courses, setCourses] = useState<{ id: string; name: string }[]>([])
   const [teachers, setTeachers] = useState<{ id: string; name: string }[]>([])
   const [formData, setFormData] = useState({
@@ -34,12 +36,10 @@ export function ScheduleForm({ cancelHref, onSuccessHref }: ScheduleFormProps) {
         ])
         const coursesData = await coursesRes.json()
         const teachersData = await teachersRes.json()
-        setCourses(
-          (coursesData.courses || []).map((c: any) => ({
-            id: c.course_id,
-            name: c.course_name || c.course_description,
-          }))
-        )
+        
+        setAllCourses(coursesData.courses || [])
+        setAllTeachers(teachersData.teachers || [])
+
         setTeachers(
           (teachersData.teachers || []).map((t: any) => ({
             id: t.user_id,
@@ -52,6 +52,24 @@ export function ScheduleForm({ cancelHref, onSuccessHref }: ScheduleFormProps) {
     }
     loadData()
   }, [])
+
+  useEffect(() => {
+    if (formData.teacher_id) {
+      const selectedTeacher = allTeachers.find(t => t.user_id === formData.teacher_id)
+      if (selectedTeacher && selectedTeacher.section_ids) {
+        const filteredCourses = allCourses.filter(c => selectedTeacher.section_ids.includes(c.section_id))
+        setCourses(filteredCourses.map(c => ({
+          id: c.course_id,
+          name: c.course_name || c.course_description
+        })))
+      } else {
+        setCourses([])
+      }
+      setFormData(prev => ({ ...prev, course_id: '' }))
+    } else {
+      setCourses([])
+    }
+  }, [formData.teacher_id, allCourses, allTeachers])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

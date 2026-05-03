@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import useToast from '@/hooks/use-toast'
 
-interface TeacherSection {
+interface SectionRelation {
   section: { section_id: string; section_name: string }
 }
 
@@ -19,7 +19,8 @@ interface UserEditFormProps {
     last_name: string
     phone_number: string
     tg_username: string
-    teacher_sections?: TeacherSection[]
+    teacher_sections?: SectionRelation[]
+    ManagerSection?: SectionRelation[]
   }
   cancelHref: string
   onSuccessHref: string
@@ -34,9 +35,13 @@ export function UserEditForm({ user, cancelHref, onSuccessHref }: UserEditFormPr
   const [phoneNumber, setPhoneNumber] = useState(user.phone_number)
   const [tgUsername, setTgUsername] = useState(user.tg_username)
   const [sections, setSections] = useState<Array<{ section_id: string; section_name: string }>>([])
-  const [selectedSections, setSelectedSections] = useState<string[]>(
-    user.teacher_sections?.map((ts) => ts.section.section_id) || []
-  )
+  
+  const initialSections = [
+    ...(user.teacher_sections?.map((ts) => ts.section.section_id) || []),
+    ...(user.ManagerSection?.map((ms) => ms.section.section_id) || []),
+  ]
+
+  const [selectedSections, setSelectedSections] = useState<string[]>(initialSections)
 
   useEffect(() => {
     const loadSections = async () => {

@@ -62,6 +62,7 @@ model Section {
   teacher_sections TeacherSection[]
   ManagerSection   ManagerSection[]
   schedules        Schedule[]
+  courses          Course[]
 }
 
 model TeacherSection {
@@ -103,6 +104,8 @@ model Course {
   course_name        String?
   verse              String?
   course_description String?
+  section_id         String?
+  section            Section?    @relation(fields: [section_id], references: [section_id], onDelete: SetNull)
   created_at         DateTime    @default(now())
   updated_at         DateTime    @updatedAt
   created_by         String

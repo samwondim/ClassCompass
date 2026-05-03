@@ -9,11 +9,32 @@ import { Course } from '@/app/models/models';
 export async function POST(request: NextRequest) {
   try {
     const session = await getSession(request);
-    const created_by = session?.fetched_user?.user_id;
-    const { course_name, verse, course_description, objectives } = await request.json();
+    const user = session?.fetched_user;
+    const created_by = user?.user_id;
+    const { course_name, verse, course_description, objectives, section_id } = await request.json();
 
-    if (!created_by) {
+    if (!created_by || !user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (!section_id) {
+      return NextResponse.json({ error: "Section is required" }, { status: 400 });
+    }
+
+    // Enforce manager access: managers can only assign courses to sections they manage
+    if (user.user_role === 'MANAGER') {
+      const managerOwnsSection = await prisma.managerSection.findFirst({
+        where: {
+          manager_id: user.user_id,
+          section_id: section_id
+        }
+      });
+
+      if (!managerOwnsSection) {
+        return NextResponse.json({
+          error: 'Unauthorized: You can only assign courses to sections you manage'
+        }, { status: 403 });
+      }
     }
 
     const safeObjectives = Array.isArray(objectives) ? objectives : [];
@@ -27,6 +48,7 @@ export async function POST(request: NextRequest) {
         verse: verse || null,
         course_description,
         created_by,
+        section_id,
         objectives: {
           create: safeObjectives.map((obj: string) => ({
             objective: obj,
@@ -34,7 +56,8 @@ export async function POST(request: NextRequest) {
         }
       },
       include: {
-        objectives: true
+        objectives: true,
+        section: true
       }
     });
 
@@ -45,19 +68,36 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
+
 export async function GET(request: NextRequest) {
   try {
+    const session = await getSession(request);
+    const user = session?.fetched_user;
+
+    const whereClause: any = {};
+
+    // Managers only see courses for sections they manage
+    if (user?.user_role === 'MANAGER') {
+      const managerSections = await prisma.managerSection.findMany({
+        where: { manager_id: user.user_id },
+        select: { section_id: true }
+      });
+      const sectionIds = managerSections.map(ms => ms.section_id);
+      whereClause.section_id = { in: sectionIds };
+    }
+
     const courses = await prisma.course.findMany({
+      where: whereClause,
       orderBy: { created_at: "desc" },
       include: {
-        objectives: true, // <-- include all objectives for each course
+        objectives: true,
+        section: true,
         created_by_user: {
           select: {
             first_name: true,
             last_name: true,
             tg_username: true,
           },
-
         },
       }
     });

@@ -16,6 +16,8 @@ const toPublicTeacher = (userData: any): Teacher => {
     }
   }
 
+  const sectionIds = userData.teacher_sections?.map((ts: any) => ts.section.section_id) || [];
+
   return {
     user_id: userData.user_id,
     user_role: userData.user_role as any,
@@ -24,7 +26,8 @@ const toPublicTeacher = (userData: any): Teacher => {
     tg_username: userData.tg_username,
     phone_number: userData.phone_number,
     photo_url: userData.photo_url,
-    sections: sections
+    sections: sections,
+    section_ids: sectionIds
   }
 }
 
@@ -76,6 +79,7 @@ export async function GET(request: NextRequest) {
         select: {
           section: {
             select: {
+              section_id: true,
               section_name: true
             }
           }

@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import useToast from '@/hooks/use-toast'
 
 interface CourseFormProps {
@@ -17,12 +18,29 @@ export function CourseForm({ cancelHref, onSuccessHref }: CourseFormProps) {
   const { toast } = useToast()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [sections, setSections] = useState<{ section_id: string; section_name: string }[]>([])
   const [formData, setFormData] = useState({
     course_name: '',
     verse: '',
     course_description: '',
+    section_id: '',
   })
   const [objectives, setObjectives] = useState<string[]>([''])
+
+  useEffect(() => {
+    const fetchSections = async () => {
+      try {
+        const res = await fetch('/api/managers/sections')
+        if (res.ok) {
+          const data = await res.json()
+          setSections(data.sections || [])
+        }
+      } catch (error) {
+        console.error('Failed to fetch sections:', error)
+      }
+    }
+    fetchSections()
+  }, [])
 
   const handleObjectiveChange = (index: number, value: string) => {
     const newObjectives = [...objectives]
@@ -45,6 +63,11 @@ export function CourseForm({ cancelHref, onSuccessHref }: CourseFormProps) {
       return
     }
 
+    if (!formData.section_id) {
+      toast({ title: 'Error', description: 'Section is required.', variant: 'destructive' })
+      return
+    }
+
     const validObjectives = objectives.map((obj) => obj.trim()).filter((obj) => obj.length > 0)
 
     setLoading(true)
@@ -58,6 +81,7 @@ export function CourseForm({ cancelHref, onSuccessHref }: CourseFormProps) {
           verse: formData.verse,
           course_description: formData.course_description,
           objectives: validObjectives,
+          section_id: formData.section_id,
         }),
       })
 
@@ -85,6 +109,21 @@ export function CourseForm({ cancelHref, onSuccessHref }: CourseFormProps) {
       <div className="px-4 py-3">
         <Label htmlFor="course_name">የትምህርት ዓርዕስ</Label>
         <Input id="course_name" name="course_name" value={formData.course_name} onChange={(e) => setFormData({ ...formData, course_name: e.target.value })} required />
+      </div>
+      <div className="px-4 py-3">
+        <Label>ክፍል ይምረጡ</Label>
+        <Select value={formData.section_id} onValueChange={(v) => setFormData({ ...formData, section_id: v })}>
+          <SelectTrigger className="mt-2">
+            <SelectValue placeholder="ክፍል ምረጥ" />
+          </SelectTrigger>
+          <SelectContent>
+            {sections.map((section) => (
+              <SelectItem key={section.section_id} value={section.section_id}>
+                {section.section_name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <div className="px-4 py-3">
         <Label htmlFor="verse">ጥቅሥ</Label>
