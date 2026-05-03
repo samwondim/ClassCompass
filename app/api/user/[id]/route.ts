@@ -100,13 +100,35 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     if (!user) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
-    if (user.user_role !== 'ADMIN') {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
 
     const { id } = await params;
 
-    const deletedUser = await prisma.user.delete({
+    // Authorization Check
+    if (user.user_role !== 'ADMIN') {
+      if (user.user_role === 'MANAGER') {
+        const target = await prisma.user.findUnique({ where: { user_id: id } });
+        
+        if (!target) {
+          return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        }
+
+        // Managers can only delete teachers
+        if (target.user_role !== 'TEACHER') {
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+        }
+
+        // Managers can only delete teachers in their managed sections
+        const allowed = await managerCanAccessTeacher(user.user_id, id);
+        if (!allowed) {
+          return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+        }
+      } else {
+        // Other roles (e.g., TEACHER) cannot delete users
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+      }
+    }
+
+    await prisma.user.delete({
       where: { user_id: id },
     });
 
