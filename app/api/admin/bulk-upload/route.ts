@@ -175,7 +175,17 @@ async function processUserUploads(rows: UserRow[], user: any): Promise<UploadRes
     const row = rows[i]
     const rowIndex = i + 2
 
-    const rowErrors = validateUserRow(row, rowIndex, isManager)
+    // Normalize row keys to match our expected format, similar to frontend
+    const normalizedRow: UserRow = {
+      first_name: (row.first_name || row.firstName || row['First Name'] || row['ስም'] || '').toString(),
+      last_name: (row.last_name || row.lastName || row['Last Name'] || row['የአባት ስም'] || '').toString(),
+      tg_username: (row.tg_username || row.tgUsername || row['Telegram Username'] || row.username || row['ተሌግራም ዩዘርኔም'] || '').toString(),
+      phone_number: (row.phone_number || row.phoneNumber || row['Phone Number'] || row['የስልክ ቁጥር'] || '').toString(),
+      user_role: (row.user_role || row.userRole || row['User Role'] || row.role || '').toString(),
+      section_name: (row.section_name || row.sectionName || row['Section Name'] || row['ክፍል'] || '').toString()
+    }
+
+    const rowErrors = validateUserRow(normalizedRow, rowIndex, isManager)
     if (rowErrors.length > 0) {
       errors.push(...rowErrors)
       continue
@@ -185,8 +195,8 @@ async function processUserUploads(rows: UserRow[], user: any): Promise<UploadRes
       const existingUser = await prisma.user.findFirst({
         where: {
           OR: [
-            { tg_username: row.tg_username!.toString().trim() },
-            { phone_number: row.phone_number!.toString().trim() }
+            { tg_username: normalizedRow.tg_username!.trim() },
+            { phone_number: normalizedRow.phone_number!.trim() }
           ]
         }
       })
@@ -196,26 +206,26 @@ async function processUserUploads(rows: UserRow[], user: any): Promise<UploadRes
           row: rowIndex,
           field: 'tg_username/phone_number',
           message: 'User with this Telegram username or phone number already exists',
-          value: row.tg_username
+          value: normalizedRow.tg_username
         })
         continue
       }
 
-      const finalRole = isManager ? 'TEACHER' : normalizeUserRole(row.user_role)
+      const finalRole = isManager ? 'TEACHER' : normalizeUserRole(normalizedRow.user_role)
 
       const createdUser = await prisma.user.create({
         data: {
-          first_name: row.first_name!.toString().trim(),
-          last_name: row.last_name?.toString().trim() || null,
-          tg_username: row.tg_username!.toString().trim(),
-          phone_number: row.phone_number!.toString().trim().replace(/\s/g, ''),
+          first_name: normalizedRow.first_name!.trim(),
+          last_name: normalizedRow.last_name?.trim() || null,
+          tg_username: normalizedRow.tg_username!.trim(),
+          phone_number: normalizedRow.phone_number!.trim().replace(/\s/g, ''),
           user_role: finalRole
         }
       })
 
-      if (row.section_name && finalRole === 'TEACHER') {
+      if (normalizedRow.section_name && finalRole === 'TEACHER') {
         const section = await prisma.section.findFirst({
-          where: { section_name: { equals: row.section_name!.toString().trim(), mode: 'insensitive' } }
+          where: { section_name: { equals: normalizedRow.section_name.trim(), mode: 'insensitive' } }
         })
 
         if (section) {
@@ -232,7 +242,7 @@ async function processUserUploads(rows: UserRow[], user: any): Promise<UploadRes
                 row: rowIndex,
                 field: 'section_name',
                 message: 'You can only add teachers to sections you manage',
-                value: row.section_name
+                value: normalizedRow.section_name
               })
               continue
             }
@@ -248,13 +258,13 @@ async function processUserUploads(rows: UserRow[], user: any): Promise<UploadRes
           errors.push({
             row: rowIndex,
             field: 'section_name',
-            message: `Section "${row.section_name}" not found. User created but not assigned.`,
-            value: row.section_name
+            message: `Section "${normalizedRow.section_name}" not found. User created but not assigned.`,
+            value: normalizedRow.section_name
           })
         }
-      } else if (row.section_name && finalRole === 'MANAGER' && !isManager) {
+      } else if (normalizedRow.section_name && finalRole === 'MANAGER' && !isManager) {
         const section = await prisma.section.findFirst({
-          where: { section_name: { equals: row.section_name!.toString().trim(), mode: 'insensitive' } }
+          where: { section_name: { equals: normalizedRow.section_name.trim(), mode: 'insensitive' } }
         })
 
         if (section) {
@@ -268,8 +278,8 @@ async function processUserUploads(rows: UserRow[], user: any): Promise<UploadRes
           errors.push({
             row: rowIndex,
             field: 'section_name',
-            message: `Section "${row.section_name}" not found. User created but not assigned.`,
-            value: row.section_name
+            message: `Section "${normalizedRow.section_name}" not found. User created but not assigned.`,
+            value: normalizedRow.section_name
           })
         }
       }
@@ -304,7 +314,15 @@ async function processScheduleUploads(rows: ScheduleRow[], request: NextRequest)
     const row = rows[i]
     const rowIndex = i + 2
 
-    const rowErrors = validateScheduleRow(row, rowIndex)
+    // Normalize row keys
+    const normalizedRow: ScheduleRow = {
+      course_name: (row.course_name || row.courseName || row['Course Name'] || row.Course || '').toString(),
+      teacher_username: (row.teacher_username || row.teacherUsername || row.teacher || row['Teacher'] || row['Teacher Username'] || '').toString(),
+      section_name: (row.section_name || row.sectionName || row['Section Name'] || row.Section || '').toString(),
+      schedule_date: (row.schedule_date || row.scheduleDate || row['Schedule Date'] || row.Date || '').toString()
+    }
+
+    const rowErrors = validateScheduleRow(normalizedRow, rowIndex)
     if (rowErrors.length > 0) {
       errors.push(...rowErrors)
       continue
@@ -312,43 +330,43 @@ async function processScheduleUploads(rows: ScheduleRow[], request: NextRequest)
 
     try {
       const course = await prisma.course.findFirst({
-        where: { course_name: { equals: row.course_name!.toString().trim(), mode: 'insensitive' } }
+        where: { course_name: { equals: normalizedRow.course_name!.trim(), mode: 'insensitive' } }
       })
 
       if (!course) {
         errors.push({
           row: rowIndex,
           field: 'course_name',
-          message: `Course "${row.course_name}" not found`,
-          value: row.course_name
+          message: `Course "${normalizedRow.course_name}" not found`,
+          value: normalizedRow.course_name
         })
         continue
       }
 
       const teacher = await prisma.user.findFirst({
-        where: { tg_username: { equals: row.teacher_username!.toString().trim(), mode: 'insensitive' } }
+        where: { tg_username: { equals: normalizedRow.teacher_username!.trim(), mode: 'insensitive' } }
       })
 
       if (!teacher) {
         errors.push({
           row: rowIndex,
           field: 'teacher_username',
-          message: `Teacher with username "${row.teacher_username}" not found`,
-          value: row.teacher_username
+          message: `Teacher with username "${normalizedRow.teacher_username}" not found`,
+          value: normalizedRow.teacher_username
         })
         continue
       }
 
       const section = await prisma.section.findFirst({
-        where: { section_name: { equals: row.section_name!.toString().trim(), mode: 'insensitive' } }
+        where: { section_name: { equals: normalizedRow.section_name!.trim(), mode: 'insensitive' } }
       })
 
       if (!section) {
         errors.push({
           row: rowIndex,
           field: 'section_name',
-          message: `Section "${row.section_name}" not found`,
-          value: row.section_name
+          message: `Section "${normalizedRow.section_name}" not found`,
+          value: normalizedRow.section_name
         })
         continue
       }
@@ -366,7 +384,7 @@ async function processScheduleUploads(rows: ScheduleRow[], request: NextRequest)
             row: rowIndex,
             field: 'section_name',
             message: 'You can only create schedules for sections you manage',
-            value: row.section_name
+            value: normalizedRow.section_name
           })
           continue
         }
@@ -383,13 +401,13 @@ async function processScheduleUploads(rows: ScheduleRow[], request: NextRequest)
         errors.push({
           row: rowIndex,
           field: 'teacher_username',
-          message: `Teacher "${row.teacher_username}" is not assigned to section "${row.section_name}"`,
-          value: row.teacher_username
+          message: `Teacher "${normalizedRow.teacher_username}" is not assigned to section "${normalizedRow.section_name}"`,
+          value: normalizedRow.teacher_username
         })
         continue
       }
 
-      const scheduleDate = new Date(row.schedule_date!)
+      const scheduleDate = new Date(normalizedRow.schedule_date!)
 
       const existingSchedule = await prisma.schedule.findFirst({
         where: {
