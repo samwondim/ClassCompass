@@ -18,6 +18,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     <html lang={locale} suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <script dangerouslySetInnerHTML={{ __html: `if (typeof window !== 'undefined' && !window.TelegramGameProxy) { window.TelegramGameProxy = { receiveEvent: function() {} }; }` }} />
         <script src="https://telegram.org/js/telegram-web-app.js" async />
         {/* Fonts for Amharic */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />

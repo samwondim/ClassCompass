@@ -89,21 +89,21 @@ export function ManagerDashboard() {
 
       const allSchedules = schedulesData.schedules || []
 
-        const now = new Date()
-        const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-        const upcoming = allSchedules.filter((s: UpcomingSchedule) => {
-          const scheduleDate = new Date(s.schedule_date)
-          return scheduleDate >= now && scheduleDate <= nextWeek
-        })
+      const now = new Date()
+      const nextWeek = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
+      const upcoming = allSchedules.filter((s: UpcomingSchedule) => {
+        const scheduleDate = new Date(s.schedule_date)
+        return scheduleDate >= now && scheduleDate <= nextWeek
+      })
 
-        setStats({
-          teachers: teachersData.teachers?.length || 0,
-          sections: sectionsData.sections?.length || 0,
-          schedules: allSchedules.length,
-          courses: coursesData.courses?.length || 0,
-          upcomingSchedules: upcoming.length,
-          unreadNotifications: notificationsData.notifications?.filter((n: any) => !n.is_read).length || 0
-        })
+      setStats({
+        teachers: teachersData.teachers?.length || 0,
+        sections: sectionsData.sections?.length || 0,
+        schedules: allSchedules.length,
+        courses: coursesData.courses?.length || 0,
+        upcomingSchedules: upcoming.length,
+        unreadNotifications: notificationsData.notifications?.filter((n: any) => !n.is_read).length || 0
+      })
 
       setSections(sectionsData.sections || [])
       setUpcomingSchedules(upcoming.slice(0, 5))
@@ -122,7 +122,7 @@ export function ManagerDashboard() {
   return (
     <div className="p-4 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-primary">{t('Dashboard.ManagerTitle')}</h1>
+        <h1 className="text-2xl font-bold text-primary">የአስተዳዳሪ ዳሽቦርድ</h1>
         <Button onClick={fetchDashboardData} variant="outline" size="sm">
           {t('Common.Refresh')}
         </Button>
@@ -149,7 +149,7 @@ export function ManagerDashboard() {
           <CardHeader className="pb-4">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <BookOpen className="h-4 w-4" />
-              {t('Dashboard.Sections')}
+              ክፍሎች
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -209,7 +209,7 @@ export function ManagerDashboard() {
           <CardHeader className="pb-4">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Bell className="h-4 w-4" />
-              {t('Dashboard.Alerts')}
+              ማሳወቂያዎች
             </CardTitle>
           </CardHeader>
           <CardContent>

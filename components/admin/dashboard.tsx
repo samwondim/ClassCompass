@@ -220,7 +220,7 @@ export function AdminDashboard() {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Bell className="h-4 w-4" />
-              {t('Dashboard.Alerts')}
+              ማሳወቂያዎች
             </CardTitle>
           </CardHeader>
           <CardContent>
