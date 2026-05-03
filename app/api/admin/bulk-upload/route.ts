@@ -185,8 +185,8 @@ async function processUserUploads(rows: UserRow[], user: any): Promise<UploadRes
       const existingUser = await prisma.user.findFirst({
         where: {
           OR: [
-            { tg_username: row.tg_username!.trim() },
-            { phone_number: row.phone_number!.trim() }
+            { tg_username: row.tg_username!.toString().trim() },
+            { phone_number: row.phone_number!.toString().trim() }
           ]
         }
       })
@@ -205,17 +205,17 @@ async function processUserUploads(rows: UserRow[], user: any): Promise<UploadRes
 
       const createdUser = await prisma.user.create({
         data: {
-          first_name: row.first_name!.trim(),
-          last_name: row.last_name?.trim() || null,
-          tg_username: row.tg_username!.trim(),
-          phone_number: row.phone_number!.trim().replace(/\s/g, ''),
+          first_name: row.first_name!.toString().trim(),
+          last_name: row.last_name?.toString().trim() || null,
+          tg_username: row.tg_username!.toString().trim(),
+          phone_number: row.phone_number!.toString().trim().replace(/\s/g, ''),
           user_role: finalRole
         }
       })
 
       if (row.section_name && finalRole === 'TEACHER') {
         const section = await prisma.section.findFirst({
-          where: { section_name: { equals: row.section_name!.trim(), mode: 'insensitive' } }
+          where: { section_name: { equals: row.section_name!.toString().trim(), mode: 'insensitive' } }
         })
 
         if (section) {
@@ -254,7 +254,7 @@ async function processUserUploads(rows: UserRow[], user: any): Promise<UploadRes
         }
       } else if (row.section_name && finalRole === 'MANAGER' && !isManager) {
         const section = await prisma.section.findFirst({
-          where: { section_name: { equals: row.section_name!.trim(), mode: 'insensitive' } }
+          where: { section_name: { equals: row.section_name!.toString().trim(), mode: 'insensitive' } }
         })
 
         if (section) {
@@ -312,7 +312,7 @@ async function processScheduleUploads(rows: ScheduleRow[], request: NextRequest)
 
     try {
       const course = await prisma.course.findFirst({
-        where: { course_name: { equals: row.course_name!.trim(), mode: 'insensitive' } }
+        where: { course_name: { equals: row.course_name!.toString().trim(), mode: 'insensitive' } }
       })
 
       if (!course) {
@@ -326,7 +326,7 @@ async function processScheduleUploads(rows: ScheduleRow[], request: NextRequest)
       }
 
       const teacher = await prisma.user.findFirst({
-        where: { tg_username: { equals: row.teacher_username!.trim(), mode: 'insensitive' } }
+        where: { tg_username: { equals: row.teacher_username!.toString().trim(), mode: 'insensitive' } }
       })
 
       if (!teacher) {
@@ -340,7 +340,7 @@ async function processScheduleUploads(rows: ScheduleRow[], request: NextRequest)
       }
 
       const section = await prisma.section.findFirst({
-        where: { section_name: { equals: row.section_name!.trim(), mode: 'insensitive' } }
+        where: { section_name: { equals: row.section_name!.toString().trim(), mode: 'insensitive' } }
       })
 
       if (!section) {

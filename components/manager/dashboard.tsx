@@ -321,7 +321,7 @@ export function ManagerDashboard() {
             <Link href={`${managerBase}/courses`}>
               <Button variant="outline" className="w-full">
                 <BookOpen className="mr-2 h-4 w-4" />
-                {t('Dashboard.BrowseCourses')}
+                ትምህርቶችን ይመልከቱ
               </Button>
             </Link>
             <Link href={`${managerBase}/notifications`}>
@@ -338,7 +338,7 @@ export function ManagerDashboard() {
             <Link href={`${managerBase}/bulk-upload`}>
               <Button variant="outline" className="w-full">
                 <Upload className="mr-2 h-4 w-4" />
-                {t('Dashboard.BulkUpload')}
+                በጅምላ ይመዝግቡ
               </Button>
             </Link>
           </div>
