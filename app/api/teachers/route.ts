@@ -18,7 +18,11 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const sectionId = searchParams.get('sectionId');
 
-    const whereClause: any = {};
+    const whereClause: any = {
+        teacher: {
+            user_role: 'TEACHER'
+        }
+    };
     if (sectionId) {
         whereClause.section_id = sectionId;
     }

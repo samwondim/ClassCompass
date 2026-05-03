@@ -38,7 +38,10 @@ export async function GET(request: NextRequest) {
         // Fetch teachers assigned to those sections
         const teacherSections = await prisma.teacherSection.findMany({
             where: {
-                section_id: { in: sectionIds }
+                section_id: { in: sectionIds },
+                teacher: {
+                    user_role: 'TEACHER'
+                }
             },
             include: {
                 teacher: {

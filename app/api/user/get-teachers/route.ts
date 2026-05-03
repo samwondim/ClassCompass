@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
   }
 
   const whereClause: any = {
-    user_role: { in: ["TEACHER", "MANAGER", "ADMIN"] }
+    user_role: "TEACHER"
   };
 
   if (sectionIds.length > 0) {

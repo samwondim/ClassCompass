@@ -54,7 +54,7 @@ async function getData(managerId: string, sectionId?: string): Promise<Teacher[]
     });
 
     return teacherSections
-      .filter(ts => ts.teacher.user_role !== null)
+      .filter(ts => ts.teacher.user_role === 'TEACHER')
       .map(ts => ({
         user_id: ts.teacher.user_id,
         user_role: ts.teacher.user_role as any,
