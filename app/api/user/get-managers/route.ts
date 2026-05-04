@@ -1,5 +1,6 @@
 import prisma from "@/models/client";
 import { NextRequest, NextResponse } from "next/server";
+import { getUserRole } from "@/utils/data-access";
 
 export const dynamic = 'force-dynamic';
 
