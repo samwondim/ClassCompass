@@ -26,6 +26,7 @@ export type Teacher = {
   user_role: UserRole
   phone_number: string | null
   sections: string | null
+  section_ids: string[]
 }
 
 export type Schedule = {

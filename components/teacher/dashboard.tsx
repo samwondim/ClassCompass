@@ -16,6 +16,7 @@ interface Objective {
 
 interface Course {
   course_id: string
+  course_name?: string | null
   course_description: string
   created_at: Date
   objectives: Objective[]
@@ -143,9 +144,14 @@ export function TeacherDashboard() {
                     </div>
                     <div className="flex-1">
                       <h3 className="text-lg font-medium">
-                        {upcomingSchedule.course.course_description || 'መርሃ ግብር'}
+                        {upcomingSchedule.course.course_name || upcomingSchedule.course.course_description || 'መርሃ ግብር'}
                       </h3>
-                      <p className="text-sm text-muted-foreground">
+                      {upcomingSchedule.section?.section_name && (
+                        <p className="text-xs text-sky-600 font-medium mt-0.5">
+                          ክፍል: {upcomingSchedule.section.section_name}
+                        </p>
+                      )}
+                      <p className="text-sm text-muted-foreground mt-1">
                         {new Date(upcomingSchedule.schedule_date).toLocaleDateString('en-US', {
                           weekday: 'long',
                           year: 'numeric',
@@ -203,9 +209,15 @@ export function TeacherDashboard() {
                           </div>
                           <div className="flex-1">
                             <p className="font-medium">
-                              {schedule.course.course_description}
+                              {schedule.course.course_name || schedule.course.course_description}
                             </p>
                             <div className="flex items-center text-xs text-muted-foreground space-x-1">
+                              {schedule.section?.section_name && (
+                                <>
+                                  <span className="text-sky-600">{schedule.section.section_name}</span>
+                                  <span>•</span>
+                                </>
+                              )}
                               <span>
                                 {new Date(schedule.schedule_date).toLocaleDateString('en-US', {
                                   month: 'short',

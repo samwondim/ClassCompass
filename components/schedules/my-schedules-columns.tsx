@@ -1,15 +1,8 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal, Calendar, BookOpen } from "lucide-react";
+import { ArrowUpDown, Calendar, BookOpen, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Schedule } from "@/app/models/models";
 
@@ -52,7 +45,7 @@ export const myScheduleColumns: ColumnDef<Schedule>[] = [
     ),
   },
   {
-    accessorKey: "course.course_description",
+    id: "course",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -62,42 +55,38 @@ export const myScheduleColumns: ColumnDef<Schedule>[] = [
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => (
-      <div className="font-medium max-w-md truncate">
-        <BookOpen className="inline h-4 w-4 mr-1 text-sky-600" />
-        {row.original.course.course_description || "ስም የሌለው ትምህርት"}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const course = row.original.course;
+      const displayName = course.course_name || course.course_description || "ስም የሌለው ትምህርት";
+      return (
+        <div className="max-w-xs">
+          <div className="flex items-center font-medium">
+            <BookOpen className="inline h-4 w-4 mr-1 text-sky-600 flex-shrink-0" />
+            <span className="truncate">{displayName}</span>
+          </div>
+          {course.verse && (
+            <div className="text-xs text-muted-foreground italic mt-0.5 pl-5 truncate">
+              {course.verse}
+            </div>
+          )}
+        </div>
+      );
+    },
   },
   {
     id: "section",
     header: "ክፍል",
     cell: ({ row }) => {
-      const sectionName = row.original.section?.section_name || "N/A";
-      return (
-        <Badge variant="secondary" className="text-xs">
+      const sectionName = row.original.section?.section_name;
+      return sectionName ? (
+        <Badge variant="secondary" className="text-xs gap-1">
+          <Layers className="h-3 w-3" />
           {sectionName}
         </Badge>
-      );
-    },
-  },
-  {
-    id: "actions",
-    cell: () => {
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">ምናሌ ክፈት</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>ተጨማሪ ተግባራት</DropdownMenuLabel>
-            <DropdownMenuItem>ዝርዝር እይታ</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      ) : (
+        <span className="text-muted-foreground text-xs">—</span>
       );
     },
   },
 ];
+
