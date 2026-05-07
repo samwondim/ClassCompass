@@ -36,12 +36,23 @@ export function ScheduleForm({ cancelHref, onSuccessHref }: ScheduleFormProps) {
         ])
         const coursesData = await coursesRes.json()
         const teachersData = await teachersRes.json()
-        
-        setAllCourses(coursesData.courses || [])
-        setAllTeachers(teachersData.teachers || [])
+
+        const fetchedCourses = coursesData.courses || []
+        const fetchedTeachers = teachersData.teachers || []
+
+        setAllCourses(fetchedCourses)
+        setAllTeachers(fetchedTeachers)
+
+        // Pre-populate courses immediately so the dropdown is not empty before a teacher is chosen
+        setCourses(
+          fetchedCourses.map((c: any) => ({
+            id: c.course_id,
+            name: c.course_name || c.course_description,
+          }))
+        )
 
         setTeachers(
-          (teachersData.teachers || []).map((t: any) => ({
+          fetchedTeachers.map((t: any) => ({
             id: t.user_id,
             name: `${t.first_name} ${t.last_name}`,
           }))
@@ -54,21 +65,39 @@ export function ScheduleForm({ cancelHref, onSuccessHref }: ScheduleFormProps) {
   }, [])
 
   useEffect(() => {
-    if (formData.teacher_id) {
-      const selectedTeacher = allTeachers.find(t => t.user_id === formData.teacher_id)
-      if (selectedTeacher && selectedTeacher.section_ids) {
-        const filteredCourses = allCourses.filter(c => selectedTeacher.section_ids.includes(c.section_id))
-        setCourses(filteredCourses.map(c => ({
+    if (!formData.teacher_id) {
+      // No teacher selected — show all courses
+      setCourses(
+        allCourses.map((c: any) => ({
           id: c.course_id,
-          name: c.course_name || c.course_description
-        })))
-      } else {
-        setCourses([])
-      }
-      setFormData(prev => ({ ...prev, course_id: '' }))
-    } else {
-      setCourses([])
+          name: c.course_name || c.course_description,
+        }))
+      )
+      return
     }
+
+    const selectedTeacher = allTeachers.find((t: any) => t.user_id === formData.teacher_id)
+    if (selectedTeacher && selectedTeacher.section_ids?.length > 0) {
+      // Filter courses to only those belonging to sections the teacher teaches
+      const filteredCourses = allCourses.filter((c: any) =>
+        selectedTeacher.section_ids.includes(c.section_id)
+      )
+      setCourses(
+        filteredCourses.map((c: any) => ({
+          id: c.course_id,
+          name: c.course_name || c.course_description,
+        }))
+      )
+    } else {
+      // Teacher has no section assignments — show all courses as fallback
+      setCourses(
+        allCourses.map((c: any) => ({
+          id: c.course_id,
+          name: c.course_name || c.course_description,
+        }))
+      )
+    }
+    setFormData(prev => ({ ...prev, course_id: '' }))
   }, [formData.teacher_id, allCourses, allTeachers])
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -115,21 +144,6 @@ export function ScheduleForm({ cancelHref, onSuccessHref }: ScheduleFormProps) {
         />
       </div>
       <div className="px-4 py-3">
-        <Label>ትምህርት</Label>
-        <Select value={formData.course_id} onValueChange={(v) => setFormData({ ...formData, course_id: v })}>
-          <SelectTrigger className="mt-2">
-            <SelectValue placeholder="Select a course" />
-          </SelectTrigger>
-          <SelectContent>
-            {courses.map((course) => (
-              <SelectItem key={course.id} value={course.id}>
-                {course.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="px-4 py-3">
         <Label>መምህር</Label>
         <Select value={formData.teacher_id} onValueChange={(v) => setFormData({ ...formData, teacher_id: v })}>
           <SelectTrigger className="mt-2">
@@ -139,6 +153,21 @@ export function ScheduleForm({ cancelHref, onSuccessHref }: ScheduleFormProps) {
             {teachers.map((teacher) => (
               <SelectItem key={teacher.id} value={teacher.id}>
                 {teacher.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="px-4 py-3">
+        <Label>ትምህርት</Label>
+        <Select value={formData.course_id} onValueChange={(v) => setFormData({ ...formData, course_id: v })}>
+          <SelectTrigger className="mt-2">
+            <SelectValue placeholder="Select a course" />
+          </SelectTrigger>
+          <SelectContent>
+            {courses.map((course) => (
+              <SelectItem key={course.id} value={course.id}>
+                {course.name}
               </SelectItem>
             ))}
           </SelectContent>
