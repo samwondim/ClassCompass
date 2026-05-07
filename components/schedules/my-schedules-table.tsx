@@ -30,12 +30,15 @@ function ScheduleCard({ schedule }: { schedule: Schedule }) {
   const date = typeof dateVal === 'string' ? parseISO(dateVal) : dateVal as Date;
 
   const sectionName = schedule.section?.section_name;
+  const course = schedule.course;
+  const displayName = course.course_name || course.course_description;
+  const showDescription = course.course_name && course.course_description && course.course_name !== course.course_description;
 
   return (
     <Card className="mb-3">
-      <CardContent className="p-4">
+      <CardContent className="p-4 space-y-3">
         {/* Date / Time header */}
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between">
           <div className="flex items-center text-sm font-medium">
             <Calendar className="h-4 w-4 mr-2 text-primary" />
             {format(date, 'MMM dd, yyyy')}
@@ -43,30 +46,46 @@ function ScheduleCard({ schedule }: { schedule: Schedule }) {
           <span className="text-xs text-muted-foreground">{format(date, 'h:mm a')}</span>
         </div>
 
-        <div className="space-y-2">
-          {/* Course */}
-          <div className="flex items-start">
-            <BookOpen className="h-4 w-4 mr-2 mt-0.5 text-muted-foreground flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold truncate">
-                {schedule.course.course_name || schedule.course.course_description}
-              </div>
-              {schedule.course.verse && (
-                <div className="text-xs text-muted-foreground italic truncate">{schedule.course.verse}</div>
-              )}
-            </div>
+        {/* Section badge */}
+        {sectionName && (
+          <div className="flex items-center gap-1">
+            <Layers className="h-3.5 w-3.5 text-muted-foreground" />
+            <span className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full">
+              {sectionName}
+            </span>
           </div>
+        )}
 
-          {/* Section */}
-          {sectionName && (
-            <div className="flex items-center">
-              <Layers className="h-4 w-4 mr-2 text-muted-foreground flex-shrink-0" />
-              <span className="text-xs bg-secondary text-secondary-foreground px-2 py-0.5 rounded-full">
-                {sectionName}
-              </span>
-            </div>
+        {/* Course details */}
+        <div className="border-l-2 border-sky-400 pl-3 space-y-1">
+          <div className="flex items-start gap-2">
+            <BookOpen className="h-4 w-4 mt-0.5 text-sky-600 flex-shrink-0" />
+            <span className="text-sm font-semibold">{displayName}</span>
+          </div>
+          {/* Course description (only when different from course_name) */}
+          {showDescription && (
+            <p className="text-xs text-muted-foreground pl-6">{course.course_description}</p>
+          )}
+          {/* Verse */}
+          {course.verse && (
+            <p className="text-xs italic text-muted-foreground pl-6">"{course.verse}"</p>
           )}
         </div>
+
+        {/* Objectives */}
+        {course.objectives && course.objectives.length > 0 && (
+          <div className="space-y-1">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">ዓላማዎች</p>
+            <ul className="space-y-1">
+              {course.objectives.map((obj) => (
+                <li key={obj.id} className="flex items-start gap-2 text-xs text-foreground">
+                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-sky-500 flex-shrink-0" />
+                  {obj.objective}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

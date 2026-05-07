@@ -37,6 +37,7 @@ export type Schedule = {
     course_name?: string | null;
     verse?: string | null;
     course_description: string;
+    objectives?: { id: string; objective: string }[];
   },
   teacher: {
     user_id: string;
