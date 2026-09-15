@@ -1,11 +1,10 @@
-import prisma from "@/models/client";
+import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { getUserRole } from "@/utils/data-access";
 
 export const dynamic = 'force-dynamic';
 
 import { Manager } from "@/app/models/models";
-import { User } from "@/generated/prisma";
 
 // Map Prisma user → Manager DTO
 const toPublicManager = (user: any): Manager => {
@@ -47,6 +46,7 @@ export async function GET(request: NextRequest) {
       select: {
         user_role: true,
         user_id: true,
+        tg_id: true,
         first_name: true,
         last_name: true,
         tg_username: true,
@@ -71,13 +71,20 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    const managers = users.map(u => ({
-      ...toPublicManager(u),
-      sections: [
-        ...u.sections_managed,
-        ...u.ManagerSection.map((ms: any) => ms.section)
-      ]
-    }));
+    const managers = users.map(u => {
+      const seen = new Set<string>();
+      const sections: Array<{ section_id: string; section_name: string | null }> = [];
+      for (const s of [...u.sections_managed, ...u.ManagerSection.map((ms: any) => ms.section)]) {
+        if (!seen.has(s.section_id)) {
+          seen.add(s.section_id);
+          sections.push(s);
+        }
+      }
+      return {
+        ...toPublicManager(u),
+        sections,
+      };
+    });
     return NextResponse.json({ managers });
 
   } catch (error) {

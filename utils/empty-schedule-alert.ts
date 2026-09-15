@@ -1,5 +1,5 @@
-import prisma from "@/models/client";
-import { notifyEmptyScheduleBoard, notifyWeeklyEmptyScheduleReport } from "@/utils/notifications";
+import prisma from "@/lib/prisma";
+import { notifyWeeklyEmptyScheduleReport } from "@/utils/notifications";
 
 const DEFAULT_TIMEZONE = "Africa/Addis_Ababa";
 
@@ -15,18 +15,18 @@ function getNextSunday(now: Date, timeZone: string): Date {
   for (const part of parts) {
     if (part.type !== "literal") values[part.type] = part.value;
   }
-  
+
   const weekdayMap: Record<string, number> = {
     Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6,
   };
-  
+
   const dtfWeekday = new Intl.DateTimeFormat("en-US", {
     timeZone,
     weekday: "short",
   });
   const weekdayStr = dtfWeekday.format(now);
   const weekday = weekdayMap[weekdayStr];
-  
+
   const daysUntil = (7 - weekday) % 7 || 7;
   const utcGuess = new Date(Date.UTC(
     Number(values.year),
@@ -34,7 +34,7 @@ function getNextSunday(now: Date, timeZone: string): Date {
     Number(values.day),
     0, 0, 0
   ));
-  
+
   const offsetDtf = new Intl.DateTimeFormat("en-US", {
     timeZone,
     hour12: false,
@@ -58,7 +58,7 @@ function getNextSunday(now: Date, timeZone: string): Date {
     Number(offsetValues.minute),
     Number(offsetValues.second)
   ) - utcGuess.getTime();
-  
+
   const localStart = new Date(utcGuess.getTime() - offsetMs);
   const sunday = new Date(localStart.getTime() + daysUntil * 24 * 60 * 60 * 1000);
   return sunday;
@@ -66,7 +66,6 @@ function getNextSunday(now: Date, timeZone: string): Date {
 
 export async function runEmptyScheduleAlert(options?: { force?: boolean; timeZone?: string }) {
   const timeZone = options?.timeZone || process.env.APP_TIMEZONE || DEFAULT_TIMEZONE;
-  const force = options?.force === true;
   const now = new Date();
   const nextSunday = getNextSunday(now, timeZone);
 
@@ -89,13 +88,13 @@ export async function runEmptyScheduleAlert(options?: { force?: boolean; timeZon
       section_id: true,
       section_name: true,
       manager_id: true,
-      manager: { 
-        select: { 
-          user_id: true, 
-          tg_id: true, 
-          first_name: true, 
-          last_name: true 
-        } 
+      manager: {
+        select: {
+          user_id: true,
+          tg_id: true,
+          first_name: true,
+          last_name: true
+        }
       },
     },
   });
@@ -114,15 +113,15 @@ export async function runEmptyScheduleAlert(options?: { force?: boolean; timeZon
 
   const managerAssignments = await prisma.managerSection.findMany({
     where: { section_id: { in: sectionsWithoutSchedules.map(s => s.section_id) } },
-    include: { 
-      manager: { 
-        select: { 
-          user_id: true, 
-          tg_id: true, 
-          first_name: true, 
-          last_name: true 
-        } 
-      } 
+    include: {
+      manager: {
+        select: {
+          user_id: true,
+          tg_id: true,
+          first_name: true,
+          last_name: true
+        }
+      }
     },
   });
 
@@ -133,12 +132,15 @@ export async function runEmptyScheduleAlert(options?: { force?: boolean; timeZon
     managersBySection.set(assignment.section_id, list);
   }
 
-  const notifiedManagers: Array<{ managerId: string; managerName: string; sections: string[] }> = [];
-  const allManagers: Array<{ user_id: string; tg_id: string | number | null; first_name?: string | null; last_name?: string | null }> = [];
-  const managerSections = new Map<string, string[]>();
+  // Build a per-manager view of their empty sections so each manager only
+  // receives a report about sections they actually manage.
+  const managerEmptySections = new Map<
+    string,
+    { user_id: string; tg_id: string | null; first_name?: string | null; last_name?: string | null; sections: string[] }
+  >();
 
   for (const section of sectionsWithoutSchedules) {
-    const managers: Array<{ user_id: string; tg_id: string | number | null; first_name?: string | null; last_name?: string | null }> = [];
+    const managers: Array<{ user_id: string; tg_id: string | null; first_name?: string | null; last_name?: string | null }> = [];
 
     if (section.manager) {
       managers.push(section.manager);
@@ -152,42 +154,21 @@ export async function runEmptyScheduleAlert(options?: { force?: boolean; timeZon
     }
 
     for (const manager of managers) {
-      await notifyEmptyScheduleBoard(
-        {
-          user_id: manager.user_id,
-          tg_id: manager.tg_id,
-          first_name: manager.first_name,
-          last_name: manager.last_name,
-        },
-        section.section_name
-      );
-
-      const existing = notifiedManagers.find(m => m.managerId === manager.user_id);
-      if (existing) {
-        existing.sections.push(section.section_name);
-      } else {
-        notifiedManagers.push({
-          managerId: manager.user_id,
-          managerName: `${manager.first_name || ""} ${manager.last_name || ""}`.trim() || "Manager",
-          sections: [section.section_name],
-        });
+      const entry = managerEmptySections.get(manager.user_id) || {
+        user_id: manager.user_id,
+        tg_id: manager.tg_id,
+        first_name: manager.first_name,
+        last_name: manager.last_name,
+        sections: [],
+      };
+      if (!entry.sections.includes(section.section_name)) {
+        entry.sections.push(section.section_name);
       }
-
-      if (!allManagers.find(m => m.user_id === manager.user_id)) {
-        allManagers.push(manager);
-      }
-      const secList = managerSections.get(manager.user_id) || [];
-      if (!secList.includes(section.section_name)) {
-        secList.push(section.section_name);
-        managerSections.set(manager.user_id, secList);
-      }
+      managerEmptySections.set(manager.user_id, entry);
     }
   }
 
-  await notifyWeeklyEmptyScheduleReport(
-    allManagers,
-    sectionsWithoutSchedules.map(s => ({ section_id: s.section_id, section_name: s.section_name }))
-  );
+  await notifyWeeklyEmptyScheduleReport(Array.from(managerEmptySections.values()));
 
   return {
     success: true,
@@ -195,7 +176,6 @@ export async function runEmptyScheduleAlert(options?: { force?: boolean; timeZon
     nextSunday: nextSunday.toISOString(),
     totalSections: sections.length,
     sectionsWithoutSchedules: sectionsWithoutSchedules.length,
-    managersNotified: notifiedManagers.filter(m => m.sections.length > 0).length,
-    notifications: notifiedManagers,
+    managersNotified: managerEmptySections.size,
   };
 }

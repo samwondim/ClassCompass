@@ -1,12 +1,12 @@
 {
   "crons": [
     {
-      "path": "/api/cron/wednesday-sunday-check",
-      "schedule": "0 9 * * 3"
+      "path": "/api/cron/sunday-reminder",
+      "schedule": "0 6 * * 3,5"
     },
     {
       "path": "/api/cron/empty-schedule-alert",
-      "schedule": "0 9 * * 3"
+      "schedule": "0 6 * * 3"
     }
   ]
 }

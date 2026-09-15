@@ -18,6 +18,7 @@ interface Course {
   course_id: string
   course_name?: string | null
   course_description: string
+  verse?: string | null
   created_at: Date
   objectives: Objective[]
 }
@@ -188,6 +189,39 @@ export function TeacherDashboard() {
             </CardContent>
           </Card>
 
+          {/* Lesson Details Card */}
+          {upcomingSchedule && (upcomingSchedule.course.verse || upcomingSchedule.course.objectives?.length > 0) && (
+            <Card>
+              <CardHeader>
+                <CardTitle>የትምህርት ዝርዝር</CardTitle>
+                <CardDescription>
+                  {upcomingSchedule.course.course_name || upcomingSchedule.course.course_description}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {upcomingSchedule.course.verse && (
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground">ጥቅስ</p>
+                    <p className="text-sm mt-1">{upcomingSchedule.course.verse}</p>
+                  </div>
+                )}
+                {upcomingSchedule.course.objectives?.length > 0 && (
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground">ዓላማዎች</p>
+                    <ul className="space-y-1 mt-1 text-sm">
+                      {upcomingSchedule.course.objectives.map((obj) => (
+                        <li key={obj.id} className="flex items-start gap-2">
+                          <BookOpen className="h-4 w-4 mt-0.5 text-sky-600 flex-shrink-0" />
+                          <span>{obj.objective}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Quick View Card */}
           <Card>
             <CardHeader>
@@ -254,67 +288,5 @@ export function TeacherDashboard() {
         </>
       )}
     </div>
-  )
-}
-
-// Stub components (implement based on needs)
-function TeacherSchedule({ schedules, onRefresh }: { schedules: Schedule[]; onRefresh: () => void }) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Full Teaching Schedule</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {schedules.length === 0 ? (
-          <p className="text-muted-foreground">No schedules available.</p>
-        ) : (
-          <div className="space-y-2">
-            {schedules.map((schedule) => (
-              <div key={schedule.schedule_id} className="p-3 border rounded-lg">
-                <h4 className="font-medium">{schedule.course.course_description}</h4>
-                <p className="text-sm text-muted-foreground">
-                  {new Date(schedule.schedule_date).toLocaleString()}
-                </p>
-                <p className="text-xs">Section: {schedule.section?.section_name || 'N/A'}</p>
-              </div>
-            ))}
-          </div>
-        )}
-        <Button onClick={onRefresh} variant="outline" className="mt-4">
-          Refresh Schedule
-        </Button>
-      </CardContent>
-    </Card>
-  )
-}
-
-function LessonDetails({ schedules }: { schedules: Schedule[] }) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Lesson Objectives</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {schedules.length === 0 ? (
-          <p className="text-muted-foreground">No lessons available.</p>
-        ) : (
-          <div className="space-y-4">
-            {schedules.map((schedule) => (
-              <div key={schedule.schedule_id}>
-                <h4 className="font-medium mb-2">{schedule.course.course_description}</h4>
-                <ul className="space-y-1 text-sm">
-                  {schedule.course.objectives.map((obj) => (
-                    <li key={obj.id} className="flex items-start gap-2">
-                      <BookOpen className="h-4 w-4 mt-0.5 text-sky-600 flex-shrink-0" />
-                      <span>{obj.objective}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
   )
 }

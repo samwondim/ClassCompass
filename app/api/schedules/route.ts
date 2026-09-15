@@ -1,29 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/models/client';
+import prisma from '@/lib/prisma';
+import { getRequestUser } from '@/utils/request-auth';
+import { getManagerSectionIds } from '@/utils/access';
 
 export const dynamic = 'force-dynamic';
-
-import { getRequestUser } from '@/utils/request-auth';
-
-async function managerCanAccessSection(managerId: string, sectionId: string): Promise<boolean> {
-  const [managerSections, directSections] = await Promise.all([
-    prisma.managerSection.findMany({
-      where: { manager_id: managerId },
-      select: { section_id: true },
-    }),
-    prisma.section.findMany({
-      where: { manager_id: managerId },
-      select: { section_id: true },
-    }),
-  ]);
-
-  const allowedSectionIds = new Set([
-    ...managerSections.map(ms => ms.section_id),
-    ...directSections.map(s => s.section_id),
-  ]);
-
-  return allowedSectionIds.has(sectionId);
-}
 
 export async function GET(request: NextRequest) {
   try {
@@ -33,26 +13,36 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    if (user.user_role == "TEACHER") {
+    if (user.user_role === 'TEACHER') {
       const schedules = await prisma.schedule.findMany({
-        where: {
-          teacher_id: user.user_id
-        },
+        where: { teacher_id: user.user_id },
         include: {
-
-          course: { select: { course_id: true, course_name: true, verse: true, course_description: true } },
+          course: { select: { course_id: true, course_name: true, verse: true, course_description: true, objectives: { select: { id: true, objective: true } } } },
           section: { select: { section_name: true, section_id: true } },
           teacher: { select: { user_id: true, first_name: true, last_name: true } },
         }
       });
-
       return NextResponse.json({ schedules });
     }
-    if (!["MANAGER", "ADMIN"].includes(user.user_role || "")) {
+
+    if (!['MANAGER', 'ADMIN'].includes(user.user_role || '')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
+    const whereClause: any = {};
+
+    if (user.user_role === 'MANAGER') {
+      const sectionIds = await getManagerSectionIds(user.user_id);
+      whereClause.section_id = { in: sectionIds };
+    } else if (user.user_role === 'ADMIN') {
+      const sectionId = request.nextUrl.searchParams.get('section_id');
+      if (sectionId && sectionId !== 'all') {
+        whereClause.section_id = sectionId;
+      }
+    }
+
     const schedules = await prisma.schedule.findMany({
+      where: whereClause,
       include: {
         course: { select: { course_id: true, course_name: true, verse: true, course_description: true } },
         teacher: { select: { user_id: true, first_name: true, last_name: true } },
@@ -74,38 +64,55 @@ export async function POST(request: NextRequest) {
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    if (!["MANAGER", "ADMIN"].includes(user.user_role || "")) {
+    if (!['MANAGER', 'ADMIN'].includes(user.user_role || '')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
     const { course_id, teacher_id, schedule_date } = await request.json();
-    console.log("AT SCHEDULE EP", teacher_id);
 
     if (!course_id || !teacher_id || !schedule_date) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
-    const teacherSection = await prisma.teacherSection.findFirst({
-      where: { teacher_id: teacher_id },
-      include: { section: true }
-    });
+    const scheduleDate = new Date(schedule_date);
+    if (isNaN(scheduleDate.getTime())) {
+      return NextResponse.json({ error: "Invalid schedule date" }, { status: 400 });
+    }
 
-    if (!teacherSection) {
+    const course = await prisma.course.findUnique({ where: { course_id } });
+    if (!course) {
+      return NextResponse.json({ error: "Course not found" }, { status: 404 });
+    }
+
+    const teacherSections = await prisma.teacherSection.findMany({ where: { teacher_id } });
+    if (teacherSections.length === 0) {
       return NextResponse.json({ error: "Selected teacher is not assigned to any section" }, { status: 400 });
     }
 
+    // Deterministic section resolution: prefer the course's section when the
+    // teacher is assigned to it, otherwise require an unambiguous single section.
+    let sectionId: string | null = null;
+    if (course.section_id && teacherSections.some(ts => ts.section_id === course.section_id)) {
+      sectionId = course.section_id;
+    } else if (teacherSections.length === 1) {
+      sectionId = teacherSections[0].section_id;
+    }
+
+    if (!sectionId) {
+      return NextResponse.json({ error: "Teacher is assigned to multiple sections; unable to determine section" }, { status: 400 });
+    }
+
     if (user.user_role === 'MANAGER') {
-      const hasAccess = await managerCanAccessSection(user.user_id, teacherSection.section_id);
-      if (!hasAccess) {
+      const sectionIds = await getManagerSectionIds(user.user_id);
+      if (!sectionIds.includes(sectionId)) {
         return NextResponse.json({ error: "Cannot create schedule for a teacher outside your sections" }, { status: 403 });
       }
     }
 
-    const scheduleDate = new Date(schedule_date);
     const existing_schedule = await prisma.schedule.findFirst({
       where: {
-        course_id: course_id,
-        teacher_id: teacher_id,
+        course_id,
+        teacher_id,
         schedule_date: scheduleDate
       }
     });
@@ -114,36 +121,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "Schedule already exists" }, { status: 400 });
     }
 
-    const course = await prisma.course.findUnique({ where: { course_id: course_id } });
-
-    if (!course) {
-      return NextResponse.json({ error: "Course not found" }, { status: 404 });
-    }
-
-    const currentUser = await getRequestUser(request);
-    const changerName = currentUser ? `${currentUser.first_name} ${currentUser.last_name || ''}`.trim() : "Admin";
+    const changerName = user.first_name ? `${user.first_name} ${user.last_name || ''}`.trim() : 'Admin';
 
     const schedule = await prisma.schedule.create({
       data: {
         course: { connect: { course_id } },
         teacher: { connect: { user_id: teacher_id } },
-        section: { connect: { section_id: teacherSection.section_id } },
+        section: { connect: { section_id: sectionId } },
         schedule_date: scheduleDate,
       },
       include: {
         course: { select: { course_id: true, course_name: true, verse: true, course_description: true } },
         teacher: { select: { user_id: true, first_name: true, last_name: true, tg_id: true } },
+        section: { select: { section_id: true, section_name: true } },
       },
     });
 
     if (schedule.teacher.tg_id) {
       const detail = `Date: ${new Date(schedule_date).toLocaleString()}
-Section: ${teacherSection.section.section_name || 'N/A'}`;
+Section: ${schedule.section.section_name || 'N/A'}`;
 
       const { notifyScheduleChange } = await import('@/utils/notifications');
       await notifyScheduleChange(
         schedule.teacher.user_id,
-        schedule.teacher.tg_id.toString(),
+        schedule.teacher.tg_id,
         'Added',
         schedule.course.course_name || schedule.course.course_description || 'Unknown Course',
         changerName,

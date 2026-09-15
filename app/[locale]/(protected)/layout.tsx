@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getSession } from '@/utils/session'
-import prisma from '@/models/client'
-import Sidebar from '@/components/sidebar' // We'll create this next
+import prisma from '@/lib/prisma'
 import { AppLayout } from '@/components/app-layout'
 
 export default async function ProtectedLayout({

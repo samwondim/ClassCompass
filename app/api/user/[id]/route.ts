@@ -1,22 +1,8 @@
 
-import prisma from '@/models/client';
+import prisma from '@/lib/prisma';
 import { NextRequest, NextResponse } from "next/server";
 import { getUserRole } from '@/utils/data-access';
-
-async function managerCanAccessTeacher(managerId: string, teacherId: string) {
-  const [managerSections, directSections, teacherSections] = await Promise.all([
-    prisma.managerSection.findMany({ where: { manager_id: managerId }, select: { section_id: true } }),
-    prisma.section.findMany({ where: { manager_id: managerId }, select: { section_id: true } }),
-    prisma.teacherSection.findMany({ where: { teacher_id: teacherId }, select: { section_id: true } }),
-  ]);
-
-  const managed = new Set([
-    ...managerSections.map((m) => m.section_id),
-    ...directSections.map((s) => s.section_id),
-  ]);
-
-  return teacherSections.some((ts) => managed.has(ts.section_id));
-}
+import { getManagerSectionIds, managerCanAccessTeacher } from '@/utils/access';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -79,9 +65,16 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       );
     }
 
+    const data: any = {};
+    if (body.first_name !== undefined) data.first_name = body.first_name;
+    if (body.last_name !== undefined) data.last_name = body.last_name;
+    if (body.phone_number !== undefined) data.phone_number = body.phone_number;
+    if (body.photo_url !== undefined) data.photo_url = body.photo_url;
+    if (body.tg_username !== undefined) data.tg_username = body.tg_username.replace(/^@/, '').trim();
+
     const updatedUser = await prisma.user.update({
       where: { user_id: id },
-      data: body,
+      data,
     });
 
     return NextResponse.json(updatedUser, { status: 200 });
@@ -110,7 +103,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
     if (user.user_role !== 'ADMIN') {
       if (user.user_role === 'MANAGER') {
         const target = await prisma.user.findUnique({ where: { user_id: id } });
-        
+
         if (!target) {
           return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
@@ -178,6 +171,15 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     const { sectionIds, ...userData } = body;
+
+    // If a manager is reassigning sections, verify the new sections are within their scope.
+    if (sectionIds !== undefined && user.user_role === 'MANAGER') {
+      const managedIds = await getManagerSectionIds(user.user_id);
+      const invalid = (sectionIds as string[]).filter(sid => !managedIds.includes(sid));
+      if (invalid.length > 0) {
+        return NextResponse.json({ error: 'Unauthorized: Some sections are outside your scope' }, { status: 403 });
+      }
+    }
 
     const updated = await prisma.user.update({
       where: { user_id: id },

@@ -4,7 +4,7 @@ import { DataTable } from "./data-table";
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { Filter } from "@/components/filter";
-import prisma from "@/models/client";
+import prisma from "@/lib/prisma";
 import { getUserRole } from "@/utils/data-access";
 
 async function getTeachers(managerId: string): Promise<Teacher[]> {

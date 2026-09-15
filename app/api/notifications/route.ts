@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/models/client';
+import prisma from '@/lib/prisma';
 import { getSession } from '@/utils/session';
 
 export const dynamic = 'force-dynamic';

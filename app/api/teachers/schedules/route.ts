@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { formatDate } from 'date-fns'
 import prisma from '@/lib/prisma'
+import { getRequestUser } from '@/utils/request-auth'
 
 interface Schedule {
   id: number
@@ -18,21 +19,13 @@ interface Schedule {
 
 export async function GET(request: NextRequest) {
   try {
-    const phoneNumber = request.headers.get('x-phone-number')
-    if (!phoneNumber) {
-      return NextResponse.json({ error: 'User not authenticated' }, { status: 401 })
-    }
-
-    const teacher = await prisma.user.findUnique({
-      where: { phone_number: phoneNumber },
-      select: { user_id: true }
-    })
-    if (!teacher) {
-      return NextResponse.json({ error: 'Teacher not found' }, { status: 404 })
+    const user = await getRequestUser(request)
+    if (!user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
     const schedules = await prisma.schedule.findMany({
-      where: { teacher_id: teacher.user_id },
+      where: { teacher_id: user.user_id },
       include: {
         course: true,
         section: true
@@ -58,7 +51,5 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Error fetching schedules:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
-  } finally {
-    await prisma.$disconnect()
   }
 }

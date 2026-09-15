@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import prisma from "@/models/client";
+import prisma from "@/lib/prisma";
 import { getSession } from "./session";
 
 export async function getUserRole(request?: NextRequest) {
@@ -16,7 +16,6 @@ export async function getUserRole(request?: NextRequest) {
             where: { tg_username: session.fetched_user.tg_username },
         })
         : null);
-    console.log("Inside getUserRole", user)
 
     return user;
 }

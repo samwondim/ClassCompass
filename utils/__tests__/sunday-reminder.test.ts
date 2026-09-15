@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { runSundayReminder } from "@/utils/sunday-reminder";
-import prisma from "@/models/client";
+import prisma from "@/lib/prisma";
 import { notifyMissingSundaySchedule, notifySundayScheduleReminder } from "@/utils/notifications";
 
-vi.mock("@/models/client", () => {
+vi.mock("@/lib/prisma", () => {
   return {
     default: {
       schedule: { findMany: vi.fn() },

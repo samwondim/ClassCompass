@@ -4,7 +4,7 @@ import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import Link from "next/link";
 import { getUserRole } from "@/utils/data-access";
-import prisma from "@/models/client";
+import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { Filter } from "@/components/filter";
 

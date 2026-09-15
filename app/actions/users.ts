@@ -1,7 +1,7 @@
 
 "use server";
 
-import prisma from '@/models/client';
+import prisma from '@/lib/prisma';
 import { revalidatePath } from "next/cache";
 
 export async function deleteUser(id: string) {
