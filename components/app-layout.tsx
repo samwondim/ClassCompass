@@ -10,6 +10,7 @@ import {
   Settings,
   User,
   Bell,
+  LogOut,
 
   LayoutDashboard,
   BrainCog,
@@ -138,32 +139,33 @@ export function AppLayout({ children, userRole, photoUrl, firstName, lastName }:
   const navItems: { label: string; href: string; icon: React.ComponentType<{ className?: string }> }[] = []
 
   const adminNavItems = [
-    { label: t('Navigation.Dashboard'), href: "/am/admin", icon: LayoutDashboardIcon },
-    { label: t('Navigation.Teachers'), href: "/am/admin/teachers", icon: GraduationCap },
-    { label: t('Navigation.Managers'), href: "/am/admin/managers", icon: Briefcase },
-    { label: t('Navigation.Schedules'), href: "/am/admin/schedules", icon: Calendar },
-    { label: t('Navigation.MySchedules'), href: "/am/admin/my-schedules", icon: CalendarCheck },
-    { label: t('Navigation.Courses'), href: "/am/admin/courses", icon: BrainCog },
+    { label: t('Navigation.Dashboard'), href: `/${locale}/admin`, icon: LayoutDashboardIcon },
+    { label: t('Navigation.Teachers'), href: `/${locale}/admin/teachers`, icon: GraduationCap },
+    { label: t('Navigation.Managers'), href: `/${locale}/admin/managers`, icon: Briefcase },
+    { label: t('Navigation.Sections'), href: `/${locale}/admin/sections`, icon: BookOpen },
+    { label: t('Navigation.Schedules'), href: `/${locale}/admin/schedules`, icon: Calendar },
+    { label: t('Navigation.MySchedules'), href: `/${locale}/admin/my-schedules`, icon: CalendarCheck },
+    { label: t('Navigation.Courses'), href: `/${locale}/admin/courses`, icon: BrainCog },
   ]
 
   const managerNavItems = [
-    { label: t('Navigation.Dashboard'), href: "/am/manager", icon: LayoutDashboardIcon },
-    { label: t('Navigation.Teachers'), href: "/am/manager/teachers", icon: GraduationCap },
-    { label: t('Navigation.Courses'), href: "/am/manager/courses", icon: BrainCog },
-    { label: t('Navigation.Schedules'), href: "/am/manager/schedules", icon: Calendar },
-    { label: t('Navigation.MySchedules'), href: "/am/manager/my-schedules", icon: CalendarCheck },
+    { label: t('Navigation.Dashboard'), href: `/${locale}/manager`, icon: LayoutDashboardIcon },
+    { label: t('Navigation.Teachers'), href: `/${locale}/manager/teachers`, icon: GraduationCap },
+    { label: t('Navigation.Courses'), href: `/${locale}/manager/courses`, icon: BrainCog },
+    { label: t('Navigation.Schedules'), href: `/${locale}/manager/schedules`, icon: Calendar },
+    { label: t('Navigation.MySchedules'), href: `/${locale}/manager/my-schedules`, icon: CalendarCheck },
   ]
 
   const teacherNavItems = [
-    { label: t('Navigation.Dashboard'), href: "/am/teacher", icon: LayoutDashboardIcon },
-    { label: t('Navigation.MySchedules'), href: "/am/teacher/my-schedules", icon: CalendarCheck },
+    { label: t('Navigation.Dashboard'), href: `/${locale}/teacher`, icon: LayoutDashboardIcon },
+    { label: t('Navigation.MySchedules'), href: `/${locale}/teacher/my-schedules`, icon: CalendarCheck },
   ]
 
   const roleNavItems = userRole === "ADMIN" ? adminNavItems : userRole === "MANAGER" ? managerNavItems : teacherNavItems
 
-  const notificationsPath = userRole === "ADMIN" ? "/am/admin/notifications" :
-    userRole === "MANAGER" ? "/am/manager/notifications" :
-      "/am/teacher/notifications"
+  const notificationsPath = userRole === "ADMIN" ? `/${locale}/admin/notifications` :
+    userRole === "MANAGER" ? `/${locale}/manager/notifications` :
+      `/${locale}/teacher/notifications`
 
   const getInitials = () => {
     if (firstName && lastName) {
@@ -248,13 +250,25 @@ export function AppLayout({ children, userRole, photoUrl, firstName, lastName }:
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <User className="mr-2 h-4 w-4" />
-                <span>{t('Navigation.Profile')}</span>
+              <DropdownMenuItem asChild>
+                <Link href={rolePath}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>{t('Navigation.Profile')}</span>
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>{t('Navigation.Settings')}</span>
+              <DropdownMenuItem
+                className="text-destructive focus:text-destructive"
+                onClick={async () => {
+                  try {
+                    await fetch('/api/session', { method: 'DELETE' });
+                  } catch (error) {
+                    console.error('Logout error:', error);
+                  }
+                  window.location.href = `/${locale}`;
+                }}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>{t('Navigation.LogOut')}</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

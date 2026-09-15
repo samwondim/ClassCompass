@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/models/client';
+import prisma from '@/lib/prisma';
 import { getUserRole } from '@/utils/data-access';
 
 /**
@@ -89,7 +89,5 @@ export async function GET(request: NextRequest) {
     } catch (error) {
         console.error('Error fetching manager teachers:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-    } finally {
-        await prisma.$disconnect();
     }
 }

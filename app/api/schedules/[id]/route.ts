@@ -1,28 +1,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '@/models/client';
-
+import prisma from '@/lib/prisma';
 import { getRequestUser } from '@/utils/request-auth';
-
-async function managerCanAccessSection(managerId: string, sectionId: string): Promise<boolean> {
-    const [managerSections, directSections] = await Promise.all([
-        prisma.managerSection.findMany({
-            where: { manager_id: managerId },
-            select: { section_id: true },
-        }),
-        prisma.section.findMany({
-            where: { manager_id: managerId },
-            select: { section_id: true },
-        }),
-    ]);
-
-    const allowedSectionIds = new Set([
-        ...managerSections.map(ms => ms.section_id),
-        ...directSections.map(s => s.section_id),
-    ]);
-
-    return allowedSectionIds.has(sectionId);
-}
+import { managerCanAccessSection } from '@/utils/access';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
     try {
@@ -91,36 +71,55 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         }
 
         const body = await request.json();
-        const { course_id, teacher_id, schedule_date } = body;
+        const { course_id, teacher_id, schedule_date, section_id } = body;
 
         if (!course_id || !teacher_id || !schedule_date) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        const teacherSection = await prisma.teacherSection.findFirst({
-            where: { teacher_id: teacher_id }
-        });
+        const scheduleDate = new Date(schedule_date);
+        if (isNaN(scheduleDate.getTime())) {
+            return NextResponse.json({ error: "Invalid schedule date" }, { status: 400 });
+        }
 
-        if (!teacherSection) {
+        const teacherSections = await prisma.teacherSection.findMany({ where: { teacher_id } });
+        if (teacherSections.length === 0) {
             return NextResponse.json({ error: "Selected teacher is not assigned to any section" }, { status: 400 });
         }
 
+        // Respect an explicitly provided section_id, otherwise derive deterministically.
+        let resolvedSectionId: string | null = null;
+        if (section_id) {
+            if (!teacherSections.some(ts => ts.section_id === section_id)) {
+                return NextResponse.json({ error: "Teacher is not assigned to the provided section" }, { status: 400 });
+            }
+            resolvedSectionId = section_id;
+        } else if (teacherSections.length === 1) {
+            resolvedSectionId = teacherSections[0].section_id;
+        } else {
+            return NextResponse.json({ error: "Teacher is assigned to multiple sections; provide section_id" }, { status: 400 });
+        }
+
+        if (!resolvedSectionId) {
+            return NextResponse.json({ error: "Unable to determine section" }, { status: 400 });
+        }
+
         if (currentUser.user_role === 'MANAGER') {
-            const hasAccess = await managerCanAccessSection(currentUser.user_id, teacherSection.section_id);
+            const hasAccess = await managerCanAccessSection(currentUser.user_id, resolvedSectionId);
             if (!hasAccess) {
                 return NextResponse.json({ error: "Cannot assign schedule to a teacher outside your sections" }, { status: 403 });
             }
         }
 
-        const changerName = `${currentUser.first_name} ${currentUser.last_name || ''}`.trim() || "Admin";
+        const changerName = currentUser.first_name ? `${currentUser.first_name} ${currentUser.last_name || ''}`.trim() : "Admin";
 
         const updatedSchedule = await prisma.schedule.update({
             where: { schedule_id: id },
             data: {
                 course_id,
                 teacher_id,
-                section_id: teacherSection.section_id,
-                schedule_date: new Date(schedule_date),
+                section_id: resolvedSectionId,
+                schedule_date: scheduleDate,
             },
             include: {
                 course: { select: { course_id: true, course_name: true, course_description: true } },
@@ -134,7 +133,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
             const detail = `Date: ${new Date(schedule_date).toLocaleString()}\nSection: ${updatedSchedule.section.section_name}`;
             await notifyScheduleChange(
                 updatedSchedule.teacher.user_id,
-                updatedSchedule.teacher.tg_id.toString(),
+                updatedSchedule.teacher.tg_id,
                 'Changed',
                 updatedSchedule.course.course_name || updatedSchedule.course.course_description || 'Unknown Course',
                 changerName,
@@ -186,14 +185,14 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
             where: { schedule_id: id },
         });
 
-        const changerName = `${currentUser.first_name} ${currentUser.last_name || ''}`.trim() || "Admin";
+        const changerName = currentUser.first_name ? `${currentUser.first_name} ${currentUser.last_name || ''}`.trim() : "Admin";
 
         if (schedule.teacher.tg_id) {
             const { notifyScheduleChange } = await import('@/utils/notifications');
             const detail = `Date: ${new Date(schedule.schedule_date).toLocaleString()}\nSection: ${schedule.section.section_name}`;
             await notifyScheduleChange(
                 schedule.teacher.user_id,
-                schedule.teacher.tg_id.toString(),
+                schedule.teacher.tg_id,
                 'Removed',
                 schedule.course.course_name || schedule.course.course_description || 'Unknown Course',
                 changerName,

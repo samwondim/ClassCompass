@@ -1,17 +1,55 @@
-import prisma from "@/prisma/client";
+import prisma from "@/lib/prisma";
 import { encrypt, SESSION_DURATION } from "@/utils/session";
 import { validateTelegramWebAppData } from "@/utils/telegramAuth";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { NextRequest } from "next/server";
 
+const SESSION_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/",
+};
+
+async function issueSession(fetched_user: any) {
+  const expires = new Date(Date.now() + SESSION_DURATION);
+  const session = await encrypt({ fetched_user, expires });
+
+  const cookieStore = await cookies();
+  cookieStore.set("session", session, { ...SESSION_COOKIE_OPTIONS, expires });
+
+  return NextResponse.json({ session, user: { ...fetched_user } }, { status: 200 });
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const { initData } = await request.json();
-    // const { initData } = {
-    //   "initData":
-    //     "user=%7B%22id%22%3A1845537164%2C%22first_name%22%3A%22Sam%22%2C%22last_name%22%3A%22%22%2C%22username%22%3A%22triviosa%22%2C%22language_code%22%3A%22en%22%2C%22allows_write_to_pm%22%3Atrue%2C%22photo_url%22%3A%22https%3A%5C%2F%5C%2Ft.me%5C%2Fi%5C%2Fuserpic%5C%2F320%5C%2FaMUFOe5cu11VbYZNpOC5ziSHBZLfje2U2B-RjvbGd4M.svg%22%7D&chat_instance=-7201700833685701877&chat_type=private&auth_date=1764497960&signature=lL-1KJ1dZVUXcpJEz6n637gA4M1offvHTjE0U8mvBeW-2cdCbEC9d7vlAS3agt4eTNM7XYddvBNtb5spitk2CA&hash=e2fc4177ede877442d64eb168b0cc01bd3c5e46fb073c4df6ca566e9d8ced6e6"
-    // };
+    const body = await request.json();
+    const { initData, devLogin, tg_username: devUsername } = body;
+
+    // --- Local development browser login (NOT available in production) ---
+    const devLoginEnabled =
+      process.env.NODE_ENV !== "production" &&
+      (process.env.ALLOW_DEV_LOGIN === "true" || process.env.NEXT_PUBLIC_DEV_LOGIN === "true");
+
+    if (devLogin && devLoginEnabled) {
+      const tgUsername = devUsername?.replace(/^@/, '').trim();
+
+      if (!tgUsername) {
+        return NextResponse.json({ message: "Dev login requires a tg_username" }, { status: 400 });
+      }
+
+      const fetched_user = await prisma.user.findUnique({
+        where: { tg_username: tgUsername },
+        select: { user_role: true, first_name: true, last_name: true, tg_username: true, user_id: true, tg_id: true, photo_url: true }
+      });
+
+      if (!fetched_user) {
+        return NextResponse.json({ message: "Dev user not found" }, { status: 404 });
+      }
+
+      return await issueSession(fetched_user);
+    }
 
     const BOT_TOKEN = process.env.TELEGRAM_API_KEY;
 
@@ -38,7 +76,7 @@ export async function POST(request: NextRequest) {
             tg_username: tgUsername
           },
           data: {
-            tg_id: validationRes.user.id ? +validationRes.user.id : null,
+            tg_id: validationRes.user.id ? String(validationRes.user.id) : null,
             photo_url: photo_url
           }
         });
@@ -54,20 +92,11 @@ export async function POST(request: NextRequest) {
         select: { user_role: true, first_name: true, last_name: true, tg_username: true, user_id: true, tg_id: true, photo_url: true }
       })
 
-      const expires = new Date(Date.now() + SESSION_DURATION);
       if (fetched_user) {
-        console.log("FETCHED USER", fetched_user)
-        console.log(" EXPIRES", expires)
-
-        const session = await encrypt({ fetched_user, expires });
-
-        const cookieStore = await cookies();
-        cookieStore.set("session", session, { expires, httpOnly: true });
-        return NextResponse.json({ session, user: { ...fetched_user } }, { status: 200 });
+        return await issueSession(fetched_user);
       } else {
         return NextResponse.json({ message: "User not found" }, { status: 404 });
       }
-
 
     } else {
       return NextResponse.json({ message: validationRes.message }, { status: 401 })

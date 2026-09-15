@@ -1,9 +1,19 @@
 
-import prisma from "@/prisma/client";
+import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import { getUserRole } from "@/utils/data-access";
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await getUserRole(request);
+
+    if (!user) {
+      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    }
+    if (user.user_role !== "ADMIN") {
+      return NextResponse.json({ error: "Unauthorized: Only admins can create managers" }, { status: 403 });
+    }
+
     const { first_name, last_name, phone_number, tg_username, section_id } =
       await request.json();
 
@@ -107,7 +117,5 @@ export async function POST(request: NextRequest) {
       { error: "Internal server error" },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }

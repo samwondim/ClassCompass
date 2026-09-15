@@ -1,4 +1,4 @@
-import prisma from "@/models/client";
+import prisma from "@/lib/prisma";
 import { notifyMissingSundaySchedule, notifySundayScheduleReminder } from "@/utils/notifications";
 
 const DEFAULT_TIMEZONE = "Africa/Addis_Ababa";
@@ -163,7 +163,7 @@ export async function runSundayReminder(options?: { force?: boolean; timeZone?: 
 
   const managersBySection = new Map<
     string,
-    Array<{ user_id: string; tg_id: string | number | null; first_name?: string | null; last_name?: string | null }>
+    Array<{ user_id: string; tg_id: string | null; first_name?: string | null; last_name?: string | null }>
   >();
   for (const assignment of managerAssignments) {
     const list = managersBySection.get(assignment.section_id) || [];
@@ -173,7 +173,7 @@ export async function runSundayReminder(options?: { force?: boolean; timeZone?: 
 
   const managerResults: Array<{ sectionId: string; managerId: string; status: string }> = [];
   for (const section of sectionsWithoutSchedules) {
-    const managers: Array<{ user_id: string; tg_id: string | number | null; first_name?: string | null; last_name?: string | null }> = [];
+    const managers: Array<{ user_id: string; tg_id: string | null; first_name?: string | null; last_name?: string | null }> = [];
     if (section.manager) {
       managers.push(section.manager);
     }

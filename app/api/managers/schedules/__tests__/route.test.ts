@@ -1,10 +1,10 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 
 import { GET } from "../route";
-import prisma from "@/models/client";
+import prisma from "@/lib/prisma";
 import { getRequestUser } from "@/utils/request-auth";
 
-vi.mock("@/models/client", () => {
+vi.mock("@/lib/prisma", () => {
   return {
     default: {
       managerSection: { findMany: vi.fn() },
@@ -48,7 +48,7 @@ describe("GET /api/managers/schedules", () => {
 
     prismaMock.schedule.findMany.mockResolvedValue([]);
 
-    const res = await GET({} as any);
+    const res = await GET({ url: 'http://localhost/api/managers/schedules' } as any);
     const body = await res.json();
 
     expect(res.status).toBe(200);

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import prisma from '@/models/client'
+import prisma from '@/lib/prisma'
 import { getUserRole } from '@/utils/data-access'
 import * as XLSX from 'xlsx'
 

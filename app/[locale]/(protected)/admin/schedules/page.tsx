@@ -5,7 +5,7 @@ import { DataTable } from "./data-table";
 import Link from "next/link";
 import { cookies } from "next/headers";
 
-// import prisma from "@/models/client"; // removed
+// import prisma from "@/lib/prisma"; // removed
 
 async function getData(): Promise<Schedule[]> {
   try {

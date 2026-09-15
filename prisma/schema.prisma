@@ -24,7 +24,7 @@ enum UserRole {
 model User {
   user_id          String           @id @default(uuid())
   user_role        UserRole?        @default(TEACHER)
-  tg_id            Float?           @unique
+  tg_id            String?          @unique
   tg_username      String           @unique
   first_name       String?
   last_name        String?

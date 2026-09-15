@@ -1,7 +1,6 @@
 
 import { Teacher } from "@/app/models/models";
-import { User } from "@/generated/prisma";
-import prisma from "@/models/client";
+import prisma from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import { getUserRole } from "@/utils/data-access";
 
@@ -9,12 +8,10 @@ export const dynamic = 'force-dynamic';
 
 
 const toPublicTeacher = (userData: any): Teacher => {
-  let sections = "";
-  if (userData.teacher_sections) {
-    for (let i = 0; i < userData.teacher_sections.length; i++) {
-      sections += userData.teacher_sections[i].section.section_name + ", ";
-    }
-  }
+  const sections = (userData.teacher_sections || [])
+    .map((ts: any) => ts.section.section_name)
+    .filter(Boolean)
+    .join(", ");
 
   const sectionIds = userData.teacher_sections?.map((ts: any) => ts.section.section_id) || [];
 
@@ -33,6 +30,15 @@ const toPublicTeacher = (userData: any): Teacher => {
 
 export async function GET(request: NextRequest) {
   const user = await getUserRole(request);
+
+  if (!user) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  if (!['ADMIN', 'MANAGER'].includes(user.user_role || '')) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  }
+
   let sectionIds: string[] = [];
   const searchParams = request.nextUrl.searchParams;
   const requestedSectionId = searchParams.get('section_id');

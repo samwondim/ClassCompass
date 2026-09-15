@@ -62,14 +62,15 @@ export function AdminDashboard() {
   const fetchDashboardData = async (sectionId?: string) => {
     setLoading(true)
     try {
+      const query = sectionId && sectionId !== 'all' ? `?section_id=${sectionId}` : ''
       const requestOptions: RequestInit = { credentials: 'include' };
       const [teachersRes, managersRes, sectionsRes, schedulesRes, coursesRes, notificationsRes] = await Promise.all([
-        fetch(`/api/user/get-teachers${sectionId ? `?section_id=${sectionId}` : ''}`, requestOptions),
-        fetch(`/api/user/get-managers${sectionId ? `?section_id=${sectionId}` : ''}`, requestOptions),
-        fetch(`/api/sections${sectionId ? `?section_id=${sectionId}` : ''}`, requestOptions),
-        fetch(`/api/schedules${sectionId ? `?section_id=${sectionId}` : ''}`, requestOptions),
-        fetch(`/api/courses${sectionId ? `?section_id=${sectionId}` : ''}`, requestOptions),
-        fetch(`/api/notifications${sectionId ? `?section_id=${sectionId}` : ''}`, requestOptions)
+        fetch(`/api/user/get-teachers${query}`, requestOptions),
+        fetch(`/api/user/get-managers${query}`, requestOptions),
+        fetch(`/api/sections${query}`, requestOptions),
+        fetch(`/api/schedules${query}`, requestOptions),
+        fetch(`/api/courses${query}`, requestOptions),
+        fetch(`/api/notifications${query}`, requestOptions)
       ])
 
       const [teachersData, managersData, sectionsData, schedulesData, coursesData, notificationsData] = await Promise.all([
@@ -124,7 +125,7 @@ export function AdminDashboard() {
 
       {/* Section Filter */}
       <div className="flex items-center gap-2">
-        <Select onValueChange={setSelectedSectionId} value={selectedSectionId}>
+        <Select onValueChange={(v) => setSelectedSectionId(v === 'all' ? undefined : v)} value={selectedSectionId}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="ሁሉንም ክፍሎች" />
           </SelectTrigger>

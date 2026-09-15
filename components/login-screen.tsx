@@ -3,8 +3,13 @@
 import { useState, useEffect } from 'react';
 import useToast from '@/hooks/use-toast';
 
+const DEV_LOGIN_ENABLED = process.env.NEXT_PUBLIC_DEV_LOGIN === 'true';
+const DEV_USERS = ['admin', 'manager', 'teacher'];
+
 export function LoginScreen() {
   const [dotCount, setDotCount] = useState(1);
+  const [devMode, setDevMode] = useState(false);
+  const [devLoading, setDevLoading] = useState<string | null>(null);
   const { toast } = useToast();
 
   async function authenticateUser() {
@@ -14,6 +19,10 @@ export function LoginScreen() {
       const initData = webApp.initData;
 
       if (!initData) {
+        if (DEV_LOGIN_ENABLED) {
+          setDevMode(true);
+          return;
+        }
         throw new Error('Telegram Web App not initialized. Please open via Telegram.');
       }
 
@@ -38,6 +47,33 @@ export function LoginScreen() {
         description: error instanceof Error ? error.message : 'An unexpected error occurred. Please try again.',
         variant: 'destructive',
       });
+    }
+  }
+
+  async function devLogin(tg_username: string) {
+    setDevLoading(tg_username);
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ devLogin: true, tg_username }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Dev login failed');
+      }
+
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Dev login error:', error);
+      toast({
+        title: 'Login Failed',
+        description: error instanceof Error ? error.message : 'Dev login failed',
+        variant: 'destructive',
+      });
+      setDevLoading(null);
     }
   }
 
@@ -107,6 +143,28 @@ export function LoginScreen() {
             ጵርስቅላ
           </p>
         </div>
+
+        {/* Dev login panel (local development only) */}
+        {devMode && DEV_LOGIN_ENABLED && (
+          <div className="w-full max-w-xs rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur">
+            <p className="mb-3 text-center text-xs uppercase tracking-widest" style={{ color: '#a5b4fc' }}>
+              Dev login
+            </p>
+            <div className="flex flex-col gap-2">
+              {DEV_USERS.map((username) => (
+                <button
+                  key={username}
+                  type="button"
+                  disabled={devLoading !== null}
+                  onClick={() => devLogin(username)}
+                  className="w-full rounded-lg bg-indigo-500/20 px-4 py-2 text-sm font-medium text-indigo-100 transition hover:bg-indigo-500/40 disabled:opacity-50"
+                >
+                  {devLoading === username ? 'Signing in…' : `Login as ${username}`}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

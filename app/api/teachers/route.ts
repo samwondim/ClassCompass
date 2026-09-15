@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import prisma from '@/models/client';
+import prisma from '@/lib/prisma';
 import { getUserRole } from '@/utils/data-access';
+import { getManagerSectionIds, managerCanAccessTeacher } from '@/utils/access';
 
-// GET /api/teachers - Get all teachers (manager only)
+// GET /api/teachers - Get teachers (admin sees all, manager sees their own sections)
 export async function GET(request: NextRequest) {
   try {
-
     const user = await getUserRole(request);
 
     if (!user) {
@@ -23,8 +23,15 @@ export async function GET(request: NextRequest) {
             user_role: 'TEACHER'
         }
     };
-    if (sectionId) {
-        whereClause.section_id = sectionId;
+
+    if (user.user_role === 'MANAGER') {
+      const managedIds = await getManagerSectionIds(user.user_id);
+      if (sectionId && !managedIds.includes(sectionId)) {
+        return NextResponse.json({ error: 'Unauthorized: You do not manage this section' }, { status: 403 });
+      }
+      whereClause.section_id = { in: managedIds };
+    } else if (sectionId) {
+      whereClause.section_id = sectionId;
     }
 
     const teacherSections = await prisma.teacherSection.findMany({
@@ -50,8 +57,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ teachers: teacherSections });
   } catch (error) {
     console.error('Get teachers error:', error)
-    // Log the full error object for better debugging
-    // console.error(error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
@@ -80,16 +85,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Telegram Username is required' }, { status: 400 })
     }
 
+    // Validate section exists
+    const section = await prisma.section.findUnique({ where: { section_id } });
+    if (!section) {
+      return NextResponse.json({ error: 'Invalid section ID' }, { status: 400 })
+    }
+
     // CRITICAL: Validate that the manager owns this section
     if (user.user_role === 'MANAGER') {
-      const managerOwnsSection = await prisma.managerSection.findFirst({
-        where: {
-          manager_id: user.user_id,
-          section_id: section_id
-        }
-      });
-
-      if (!managerOwnsSection) {
+      const managedIds = await getManagerSectionIds(user.user_id);
+      if (!managedIds.includes(section_id)) {
         return NextResponse.json({
           error: 'Unauthorized: You can only add teachers to sections you manage'
         }, { status: 403 });
@@ -133,14 +138,6 @@ export async function POST(request: NextRequest) {
 
     if (existingTeacher) {
       return NextResponse.json({ error: `Teacher with name ${existingTeacher.teacher.first_name} ${existingTeacher.teacher.last_name} already exists` }, { status: 409 })
-    }
-
-    // Validate section_id
-    const section = await prisma.section.findUnique({
-      where: { section_id: section_id }
-    });
-    if (!section) {
-      return NextResponse.json({ error: 'Invalid section ID' }, { status: 400 })
     }
 
     const teacher = await prisma.teacherSection.create({
@@ -187,17 +184,7 @@ export async function PUT(request: NextRequest) {
     }
 
     if (user.user_role === 'MANAGER') {
-      const managerSections = await prisma.managerSection.findMany({
-        where: { manager_id: user.user_id },
-        select: { section_id: true }
-      });
-      const managedSectionIds = managerSections.map(ms => ms.section_id);
-      const teacherSections = await prisma.teacherSection.findMany({
-        where: { teacher_id },
-        select: { section_id: true }
-      });
-      const teacherSectionIds = teacherSections.map(ts => ts.section_id);
-      const allowed = teacherSectionIds.some(id => managedSectionIds.includes(id));
+      const allowed = await managerCanAccessTeacher(user.user_id, teacher_id);
       if (!allowed) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
       }
@@ -242,7 +229,6 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { id } = await request.json()
-    console.log("Teacher ID:", id)
 
     if (!id) {
       return NextResponse.json({ error: 'Teacher ID is required' }, { status: 400 })
@@ -254,22 +240,11 @@ export async function DELETE(request: NextRequest) {
     }
 
     if (user.user_role === 'MANAGER') {
-      const managerSections = await prisma.managerSection.findMany({
-        where: { manager_id: user.user_id },
-        select: { section_id: true }
-      });
-      const managedSectionIds = managerSections.map(ms => ms.section_id);
-      const teacherSections = await prisma.teacherSection.findMany({
-        where: { teacher_id: id },
-        select: { section_id: true }
-      });
-      const teacherSectionIds = teacherSections.map(ts => ts.section_id);
-      const allowed = teacherSectionIds.some(sectionId => managedSectionIds.includes(sectionId));
+      const allowed = await managerCanAccessTeacher(user.user_id, id);
       if (!allowed) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
       }
     }
-
 
     await prisma.user.delete({
       where: { user_id: id }
