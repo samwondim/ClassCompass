@@ -27,7 +27,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Phone, MoreHorizontal, Search, ChevronLeft, ChevronRight, UserPlus } from "lucide-react"
 
-const PAGE_SIZE = 10
+const PAGE_SIZE = 4
 
 interface SectionOption {
   label: string
