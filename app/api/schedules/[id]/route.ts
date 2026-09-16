@@ -10,15 +10,20 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
         if (!currentUser) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
-        if (!["MANAGER", "ADMIN"].includes(currentUser.user_role || "")) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-        }
 
         const { id } = await params;
         const schedule = await prisma.schedule.findUnique({
             where: { schedule_id: id },
             include: {
-                course: { select: { course_id: true, course_name: true, verse: true, course_description: true } },
+                course: {
+                    select: {
+                        course_id: true,
+                        course_name: true,
+                        verse: true,
+                        course_description: true,
+                        objectives: { select: { id: true, objective: true } },
+                    }
+                },
                 teacher: { select: { user_id: true, first_name: true, last_name: true } },
                 section: { select: { section_id: true, section_name: true } },
             }
@@ -26,6 +31,18 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
         if (!schedule) {
             return NextResponse.json({ error: 'Schedule not found' }, { status: 404 });
+        }
+
+        // Teachers can view their own schedules
+        if (currentUser.user_role === 'TEACHER') {
+            if (schedule.teacher_id !== currentUser.user_id) {
+                return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+            }
+            return NextResponse.json({ schedule });
+        }
+
+        if (!["MANAGER", "ADMIN"].includes(currentUser.user_role || "")) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
         }
 
         if (currentUser.user_role === 'MANAGER') {

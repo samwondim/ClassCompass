@@ -1,12 +1,16 @@
 
-// app/manager/page.tsx (or your file)
-import { Manager, Teacher } from "@/app/models/models";
+import { Teacher } from "@/app/models/models";
 import { columns } from "./columns";
-import { DataTable } from "./data-table";
-import Link from "next/link";
+import { UsersTable } from "@/components/users/users-table";
 import { cookies } from "next/headers";
+import prisma from "@/lib/prisma";
 
-// import prisma from "@/lib/prisma"; // removed
+async function getSections(): Promise<{ section_id: string; section_name: string }[]> {
+  return await prisma.section.findMany({
+    select: { section_id: true, section_name: true },
+    orderBy: { section_name: 'asc' }
+  });
+}
 
 async function getData(): Promise<Teacher[]> {
   try {
@@ -35,23 +39,22 @@ async function getData(): Promise<Teacher[]> {
   }
 }
 
-export default async function TeacherMgmtPage({ params }: { params: { locale: string } }) {
-  const data = await getData();
-  const base = `/${params.locale}/admin`;
+export default async function TeacherMgmtPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const [data, sections] = await Promise.all([getData(), getSections()]);
+  const base = `/${locale}/admin`;
 
   return (
     <div className="container mx-auto py-10 px-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">መምህራን</h1>
-        <Link href={`${base}/teachers/new`}>
-          <span className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">መምህር መዝግብ</span>
-        </Link>
-      </div>
-      {data.length === 0 ? (
-        <p className="text-muted-foreground">ምንም መምህር አልተገኘም</p>
-      ) : (
-        <DataTable columns={columns} data={data} />
-      )}
+      <h1 className="text-2xl font-bold mb-6">መምህራን</h1>
+      <UsersTable
+        users={data}
+        columns={columns}
+        addHref={`${base}/teachers/new`}
+        addLabel="መምህር መዝግብ"
+        editBase="/admin/teachers"
+        sectionOptions={sections.map(s => ({ label: s.section_name || 'ክፍል', value: s.section_id }))}
+      />
     </div>
   );
 }

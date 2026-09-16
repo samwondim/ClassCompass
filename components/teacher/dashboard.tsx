@@ -1,10 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Calendar, Clock, BookOpen, Loader2 } from 'lucide-react'
+import { Calendar, Clock, Loader2 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import useToast from '@/hooks/use-toast'
 import { useTelegram } from '@/components/telegram-provider'
 
@@ -40,7 +39,6 @@ interface Schedule {
 }
 
 export function TeacherDashboard() {
-  const [activeTab, setActiveTab] = useState('dashboard')
   const [schedules, setSchedules] = useState<Schedule[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -95,24 +93,15 @@ export function TeacherDashboard() {
     .filter((schedule) => new Date(schedule.schedule_date) >= new Date())
     .sort((a, b) => new Date(a.schedule_date).getTime() - new Date(b.schedule_date).getTime())[0]
 
-  // Get sections for the teacher (from teacher_sections)
-  const teacherSections = Array.from(
-    new Set(
-      schedules
-        .map((schedule) => schedule.section?.section_name)
-        .filter((name): name is string => Boolean(name))
-    )
-  )
-
   return (
     <div className="p-4 space-y-6">
-      <h1 className="text-2xl font-bold text-sky-700">የመምህር ዳሽቦርድ</h1>
+      <h1 className="text-2xl font-bold text-primary">የመምህር ዳሽቦርድ</h1>
 
       {loading ? (
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center justify-center space-x-2">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
               <span>መርሃ ግብር በመጫን ላይ...</span>
             </div>
           </CardContent>
@@ -121,7 +110,7 @@ export function TeacherDashboard() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-center space-y-4">
-              <p className="text-red-600">{error}</p>
+              <p className="text-destructive">{error}</p>
               <Button onClick={fetchSchedules} variant="outline">
                 እንደገና ሞክር
               </Button>
@@ -131,7 +120,7 @@ export function TeacherDashboard() {
       ) : (
         <>
           {/* Next Assignment Card */}
-          <Card className="bg-gradient-to-br from-sky-50 to-white">
+          <Card className="bg-gradient-to-br from-primary/10 to-card">
             <CardHeader>
               <CardTitle>ቀጣይ መርሃ ግብር</CardTitle>
               <CardDescription>የሚቀጥለው ክፍለ ጊዜ</CardDescription>
@@ -140,15 +129,15 @@ export function TeacherDashboard() {
               {upcomingSchedule ? (
                 <div className="space-y-4">
                   <div className="flex items-center gap-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-sky-100">
-                      <Calendar className="h-6 w-6 text-sky-600" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                      <Calendar className="h-6 w-6 text-primary" />
                     </div>
                     <div className="flex-1">
                       <h3 className="text-lg font-medium">
                         {upcomingSchedule.course.course_name || upcomingSchedule.course.course_description || 'መርሃ ግብር'}
                       </h3>
                       {upcomingSchedule.section?.section_name && (
-                        <p className="text-xs text-sky-600 font-medium mt-0.5">
+                        <p className="text-xs text-primary font-medium mt-0.5">
                           ክፍል: {upcomingSchedule.section.section_name}
                         </p>
                       )}
@@ -162,129 +151,25 @@ export function TeacherDashboard() {
                       </p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-slate-500" />
-                      <span>
-                        {new Date(upcomingSchedule.schedule_date).toLocaleTimeString('en-US', {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                          hour12: true
-                        })}
-                      </span>
-                    </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <span>
+                      {new Date(upcomingSchedule.schedule_date).toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true
+                      })}
+                    </span>
                   </div>
-                  {teacherSections.length > 0 && (
-                    <div className="text-sm text-muted-foreground">
-                      ክፍሎች: {teacherSections.join(', ')}
-                    </div>
-                  )}
                 </div>
               ) : (
                 <div className="text-center py-8">
-                  <Calendar className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+                  <Calendar className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
                   <p className="text-muted-foreground">ምንም መርሃ ግብር የለም</p>
                 </div>
               )}
             </CardContent>
           </Card>
-
-          {/* Lesson Details Card */}
-          {upcomingSchedule && (upcomingSchedule.course.verse || upcomingSchedule.course.objectives?.length > 0) && (
-            <Card>
-              <CardHeader>
-                <CardTitle>የትምህርት ዝርዝር</CardTitle>
-                <CardDescription>
-                  {upcomingSchedule.course.course_name || upcomingSchedule.course.course_description}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {upcomingSchedule.course.verse && (
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground">ጥቅስ</p>
-                    <p className="text-sm mt-1">{upcomingSchedule.course.verse}</p>
-                  </div>
-                )}
-                {upcomingSchedule.course.objectives?.length > 0 && (
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground">ዓላማዎች</p>
-                    <ul className="space-y-1 mt-1 text-sm">
-                      {upcomingSchedule.course.objectives.map((obj) => (
-                        <li key={obj.id} className="flex items-start gap-2">
-                          <BookOpen className="h-4 w-4 mt-0.5 text-sky-600 flex-shrink-0" />
-                          <span>{obj.objective}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Quick View Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>የመርሃ ግብር ማጠቃለያ</CardTitle>
-              <CardDescription>የሚቀጥሉ መርሃ ግብሮች</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                {schedules.length > 0 ? (
-                  <>
-                    {schedules
-                      .filter((schedule) => new Date(schedule.schedule_date) >= new Date())
-                      .sort((a, b) => new Date(a.schedule_date).getTime() - new Date(b.schedule_date).getTime())
-                      .slice(0, 3)
-                      .map((schedule) => (
-                        <div key={schedule.schedule_id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                            <Calendar className="h-5 w-5 text-primary" />
-                          </div>
-                          <div className="flex-1">
-                            <p className="font-medium">
-                              {schedule.course.course_name || schedule.course.course_description}
-                            </p>
-                            <div className="flex items-center text-xs text-muted-foreground space-x-1">
-                              {schedule.section?.section_name && (
-                                <>
-                                  <span className="text-sky-600">{schedule.section.section_name}</span>
-                                  <span>•</span>
-                                </>
-                              )}
-                              <span>
-                                {new Date(schedule.schedule_date).toLocaleDateString('en-US', {
-                                  month: 'short',
-                                  day: 'numeric'
-                                })}
-                              </span>
-                              <span>•</span>
-                              <span>
-                                {new Date(schedule.schedule_date).toLocaleTimeString('en-US', {
-                                  hour: 'numeric',
-                                  minute: '2-digit',
-                                  hour12: true
-                                })}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                  </>
-                ) : (
-                  <div className="text-center py-8">
-                    <Calendar className="h-12 w-12 mx-auto mb-2 text-gray-300" />
-                    <p className="text-muted-foreground">ምንም መርሃ ግብር አልተገኘም</p>
-                    <Button variant="outline" onClick={fetchSchedules} className="mt-4">
-                      አድስ
-                    </Button>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Tabs for Full Views */}
         </>
       )}
     </div>

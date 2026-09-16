@@ -1,7 +1,6 @@
-// app/(protected)/teacher/schedules/page.tsx (sample page using the table)
-import { myScheduleColumns } from '@/components/schedules/my-schedules-columns';
-import { MySchedulesTable } from '@/components/schedules/my-schedules-table';
-import { Schedule } from '@/app/models/models'; // Adjust import
+// app/(protected)/teacher/my-schedules/page.tsx
+import { TeacherSchedulesTable } from '@/components/schedules/teacher-schedules-table';
+import { Schedule } from '@/app/models/models';
 import { cookies } from "next/headers";
 
 async function getMySchedules(): Promise<Schedule[]> {
@@ -32,14 +31,15 @@ async function getMySchedules(): Promise<Schedule[]> {
   }
 }
 
-export default async function TeacherSchedulesPage() {
-
+export default async function TeacherSchedulesPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   const schedules = await getMySchedules();
+  const basePath = `/${locale}/teacher`;
 
   return (
     <div className="container mx-auto py-10 px-4">
       <h1 className="text-2xl font-bold mb-6">የኔ መርሃ ግብሮች</h1>
-      <MySchedulesTable columns={myScheduleColumns} data={schedules} />
+      <TeacherSchedulesTable schedules={schedules} basePath={basePath} />
     </div>
   );
 }

@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useState, useEffect } from "react"
@@ -6,21 +5,10 @@ import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Calendar, Clock, Users, BookOpen, Bell, AlertCircle, TrendingUp, UserCheck, Upload } from "lucide-react"
+import { Calendar, Users, BookOpen, TrendingUp, UserCheck, Upload, Bell } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslations } from "next-intl"
-
-interface DashboardStats {
-  teachers: number
-  managers: number
-  sections: number
-  schedules: number
-  courses: number
-  upcomingSchedules: number
-  unreadNotifications: number
-}
 
 interface UpcomingSchedule {
   schedule_id: string
@@ -37,17 +25,9 @@ interface Section {
 
 export function AdminDashboard() {
   const t = useTranslations()
-  const [stats, setStats] = useState<DashboardStats>({
-    teachers: 0,
-    managers: 0,
-    sections: 0,
-    schedules: 0,
-    courses: 0,
-    upcomingSchedules: 0,
-    unreadNotifications: 0
-  })
   const [sections, setSections] = useState<Section[]>([])
   const [upcomingSchedules, setUpcomingSchedules] = useState<UpcomingSchedule[]>([])
+  const [unreadCount, setUnreadCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const { toast } = useToast()
   const pathname = usePathname()
@@ -64,22 +44,16 @@ export function AdminDashboard() {
     try {
       const query = sectionId && sectionId !== 'all' ? `?section_id=${sectionId}` : ''
       const requestOptions: RequestInit = { credentials: 'include' };
-      const [teachersRes, managersRes, sectionsRes, schedulesRes, coursesRes, notificationsRes] = await Promise.all([
-        fetch(`/api/user/get-teachers${query}`, requestOptions),
-        fetch(`/api/user/get-managers${query}`, requestOptions),
-        fetch(`/api/sections${query}`, requestOptions),
+      const [sectionsRes, schedulesRes, notificationsRes] = await Promise.all([
+        fetch('/api/sections', requestOptions),
         fetch(`/api/schedules${query}`, requestOptions),
-        fetch(`/api/courses${query}`, requestOptions),
-        fetch(`/api/notifications${query}`, requestOptions)
+        fetch('/api/notifications', requestOptions),
       ])
 
-      const [teachersData, managersData, sectionsData, schedulesData, coursesData, notificationsData] = await Promise.all([
-        teachersRes.json(),
-        managersRes.json(),
+      const [sectionsData, schedulesData, notificationsData] = await Promise.all([
         sectionsRes.json(),
         schedulesRes.json(),
-        coursesRes.json(),
-        notificationsRes.json()
+        notificationsRes.json(),
       ])
 
       const allSchedules = schedulesData.schedules || []
@@ -90,18 +64,9 @@ export function AdminDashboard() {
         return scheduleDate >= now && scheduleDate <= nextWeek
       })
 
-      setStats({
-        teachers: teachersData.teachers?.length || 0,
-        managers: managersData.managers?.length || 0,
-        sections: sectionsData.sections?.length || 0,
-        schedules: allSchedules.length,
-        courses: coursesData.courses?.length || 0,
-        upcomingSchedules: upcoming.length,
-        unreadNotifications: notificationsData.notifications?.filter((n: any) => !n.is_read).length || 0
-      })
-
       setSections(sectionsData.sections || [])
       setUpcomingSchedules(upcoming.slice(0, 5))
+      setUnreadCount(notificationsData.notifications?.filter((n: any) => !n.is_read).length || 0)
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
       toast({
@@ -114,158 +79,54 @@ export function AdminDashboard() {
     }
   }
 
+  const quickActions = [
+    { href: `${adminBase}/teachers/new`, icon: Users, label: t('Dashboard.AddTeacher') },
+    { href: `${adminBase}/managers/new`, icon: UserCheck, label: t('Dashboard.AddManager') },
+    { href: `${adminBase}/courses/new`, icon: BookOpen, label: t('Dashboard.AddCourse') },
+    { href: `${adminBase}/sections/new`, icon: Calendar, label: t('Dashboard.AddSection') },
+    { href: `${adminBase}/bulk-upload`, icon: Upload, label: 'ስብስብ መረጃ ማስገቢያ' },
+    { href: `${adminBase}/notifications`, icon: Bell, label: t('Dashboard.Notifications'), badge: unreadCount },
+  ]
+
   return (
     <div className="p-4 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-primary">የአድሚን ዳሽቦርድ</h1>
-        <Button onClick={() => fetchDashboardData(selectedSectionId)} variant="outline" size="sm">
-          {t('Common.Refresh')}
-        </Button>
       </div>
 
-      {/* Section Filter */}
-      <div className="flex items-center gap-2">
-        <Select onValueChange={(v) => setSelectedSectionId(v === 'all' ? undefined : v)} value={selectedSectionId}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="ሁሉንም ክፍሎች" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">ሁሉንም ክፍሎች</SelectItem>
-            {sections.map((section) => (
-              <SelectItem key={section.section_id} value={section.section_id}>
-                {section.section_name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              {t('Navigation.Teachers')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary">
-              {loading ? '...' : stats.teachers}
-            </div>
-            <p className="text-xs text-muted-foreground">{t('Dashboard.Total')}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <UserCheck className="h-4 w-4" />
-              ማናጀሮች
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary">
-              {loading ? '...' : stats.managers}
-            </div>
-            <p className="text-xs text-muted-foreground">{t('Dashboard.Total')}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <BookOpen className="h-4 w-4" />
-              ክፍሎች
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary">
-              {loading ? '...' : stats.sections}
-            </div>
-            <p className="text-xs text-muted-foreground">{t('Dashboard.Total')}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              {t('Navigation.Schedules')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-primary">
-              {loading ? '...' : stats.schedules}
-            </div>
-            <p className="text-xs text-muted-foreground">{t('Dashboard.Total')}</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              {t('Dashboard.Upcoming')}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-amber-600">
-              {loading ? '...' : stats.upcomingSchedules}
-            </div>
-            <p className="text-xs text-muted-foreground">በቅርብ ቀናት የተመደቡ</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <Bell className="h-4 w-4" />
-              ማሳወቂያዎች
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">
-              {loading ? '...' : stats.unreadNotifications}
-            </div>
-            <p className="text-xs text-muted-foreground">{t('Dashboard.Unread')}</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Sections Overview */}
+      {/* Quick Actions */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <BookOpen className="h-5 w-5" />
-            {t('Dashboard.AllSections')}
+            <TrendingUp className="h-5 w-5" />
+            ፈጣን እርምጃዎች
           </CardTitle>
-          <CardDescription>{t('Dashboard.AllSectionsDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
-          {loading ? (
-            <p className="text-muted-foreground">{t('Common.Loading')}</p>
-          ) : sections.length === 0 ? (
-            <div className="flex items-center gap-2 text-amber-600">
-              <AlertCircle className="h-5 w-5" />
-              <p>{t('Dashboard.NoSections')}</p>
-            </div>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {sections.map((section) => (
-                <Badge key={section.section_id} variant="secondary" className="text-sm px-3 py-1">
-                  {section.section_name}
-                </Badge>
-              ))}
-            </div>
-          )}
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+            {quickActions.map((action) => (
+              <Link
+                key={action.href}
+                href={action.href}
+                className="relative flex flex-col items-center justify-center gap-2 rounded-lg bg-primary/10 p-4 text-center transition hover:bg-primary/20"
+              >
+                <action.icon className="h-6 w-6 text-primary" />
+                {action.badge !== undefined && action.badge > 0 && (
+                  <span className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
+                    {action.badge > 9 ? '9+' : action.badge}
+                  </span>
+                )}
+                <span className="text-sm font-medium leading-tight">{action.label}</span>
+              </Link>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
       {/* Upcoming Schedules */}
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <CardTitle className="flex items-center gap-2">
                 <Calendar className="h-5 w-5" />
@@ -273,9 +134,24 @@ export function AdminDashboard() {
               </CardTitle>
               <CardDescription>{t('Dashboard.UpcomingDesc')}</CardDescription>
             </div>
-            <Link href={`${adminBase}/schedules`}>
-              <Button variant="outline" size="sm">ሁሉንም ይመልከቱ</Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Select onValueChange={(v) => setSelectedSectionId(v === 'all' ? undefined : v)} value={selectedSectionId}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="ሁሉንም ክፍሎች" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">ሁሉንም ክፍሎች</SelectItem>
+                  {sections.map((section) => (
+                    <SelectItem key={section.section_id} value={section.section_id}>
+                      {section.section_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Link href={`${adminBase}/schedules`}>
+                <Button variant="outline" size="sm">ሁሉንም ይመልከቱ</Button>
+              </Link>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -305,50 +181,6 @@ export function AdminDashboard() {
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
-
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5" />
-            ፈጣን እርምጃዎች
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            <Link href={`${adminBase}/teachers/new`}>
-              <Button variant="outline" className="w-full">
-                <Users className="mr-2 h-4 w-4" />
-                {t('Dashboard.AddTeacher')}
-              </Button>
-            </Link>
-            <Link href={`${adminBase}/managers/new`}>
-              <Button variant="outline" className="w-full">
-                <UserCheck className="mr-2 h-4 w-4" />
-                {t('Dashboard.AddManager')}
-              </Button>
-            </Link>
-            <Link href={`${adminBase}/courses/new`}>
-              <Button variant="outline" className="w-full">
-                <BookOpen className="mr-2 h-4 w-4" />
-                {t('Dashboard.AddCourse')}
-              </Button>
-            </Link>
-            <Link href={`${adminBase}/sections/new`}>
-              <Button variant="outline" className="w-full">
-                <Calendar className="mr-2 h-4 w-4" />
-                {t('Dashboard.AddSection')}
-              </Button>
-            </Link>
-            <Link href={`${adminBase}/bulk-upload`}>
-              <Button variant="outline" className="w-full">
-                <Upload className="mr-2 h-4 w-4" />
-                ስብስብ መረጃ ማስገቢያ
-              </Button>
-            </Link>
-          </div>
         </CardContent>
       </Card>
     </div>
