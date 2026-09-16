@@ -504,7 +504,7 @@ export function BulkUploadForm({ role = 'ADMIN' }: BulkUploadFormProps) {
                           <td className="px-3 py-2">{row.course_name}</td>
                           <td className="px-3 py-2">{row.teacher_username}</td>
                           <td className="px-3 py-2">{row.section_name}</td>
-                          <td className="px-3 py-2">{row.schedule_date ? new Date(row.schedule_date).toLocaleString() : '-'}</td>
+                          <td className="px-3 py-2">{row.schedule_date ? new Date(row.schedule_date).toLocaleDateString() : '-'}</td>
                         </>
                       )}
                       <td className="px-3 py-2">

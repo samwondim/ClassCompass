@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (schedule.teacher.tg_id) {
-      const detail = `Date: ${new Date(schedule_date).toLocaleString()}
+      const detail = `Date: ${new Date(schedule_date).toLocaleDateString()}
 Section: ${schedule.section.section_name || 'N/A'}`;
 
       const { notifyScheduleChange } = await import('@/utils/notifications');

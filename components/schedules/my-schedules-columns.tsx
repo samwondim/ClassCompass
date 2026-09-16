@@ -49,12 +49,6 @@ function CourseDetailDialog({ schedule }: { schedule: Schedule }) {
                 month: "long",
                 day: "numeric",
               })}
-              {" · "}
-              {new Date(schedule.schedule_date).toLocaleTimeString("en-US", {
-                hour: "numeric",
-                minute: "2-digit",
-                hour12: true,
-              })}
             </span>
             {schedule.section?.section_name && (
               <Badge variant="secondary" className="gap-1">
@@ -128,20 +122,6 @@ export const myScheduleColumns: ColumnDef<Schedule>[] = [
       </div>
     ),
     sortingFn: "datetime",
-  },
-  {
-    accessorKey: "schedule_date",
-    id: "time",
-    header: "ሰዓት",
-    cell: ({ row }) => (
-      <div className="text-sm">
-        {new Date(row.getValue("schedule_date")).toLocaleTimeString("en-US", {
-          hour: "numeric",
-          minute: "2-digit",
-          hour12: true,
-        })}
-      </div>
-    ),
   },
   {
     id: "course",

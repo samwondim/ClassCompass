@@ -147,7 +147,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
         if (updatedSchedule.teacher.tg_id) {
             const { notifyScheduleChange } = await import('@/utils/notifications');
-            const detail = `Date: ${new Date(schedule_date).toLocaleString()}\nSection: ${updatedSchedule.section.section_name}`;
+            const detail = `Date: ${new Date(schedule_date).toLocaleDateString()}\nSection: ${updatedSchedule.section.section_name}`;
             await notifyScheduleChange(
                 updatedSchedule.teacher.user_id,
                 updatedSchedule.teacher.tg_id,
@@ -206,7 +206,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
 
         if (schedule.teacher.tg_id) {
             const { notifyScheduleChange } = await import('@/utils/notifications');
-            const detail = `Date: ${new Date(schedule.schedule_date).toLocaleString()}\nSection: ${schedule.section.section_name}`;
+            const detail = `Date: ${new Date(schedule.schedule_date).toLocaleDateString()}\nSection: ${schedule.section.section_name}`;
             await notifyScheduleChange(
                 schedule.teacher.user_id,
                 schedule.teacher.tg_id,

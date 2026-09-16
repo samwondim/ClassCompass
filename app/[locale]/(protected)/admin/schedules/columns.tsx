@@ -67,7 +67,7 @@ export const columns: ColumnDef<Schedule>[] = [
         {(() => {
           const dateVal = row.getValue("schedule_date");
           const date = typeof dateVal === 'string' ? parseISO(dateVal) : dateVal as Date;
-          return format(date, 'MMM dd, yyyy h:mm a');
+          return format(date, 'MMM dd, yyyy');
         })()}
       </div>
     ),

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, BookOpen, Layers, Quote, Target, ChevronLeft } from "lucide-react";
+import { Calendar, BookOpen, Layers, Quote, Target, ChevronLeft } from "lucide-react";
 import { Schedule } from "@/app/models/models";
 
 async function getSchedule(id: string): Promise<Schedule | null> {
@@ -66,14 +66,6 @@ export default async function TeacherScheduleDetailsPage({ params }: { params: P
                 year: "numeric",
                 month: "long",
                 day: "numeric",
-              })}
-            </span>
-            <span className="inline-flex items-center gap-1">
-              <Clock className="h-4 w-4" />
-              {new Date(schedule.schedule_date).toLocaleTimeString("en-US", {
-                hour: "numeric",
-                minute: "2-digit",
-                hour12: true,
               })}
             </span>
             {schedule.section?.section_name && (

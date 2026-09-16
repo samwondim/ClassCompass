@@ -147,9 +147,6 @@ export function ManagerDashboard() {
                     <p className="text-sm font-medium">
                       {new Date(schedule.schedule_date).toLocaleDateString()}
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(schedule.schedule_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </p>
                   </div>
                 </div>
               ))}

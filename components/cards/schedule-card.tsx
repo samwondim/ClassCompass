@@ -27,12 +27,10 @@ export function ScheduleCard({ item: schedule }: { item: Schedule }) {
         <div className="flex justify-between items-start mb-2">
           <div className="flex items-center text-sm font-medium">
             <Calendar className="h-4 w-4 mr-2 text-primary" />
-            {new Date(schedule.schedule_date).toLocaleString("en-US", {
+            {new Date(schedule.schedule_date).toLocaleDateString("en-US", {
               month: "short",
               day: "numeric",
               year: "numeric",
-              hour: "numeric",
-              minute: "2-digit",
             })}
           </div>
           <DropdownMenu>

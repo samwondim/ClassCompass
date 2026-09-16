@@ -37,13 +37,12 @@ function ScheduleCard({ schedule }: { schedule: Schedule }) {
   return (
     <Card className="mb-3">
       <CardContent className="p-4 space-y-3">
-        {/* Date / Time header */}
-        <div className="flex items-center justify-between">
+        {/* Date header */}
+        <div className="flex items-center">
           <div className="flex items-center text-sm font-medium">
             <Calendar className="h-4 w-4 mr-2 text-primary" />
             {format(date, 'MMM dd, yyyy')}
           </div>
-          <span className="text-xs text-muted-foreground">{format(date, 'h:mm a')}</span>
         </div>
 
         {/* Section badge */}
