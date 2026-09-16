@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
-    "build": "prisma migrate deploy && next build",
+    "build": "next build",
     "start": "next start",
+    "db:migrate": "prisma migrate deploy",
     "lint": "next lint",
     "postinstall": "prisma generate",
     "test": "vitest",
