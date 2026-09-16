@@ -54,7 +54,7 @@ export default async function TeacherScheduleDetailsPage({ params }: { params: P
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
+          <h1 className="text-2xl font-bold text-primary flex items-center gap-2">
             <BookOpen className="h-6 w-6 text-primary" />
             {title}
           </h1>

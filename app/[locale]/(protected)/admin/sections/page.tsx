@@ -23,7 +23,7 @@ export default async function AdminSectionsPage({ params }: { params: Promise<{ 
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-6">
-        <h1 className="text-2xl font-bold">ክፍሎች</h1>
+        <h1 className="text-2xl font-bold text-primary">ክፍሎች</h1>
         <Link href={`${base}/sections/new`} className="w-full sm:w-auto">
           <span className="inline-flex w-full sm:w-auto justify-center items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
             አዲስ ክፍል

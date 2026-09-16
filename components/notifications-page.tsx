@@ -109,7 +109,7 @@ export function NotificationsPage() {
         <div className="container mx-auto py-6 px-4 max-w-4xl">
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold flex items-center gap-2">
+                    <h1 className="text-2xl font-bold text-primary flex items-center gap-2">
                         <Bell className="h-6 w-6" />
                         Notifications
                     </h1>
