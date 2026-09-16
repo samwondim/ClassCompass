@@ -7,8 +7,6 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const ManagerActions = ({ managerId }: { managerId: string }) => {
@@ -32,9 +30,10 @@ const ManagerActions = ({ managerId }: { managerId: string }) => {
     </DropdownMenu>
   );
 };
+
 export const columns: ColumnDef<Manager>[] = [
   {
-    accessorKey: "first_name",
+    id: "name",
     header: "ስም",
     cell: ({ row }) => {
       const { first_name, last_name, photo_url } = row.original;
@@ -44,44 +43,21 @@ export const columns: ColumnDef<Manager>[] = [
             {photo_url && <AvatarImage src={photo_url} alt={first_name || ""} />}
             <AvatarFallback>{(first_name?.[0] || "")}{(last_name?.[0] || "")}</AvatarFallback>
           </Avatar>
-          <span>{first_name}</span>
+          <span>{[first_name, last_name].filter(Boolean).join(" ")}</span>
         </div>
       );
     }
-  },
-  {
-    accessorKey: "last_name",
-    header: "የአባት ስም",
-  },
-  {
-    accessorKey: "tg_username",
-    header: "ተሌግራም ዩዘርኔም",
   },
   {
     accessorKey: "phone_number",
     header: "የስልክ ቁጥር",
   },
   {
-    accessorKey: "sections",
-    header: "ክፍል",
-    cell: ({ row }) => {
-      if (!row.original.sections) {
-        return <Badge variant="outline">No Sections Assigned</Badge>
-      }
-      return <>
-        {row.original.sections?.map(section => <Badge key={section.section_id} variant="outline">{section.section_name}</Badge>)}
-      </>
-    },
-  },
-  {
-
     id: "actions",
     header: "ተጨማሪ ተግባራት",
     cell: ({ row }) => {
       const manager = row.original;
 
-
-      // DELETE ACTION
       const deleteUser = async () => {
         const ok = confirm("Are you sure?");
         if (!ok) return;
@@ -96,6 +72,7 @@ export const columns: ColumnDef<Manager>[] = [
           alert("Failed to delete user");
         }
       };
+
       return (
         <div className="flex items-center gap-2">
           <ManagerActions managerId={manager.user_id} />
@@ -105,5 +82,5 @@ export const columns: ColumnDef<Manager>[] = [
         </div>
       );
     },
-  }
-]
+  },
+];

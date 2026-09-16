@@ -39,7 +39,7 @@ const TeacherActions = ({ teacherId }: { teacherId: string }) => {
 
 export const columns: ColumnDef<Teacher>[] = [
   {
-    accessorKey: "first_name",
+    id: "name",
     header: "ስም",
     cell: ({ row }) => {
       const { first_name, last_name, photo_url } = row.original;
@@ -49,26 +49,14 @@ export const columns: ColumnDef<Teacher>[] = [
             {photo_url && <AvatarImage src={photo_url} alt={first_name || ""} />}
             <AvatarFallback>{(first_name?.[0] || "")}{(last_name?.[0] || "")}</AvatarFallback>
           </Avatar>
-          <span>{first_name}</span>
+          <span>{[first_name, last_name].filter(Boolean).join(" ")}</span>
         </div>
       );
     }
   },
   {
-    accessorKey: "last_name",
-    header: "የአባት ስም",
-  },
-  {
-    accessorKey: "tg_username",
-    header: "ተሌግራም ዩዘርኔም",
-  },
-  {
     accessorKey: "phone_number",
     header: "የስልክ ቁጥር",
-  },
-  {
-    accessorKey: "sections",
-    header: "ክፍል",
   },
   {
     id: "actions",
@@ -76,7 +64,6 @@ export const columns: ColumnDef<Teacher>[] = [
     cell: ({ row }) => {
       const teacher = row.original;
 
-      // DELETE ACTION
       const deleteUser = async () => {
         const ok = confirm("Are you sure?");
         if (!ok) return;

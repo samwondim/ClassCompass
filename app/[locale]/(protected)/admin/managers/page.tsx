@@ -1,11 +1,16 @@
-// app/manager/page.tsx
+// app/admin/managers/page.tsx
 import { Manager } from "@/app/models/models";
 import { columns } from "./columns";
-import { DataTable } from "./data-table";
-import Link from "next/link";
+import { UsersTable } from "@/components/users/users-table";
 import { cookies } from "next/headers";
+import prisma from "@/lib/prisma";
 
-// import prisma from "@/lib/prisma"; // removed
+async function getSections(): Promise<{ section_id: string; section_name: string }[]> {
+  return await prisma.section.findMany({
+    select: { section_id: true, section_name: true },
+    orderBy: { section_name: 'asc' }
+  });
+}
 
 async function getData(): Promise<Manager[]> {
   try {
@@ -34,23 +39,27 @@ async function getData(): Promise<Manager[]> {
   }
 }
 
-export default async function DemoPage({ params }: { params: { locale: string } }) {
-  const data = await getData();
-  const base = `/${params.locale}/admin`;
+export default async function ManagersPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const [data, sections] = await Promise.all([getData(), getSections()]);
+  const base = `/${locale}/admin`;
+
+  const managers = data.map((m: any) => ({
+    ...m,
+    section_ids: (m.sections || []).map((s: any) => s.section_id),
+  }));
 
   return (
     <div className="container mx-auto py-10 px-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">ማናጀሮች</h1>
-        <Link href={`${base}/managers/new`}>
-          <span className="inline-flex items-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">አዲስ ማናጀር</span>
-        </Link>
-      </div>
-      {data.length === 0 ? (
-        <p className="text-muted-foreground">ማናጀሮች አልተገኙም</p>
-      ) : (
-        <DataTable columns={columns} data={data} />
-      )}
+      <h1 className="text-2xl font-bold mb-6">ማናጀሮች</h1>
+      <UsersTable
+        users={managers}
+        columns={columns}
+        addHref={`${base}/managers/new`}
+        addLabel="አዲስ ማናጀር"
+        editBase="/admin/managers"
+        sectionOptions={sections.map(s => ({ label: s.section_name || 'ክፍል', value: s.section_id }))}
+      />
     </div>
   );
 }
