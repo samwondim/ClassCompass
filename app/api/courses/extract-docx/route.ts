@@ -5,9 +5,9 @@ import { extractCourseFromText, AiExtractionError, MAX_INPUT_CHARS } from '@/uti
 import { ok, badRequest, unauthorized, forbidden, serverError, serviceUnavailable } from '@/utils/response';
 
 export const dynamic = 'force-dynamic';
-// A Claude extraction call can occasionally run past 30s depending on document size
-// and provider latency - give it real headroom instead of racing Vercel's default.
-export const maxDuration = 60;
+// A Claude extraction call can occasionally run long depending on document size and
+// provider latency. 300s is the max duration on both Hobby and Pro (with Fluid Compute).
+export const maxDuration = 300;
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
