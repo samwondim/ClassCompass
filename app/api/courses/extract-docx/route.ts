@@ -1,15 +1,13 @@
 import { NextRequest } from 'next/server';
 import mammoth from 'mammoth';
 import { getRequestUser } from '@/utils/request-auth';
-import { extractCourseFromText, AiExtractionError, MAX_INPUT_CHARS } from '@/utils/course-ai-extract';
-import { ok, badRequest, unauthorized, forbidden, serverError, serviceUnavailable } from '@/utils/response';
+import { parseLessonDocx } from '@/utils/course-docx-parser';
+import { ok, badRequest, unauthorized, forbidden, serverError } from '@/utils/response';
 
 export const dynamic = 'force-dynamic';
-// A Claude extraction call can occasionally run long depending on document size and
-// provider latency. 300s is the max duration on both Hobby and Pro (with Fluid Compute).
-export const maxDuration = 300;
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_TEXT_LENGTH = 100000; // sanity bound against a pathological upload
 const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
 export async function POST(request: NextRequest) {
@@ -39,19 +37,14 @@ export async function POST(request: NextRequest) {
     if (!trimmedText) {
       return badRequest('No readable text found in the document');
     }
-    if (trimmedText.length > MAX_INPUT_CHARS) {
-      return badRequest(
-        `Document is too long (${trimmedText.length} characters, max ${MAX_INPUT_CHARS}). Please import a single lesson at a time.`
-      );
+    if (trimmedText.length > MAX_TEXT_LENGTH) {
+      return badRequest('Document is too long to process');
     }
 
-    const draft = await extractCourseFromText(trimmedText);
+    const draft = parseLessonDocx(trimmedText);
     return ok({ draft });
   } catch (error) {
     console.error('Course docx extraction error:', error);
-    if (error instanceof AiExtractionError && error.retryable) {
-      return serviceUnavailable('The AI service is busy right now. Please try again in a moment.');
-    }
     return serverError('Failed to extract lesson from document');
   }
 }
