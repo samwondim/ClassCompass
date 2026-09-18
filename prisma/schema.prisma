@@ -174,6 +174,15 @@ model Resource {
   @@index([section_id])
 }
 
+model AppSettings {
+  id                     String   @id @default("app")
+  app_name               String   @default("Sunday School Reminder")
+  bot_description        String?
+  bot_short_description  String?
+  updated_at             DateTime @updatedAt
+  updated_by             String?
+}
+
 model Objective {
   id        String @id @default(uuid())
   objective String

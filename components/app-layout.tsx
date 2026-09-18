@@ -16,7 +16,8 @@ import {
   Menu,
   X,
   Sun,
-  Moon
+  Moon,
+  Settings
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -36,11 +37,25 @@ export function AppLayout({ children, userRole, photoUrl, firstName, lastName }:
   const pathname = usePathname()
   const [isMounted, setIsMounted] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
+  const [appName, setAppName] = useState<string | null>(null)
   const t = useTranslations()
   const { resolvedTheme, toggleTheme } = useTheme()
 
   useEffect(() => {
     setIsMounted(true)
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    fetch('/api/settings')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.settings?.app_name) setAppName(data.settings.app_name)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   // Close the navigation when the route changes
@@ -84,6 +99,7 @@ export function AppLayout({ children, userRole, photoUrl, firstName, lastName }:
     { label: t('Navigation.MySchedules'), href: `/${locale}/admin/my-schedules`, icon: CalendarCheck },
     { label: t('Navigation.Courses'), href: `/${locale}/admin/courses`, icon: BrainCog },
     { label: t('Navigation.Units'), href: `/${locale}/admin/units`, icon: LayersIcon },
+    { label: t('Navigation.Settings'), href: `/${locale}/admin/settings`, icon: Settings },
   ]
 
   const managerNavItems = [
@@ -134,7 +150,7 @@ export function AppLayout({ children, userRole, photoUrl, firstName, lastName }:
       <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-card px-4">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-primary">{t('Common.AppName')}</span>
+            <span className="text-2xl font-bold text-primary">{appName || t('Common.AppName')}</span>
           </Link>
         </div>
         <div className="flex items-center gap-4">

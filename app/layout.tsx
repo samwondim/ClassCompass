@@ -3,12 +3,23 @@ import { getLocale, getMessages } from 'next-intl/server';
 import './globals.css';
 import { Providers } from '@/components/providers';
 import { ReactNode } from 'react';
+import prisma from '@/lib/prisma';
 
-export const metadata: Metadata = {
-  title: 'Sunday School Reminder',
-  description: 'Sunday School Schedule Management',
-  generator: 'Sunday School Reminder',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  let appName = 'Sunday School Reminder';
+  try {
+    const settings = await prisma.appSettings.findUnique({ where: { id: 'app' } });
+    if (settings?.app_name) appName = settings.app_name;
+  } catch {
+    // Fall back to the default name if the DB isn't reachable at build/request time.
+  }
+
+  return {
+    title: appName,
+    description: 'Sunday School Schedule Management',
+    generator: appName,
+  };
+}
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const locale = await getLocale(); // Already here

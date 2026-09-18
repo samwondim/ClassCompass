@@ -10,7 +10,21 @@ export function LoginScreen() {
   const [dotCount, setDotCount] = useState(1);
   const [devMode, setDevMode] = useState(false);
   const [devLoading, setDevLoading] = useState<string | null>(null);
+  const [appName, setAppName] = useState('Sunday School Reminder');
   const { toast } = useToast();
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/settings')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.settings?.app_name) setAppName(data.settings.app_name);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   async function authenticateUser() {
     try {
@@ -140,7 +154,7 @@ export function LoginScreen() {
             className="mt-3 text-sm tracking-widest uppercase"
             style={{ color: '#6366f1', letterSpacing: '0.2em' }}
           >
-            Sunday School Reminder
+            {appName}
           </p>
         </div>
 
