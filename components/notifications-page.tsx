@@ -91,7 +91,7 @@ export function NotificationsPage() {
             case 'success':
                 return 'bg-green-100 text-green-800 border-green-200';
             default:
-                return 'bg-blue-100 text-blue-800 border-blue-200';
+                return 'bg-primary/10 text-primary border-primary/20';
         }
     };
 
@@ -99,7 +99,7 @@ export function NotificationsPage() {
         return (
             <div className="container mx-auto py-10 px-4">
                 <div className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-sky-600"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
                 </div>
             </div>
         );
@@ -109,7 +109,7 @@ export function NotificationsPage() {
         <div className="container mx-auto py-6 px-4 max-w-4xl">
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold text-primary flex items-center gap-2">
+                    <h1 className="text-2xl text-foreground flex items-center gap-2">
                         <Bell className="h-6 w-6" />
                         Notifications
                     </h1>
@@ -137,7 +137,7 @@ export function NotificationsPage() {
                     {notifications.map((notification) => (
                         <Card
                             key={notification.id}
-                            className={`transition-all ${!notification.is_read ? 'border-l-4 border-l-sky-500 bg-sky-50/30' : ''
+                            className={`transition-all ${!notification.is_read ? 'border-l-4 border-l-primary bg-primary/5' : ''
                                 }`}
                         >
                             <CardContent className="p-4">
@@ -149,7 +149,7 @@ export function NotificationsPage() {
                                                 {notification.type}
                                             </Badge>
                                             {!notification.is_read && (
-                                                <Badge variant="default" className="bg-sky-600">
+                                                <Badge variant="default" className="bg-primary">
                                                     New
                                                 </Badge>
                                             )}
@@ -162,7 +162,7 @@ export function NotificationsPage() {
                                             {notification.link && (
                                                 <Link
                                                     href={notification.link}
-                                                    className="text-sky-600 hover:underline font-medium"
+                                                    className="text-primary hover:underline font-medium"
                                                 >
                                                     View Details →
                                                 </Link>

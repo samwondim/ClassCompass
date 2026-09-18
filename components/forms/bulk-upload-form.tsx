@@ -489,9 +489,9 @@ export function BulkUploadForm({ role = 'ADMIN' }: BulkUploadFormProps) {
                           {!isManager && (
                             <td className="px-3 py-2">
                               <span className={`px-2 py-1 rounded text-xs ${
-                                row.user_role === 'ADMIN' ? 'bg-purple-100 text-purple-800' :
-                                row.user_role === 'MANAGER' ? 'bg-blue-100 text-blue-800' :
-                                'bg-gray-100 text-gray-800'
+                                row.user_role === 'ADMIN' ? 'bg-role-admin/15 text-role-admin' :
+                                row.user_role === 'MANAGER' ? 'bg-role-manager/15 text-role-manager' :
+                                'bg-secondary text-secondary-foreground'
                               }`}>
                                 {row.user_role || 'TEACHER'}
                               </span>

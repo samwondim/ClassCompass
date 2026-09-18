@@ -73,7 +73,7 @@ export default async function TeacherMgmtPage({ params }: { params: Promise<{ lo
 
   return (
     <div className="container mx-auto py-10 px-4">
-      <h1 className="text-2xl font-bold text-primary mb-6">መምህራን</h1>
+      <h1 className="text-2xl text-foreground mb-6">መምህራን</h1>
       <UsersTable
         users={data}
         columns={columns}

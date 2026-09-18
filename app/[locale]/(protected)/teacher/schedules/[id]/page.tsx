@@ -2,7 +2,6 @@ import { cookies } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Calendar, BookOpen, Layers, Quote, Target, ChevronLeft, Clock, Users, Paperclip, ExternalLink, FileText } from "lucide-react";
 import { Schedule, LessonPlan } from "@/app/models/models";
 
@@ -64,41 +63,40 @@ export default async function TeacherScheduleDetailsPage({ params }: { params: P
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-primary flex items-center gap-2">
-            <BookOpen className="h-6 w-6 text-primary" />
-            {title}
-          </h1>
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            <span className="inline-flex items-center gap-1">
-              <Calendar className="h-4 w-4" />
-              {new Date(schedule.schedule_date).toLocaleDateString("en-US", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </span>
+          <p className="flex items-center gap-1.5 text-[12.5px] font-semibold text-primary">
+            <Calendar className="h-3.5 w-3.5" />
+            {new Date(schedule.schedule_date).toLocaleDateString("en-US", {
+              weekday: "long",
+              month: "long",
+              day: "numeric",
+            })}
+            {" ● "}
+            {new Date(schedule.schedule_date).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
+          </p>
+          <h1 className="mt-1 text-[23px] leading-snug">{title}</h1>
+
+          <div className="mt-3 flex flex-wrap gap-1.5">
             {schedule.section?.section_name && (
-              <Badge variant="secondary" className="gap-1">
+              <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] text-muted-foreground">
                 <Layers className="h-3 w-3" />
                 {schedule.section.section_name}
-              </Badge>
+              </span>
             )}
             {course.unit?.title && (
-              <Badge variant="outline" className="gap-1">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-2.5 py-1 text-[11px] font-semibold text-secondary-foreground">
                 <BookOpen className="h-3 w-3" />
                 {course.unit.title}
-              </Badge>
+              </span>
             )}
             {course.age_group && (
-              <span className="inline-flex items-center gap-1">
-                <Users className="h-4 w-4" />
+              <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] text-muted-foreground">
+                <Users className="h-3 w-3" />
                 {course.age_group}
               </span>
             )}
             {course.duration_minutes && (
-              <span className="inline-flex items-center gap-1">
-                <Clock className="h-4 w-4" />
+              <span className="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] text-muted-foreground">
+                <Clock className="h-3 w-3" />
                 {course.duration_minutes} ደቂቃ
               </span>
             )}

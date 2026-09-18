@@ -52,20 +52,9 @@ const config: Config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        sky: {
-          50: "#f0f9ff",
-          100: "#e0f2fe",
-          600: "#0284c7",
-          700: "#0369a1",
-        },
-        emerald: {
-          50: "#ecfdf5",
-          600: "#059669",
-        },
-        amber: {
-          50: "#fffbeb",
-          100: "#fef3c7",
-          600: "#d97706",
+        role: {
+          admin: "#3A3470",
+          manager: "#2B6E6A",
         },
       },
       borderRadius: {

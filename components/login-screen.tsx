@@ -1,10 +1,15 @@
 // src/components/login-screen.tsx
 'use client';
 import { useState, useEffect } from 'react';
+import { LayoutGrid, Briefcase, GraduationCap } from 'lucide-react';
 import useToast from '@/hooks/use-toast';
 
 const DEV_LOGIN_ENABLED = process.env.NEXT_PUBLIC_DEV_LOGIN === 'true';
-const DEV_USERS = ['admin', 'manager', 'teacher'];
+const DEV_USERS: { username: string; label: string; icon: typeof LayoutGrid; iconBg: string; iconColor: string }[] = [
+  { username: 'admin', label: 'Login as Admin', icon: LayoutGrid, iconBg: 'rgba(85,76,158,0.35)', iconColor: '#C9BEEF' },
+  { username: 'manager', label: 'Login as Manager', icon: Briefcase, iconBg: 'rgba(43,110,106,0.35)', iconColor: '#B9E4DF' },
+  { username: 'teacher', label: 'Login as Teacher', icon: GraduationCap, iconBg: 'rgba(201,147,47,0.35)', iconColor: '#F3DDA6' },
+];
 
 export function LoginScreen() {
   const [dotCount, setDotCount] = useState(1);
@@ -105,81 +110,83 @@ export function LoginScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const dots = '.'.repeat(dotCount);
-
   return (
     <div
-      className="flex min-h-screen items-center justify-center"
+      className="relative flex min-h-screen flex-col items-center overflow-hidden px-7 pb-8 pt-24 text-center"
       style={{
-        background: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
+        background: 'linear-gradient(165deg, #1F1B3A 0%, #322B5E 45%, #241C15 100%)',
+        fontFamily: "'Noto Sans Ethiopic', sans-serif",
+        color: '#F4EFE4',
       }}
     >
-      <div className="flex flex-col items-center gap-8 select-none">
-        {/* Pulsing orb */}
-        <div className="relative flex items-center justify-center">
-          <span
-            className="absolute inline-flex h-24 w-24 rounded-full opacity-30 animate-ping"
-            style={{ background: 'radial-gradient(circle, #818cf8, #6366f1)' }}
-          />
-          <span
-            className="relative inline-flex h-16 w-16 rounded-full"
-            style={{ background: 'radial-gradient(circle, #a5b4fc, #6366f1)' }}
-          />
+      <div
+        className="pointer-events-none absolute -top-24 left-1/2 h-[360px] w-[360px] -translate-x-1/2 rounded-full"
+        style={{ background: 'radial-gradient(circle, rgba(232,200,136,0.30) 0%, rgba(232,200,136,0) 70%)' }}
+      />
+
+      <div className="relative flex flex-col items-center gap-6">
+        {/* Glowing badge */}
+        <div
+          className="flex h-[78px] w-[78px] items-center justify-center rounded-full"
+          style={{
+            background: 'radial-gradient(circle at 34% 30%, #F6E3AE, #C9932F 58%, #7A4816 100%)',
+            boxShadow: '0 0 44px rgba(232,200,136,0.5)',
+          }}
+        >
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#2A1D0D" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 3v6M12 15v6M3 12h6M15 12h6M6 6l4 4M14 14l4 4M18 6l-4 4M10 14l-4 4" />
+          </svg>
         </div>
 
-        {/* Animated text */}
-        <div className="text-center">
-          <p
-            className="text-3xl sm:text-4xl font-bold tracking-wide"
-            style={{
-              color: '#e0e7ff',
-              fontFamily: "'Noto Sans Ethiopic', 'Segoe UI', sans-serif",
-              textShadow: '0 0 24px rgba(129, 140, 248, 0.8)',
-              letterSpacing: '0.04em',
-            }}
-          >
-            loading bot{' '}
-            <span
-              style={{
-                display: 'inline-block',
-                minWidth: '2.5ch',
-                color: '#a5b4fc',
-                textShadow: '0 0 12px rgba(165, 180, 252, 0.9)',
-              }}
-            >
-              {dots}
-            </span>
-          </p>
-          <p
-            className="mt-3 text-sm tracking-widest uppercase"
-            style={{ color: '#6366f1', letterSpacing: '0.2em' }}
+        <div>
+          <h1
+            className="font-display text-3xl leading-tight sm:text-4xl"
+            style={{ color: '#F3E4C8', textShadow: '0 0 30px rgba(201,147,47,0.55)' }}
           >
             {appName}
+          </h1>
+          <p className="mt-3 text-[11.5px] uppercase" style={{ color: '#A79BD1', letterSpacing: '0.26em' }}>
+            እንኳን ደህና መጡ
           </p>
         </div>
 
-        {/* Dev login panel (local development only) */}
-        {devMode && DEV_LOGIN_ENABLED && (
-          <div className="w-full max-w-xs rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur">
-            <p className="mb-3 text-center text-xs uppercase tracking-widest" style={{ color: '#a5b4fc' }}>
-              Dev login
-            </p>
-            <div className="flex flex-col gap-2">
-              {DEV_USERS.map((username) => (
-                <button
-                  key={username}
-                  type="button"
-                  disabled={devLoading !== null}
-                  onClick={() => devLogin(username)}
-                  className="w-full rounded-lg bg-indigo-500/20 px-4 py-2 text-sm font-medium text-indigo-100 transition hover:bg-indigo-500/40 disabled:opacity-50"
-                >
-                  {devLoading === username ? 'Signing in…' : `Login as ${username}`}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* Loading dots */}
+        <div className="mt-2 flex items-center gap-2.5">
+          <span className="h-1.5 w-1.5 rounded-full" style={{ background: '#E8C888', opacity: dotCount === 1 ? 1 : 0.28 }} />
+          <span className="h-1.5 w-1.5 rounded-full" style={{ background: '#E8C888', opacity: dotCount === 2 ? 1 : 0.28 }} />
+          <span className="h-1.5 w-1.5 rounded-full" style={{ background: '#E8C888', opacity: dotCount === 3 ? 1 : 0.28 }} />
+          <span className="ml-2 text-sm" style={{ color: '#CFC6EA' }}>በመጫን ላይ</span>
+        </div>
       </div>
+
+      {/* Dev login panel (local development only) */}
+      {devMode && DEV_LOGIN_ENABLED && (
+        <div
+          className="relative mt-auto w-full max-w-xs rounded-[20px] p-[18px]"
+          style={{ border: '1px solid rgba(244,239,228,0.16)', background: 'rgba(244,239,228,0.06)' }}
+        >
+          <p className="mb-3.5 text-center text-[10.5px] uppercase" style={{ color: '#B9AEE0', letterSpacing: '0.24em' }}>
+            Dev Login
+          </p>
+          <div className="flex flex-col gap-2">
+            {DEV_USERS.map(({ username, label, icon: Icon, iconBg, iconColor }) => (
+              <button
+                key={username}
+                type="button"
+                disabled={devLoading !== null}
+                onClick={() => devLogin(username)}
+                className="flex w-full items-center gap-3 rounded-[14px] px-3.5 py-3 text-left text-sm font-semibold transition disabled:opacity-50"
+                style={{ border: '1px solid rgba(244,239,228,0.14)', background: 'rgba(244,239,228,0.07)', color: '#F4EFE4' }}
+              >
+                <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[10px]" style={{ background: iconBg }}>
+                  <Icon className="h-4 w-4" style={{ color: iconColor }} />
+                </span>
+                {devLoading === username ? 'Signing in…' : label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

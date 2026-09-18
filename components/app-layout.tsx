@@ -13,11 +13,11 @@ import {
   Briefcase,
   CalendarCheck,
   LayersIcon,
-  Menu,
-  X,
   Sun,
   Moon,
-  Settings
+  Settings,
+  MoreHorizontal,
+  User
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -118,8 +118,29 @@ export function AppLayout({ children, userRole, photoUrl, firstName, lastName }:
 
   const roleNavItems = userRole === "ADMIN" ? adminNavItems : userRole === "MANAGER" ? managerNavItems : teacherNavItems
 
+  // The 3 items each role reaches for daily live in the bottom tab bar; the
+  // rest (plus profile/logout) live behind the trailing "More" tab.
+  const primaryHrefs =
+    userRole === "ADMIN"
+      ? [`/${locale}/admin`, `/${locale}/admin/schedules`, `/${locale}/admin/units`]
+      : userRole === "MANAGER"
+        ? [`/${locale}/manager`, `/${locale}/manager/schedules`, `/${locale}/manager/my-schedules`]
+        : [`/${locale}/teacher`, `/${locale}/teacher/my-schedules`]
+
+  const primaryNavItems = primaryHrefs
+    .map((href) => roleNavItems.find((item) => item.href === href))
+    .filter((item): item is typeof roleNavItems[number] => Boolean(item))
+  const overflowNavItems = roleNavItems.filter((item) => !primaryHrefs.includes(item.href))
+  const hasOverflow = overflowNavItems.length > 0
+
   const displayName = [firstName, lastName].filter(Boolean).join(" ").trim()
   const roleLabel = userRole ? userRole.charAt(0) + userRole.slice(1).toLowerCase() : ""
+  const roleColorClass =
+    userRole === "ADMIN"
+      ? "bg-role-admin/12 text-role-admin"
+      : userRole === "MANAGER"
+        ? "bg-role-manager/12 text-role-manager"
+        : "bg-secondary text-secondary-foreground"
 
   const getInitials = () => {
     if (firstName && lastName) {
@@ -150,10 +171,15 @@ export function AppLayout({ children, userRole, photoUrl, firstName, lastName }:
       <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-card px-4">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-primary">{appName || t('Common.AppName')}</span>
+            <span className="font-display text-2xl text-primary">{appName || t('Common.AppName')}</span>
           </Link>
+          {roleLabel && (
+            <span className={`rounded-full px-2.5 py-0.5 text-[10.5px] font-bold ${roleColorClass}`}>
+              {roleLabel}
+            </span>
+          )}
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="icon"
@@ -162,23 +188,17 @@ export function AppLayout({ children, userRole, photoUrl, firstName, lastName }:
           >
             {resolvedTheme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setNavOpen(prev => !prev)}
-            aria-label={navOpen ? "Close menu" : "Open menu"}
-          >
-            {navOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
         </div>
       </header>
 
-      {/* Full-width navigation panel */}
+      {/* "More" sheet: overflow nav items + profile + logout */}
       {navOpen && (
         <>
           <div className="fixed inset-0 z-40 bg-black/40" onClick={() => setNavOpen(false)} />
-          <nav className="fixed inset-x-0 top-16 z-50 border-b bg-card shadow-xl">
-            <div className="mx-auto max-h-[calc(100vh-4rem)] w-full max-w-3xl overflow-y-auto p-4">
+          <nav className="fixed inset-x-0 bottom-[72px] z-50 rounded-t-3xl border-t bg-card shadow-xl">
+            <div className="mx-auto max-h-[calc(100vh-9rem)] w-full max-w-3xl overflow-y-auto p-4">
+              <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-border" />
+
               {/* Profile */}
               <Link
                 href={rolePath}
@@ -195,26 +215,28 @@ export function AppLayout({ children, userRole, photoUrl, firstName, lastName }:
                 </div>
               </Link>
 
-              <div className="my-3 border-t" />
-
-              {/* Nav items */}
-              <div className="flex flex-col gap-1">
-                {roleNavItems.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setNavOpen(false)}
-                    className={`flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium transition ${
-                      isActive(item.href)
-                        ? "bg-primary/10 text-primary"
-                        : "text-foreground hover:bg-muted"
-                    }`}
-                  >
-                    <item.icon className="h-6 w-6 shrink-0" />
-                    <span>{item.label}</span>
-                  </Link>
-                ))}
-              </div>
+              {overflowNavItems.length > 0 && (
+                <>
+                  <div className="my-3 border-t" />
+                  <div className="flex flex-col gap-1">
+                    {overflowNavItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setNavOpen(false)}
+                        className={`flex items-center gap-3 rounded-lg px-3 py-3 text-base font-medium transition ${
+                          isActive(item.href)
+                            ? "bg-primary/10 text-primary"
+                            : "text-foreground hover:bg-muted"
+                        }`}
+                      >
+                        <item.icon className="h-6 w-6 shrink-0" />
+                        <span>{item.label}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </>
+              )}
 
               <div className="my-3 border-t" />
 
@@ -233,9 +255,36 @@ export function AppLayout({ children, userRole, photoUrl, firstName, lastName }:
       )}
 
       {/* Main Content */}
-      <main className="flex-1 pb-6">
+      <main className="flex-1 pb-24">
         {children}
       </main>
+
+      {/* Bottom tab bar */}
+      <div className="fixed inset-x-0 bottom-0 z-40 flex h-[72px] border-t bg-card pb-[env(safe-area-inset-bottom)]">
+        {primaryNavItems.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`flex flex-1 flex-col items-center justify-center gap-1 text-[11px] font-semibold ${
+              isActive(item.href) ? "text-primary" : "text-muted-foreground"
+            }`}
+          >
+            <item.icon className="h-5 w-5" />
+            {item.label}
+          </Link>
+        ))}
+        <button
+          type="button"
+          onClick={() => setNavOpen((prev) => !prev)}
+          aria-label={hasOverflow ? t('Navigation.More') : t('Navigation.Profile')}
+          className={`flex flex-1 flex-col items-center justify-center gap-1 text-[11px] font-semibold ${
+            navOpen ? "text-primary" : "text-muted-foreground"
+          }`}
+        >
+          {hasOverflow ? <MoreHorizontal className="h-5 w-5" /> : <User className="h-5 w-5" />}
+          {hasOverflow ? t('Navigation.More') : t('Navigation.Profile')}
+        </button>
+      </div>
     </div>
   )
 }

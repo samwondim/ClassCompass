@@ -48,7 +48,7 @@ export default async function SchedulesPage({ params }: { params: Promise<{ loca
 
   return (
     <div className="container mx-auto py-10 px-4">
-      <h1 className="text-2xl font-bold text-primary mb-6">መርሃ ግብሮች</h1>
+      <h1 className="text-2xl text-foreground mb-6">መርሃ ግብሮች</h1>
       <PaginatedTable
         items={schedules}
         columns={columns}

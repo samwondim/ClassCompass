@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar, Users, BookOpen, TrendingUp, UserCheck, Upload, Bell } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { useTranslations } from "next-intl"
+import { ScheduleDateBadge } from "@/components/schedule-date-badge"
 
 interface UpcomingSchedule {
   schedule_id: string
@@ -80,18 +81,18 @@ export function AdminDashboard() {
   }
 
   const quickActions = [
-    { href: `${adminBase}/teachers/new`, icon: Users, label: t('Dashboard.AddTeacher') },
-    { href: `${adminBase}/managers/new`, icon: UserCheck, label: t('Dashboard.AddManager') },
-    { href: `${adminBase}/courses/new`, icon: BookOpen, label: t('Dashboard.AddCourse') },
-    { href: `${adminBase}/sections/new`, icon: Calendar, label: t('Dashboard.AddSection') },
-    { href: `${adminBase}/bulk-upload`, icon: Upload, label: 'ስብስብ መረጃ ማስገቢያ' },
-    { href: `${adminBase}/notifications`, icon: Bell, label: t('Dashboard.Notifications'), badge: unreadCount },
+    { href: `${adminBase}/teachers/new`, icon: Users, label: t('Dashboard.AddTeacher'), tint: "bg-role-admin/14 text-role-admin" },
+    { href: `${adminBase}/managers/new`, icon: UserCheck, label: t('Dashboard.AddManager'), tint: "bg-role-manager/14 text-role-manager" },
+    { href: `${adminBase}/courses/new`, icon: BookOpen, label: t('Dashboard.AddCourse'), tint: "bg-primary/14 text-primary" },
+    { href: `${adminBase}/sections/new`, icon: Calendar, label: t('Dashboard.AddSection'), tint: "bg-[hsl(111,22%,35%)]/14 text-[hsl(111,22%,35%)]" },
+    { href: `${adminBase}/bulk-upload`, icon: Upload, label: 'ስብስብ መረጃ ማስገቢያ', tint: "bg-destructive/14 text-destructive" },
+    { href: `${adminBase}/notifications`, icon: Bell, label: t('Dashboard.Notifications'), badge: unreadCount, tint: "bg-primary/14 text-primary" },
   ]
 
   return (
     <div className="p-4 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-primary">የአድሚን ዳሽቦርድ</h1>
+        <h1 className="text-2xl text-foreground">የአድሚን ዳሽቦርድ</h1>
       </div>
 
       {/* Quick Actions */}
@@ -108,15 +109,17 @@ export function AdminDashboard() {
               <Link
                 key={action.href}
                 href={action.href}
-                className="relative flex flex-col items-center justify-center gap-2 rounded-lg bg-primary/10 p-4 text-center transition hover:bg-primary/20"
+                className="relative flex flex-col items-center gap-2 rounded-2xl border bg-card p-3.5 text-center transition hover:bg-muted"
               >
-                <action.icon className="h-6 w-6 text-primary" />
+                <span className={`flex h-9 w-9 items-center justify-center rounded-[10px] ${action.tint}`}>
+                  <action.icon className="h-4 w-4" />
+                </span>
                 {action.badge !== undefined && action.badge > 0 && (
-                  <span className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-medium text-white">
+                  <span className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground">
                     {action.badge > 9 ? '9+' : action.badge}
                   </span>
                 )}
-                <span className="text-sm font-medium leading-tight">{action.label}</span>
+                <span className="text-[11px] font-semibold leading-tight">{action.label}</span>
               </Link>
             ))}
           </div>
@@ -162,16 +165,12 @@ export function AdminDashboard() {
           ) : (
             <div className="space-y-3">
               {upcomingSchedules.map((schedule) => (
-                <div key={schedule.schedule_id} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex-1">
-                    <p className="font-medium">{schedule.course.course_name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {schedule.teacher.first_name} {schedule.teacher.last_name} - {schedule.section.section_name}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium">
-                      {new Date(schedule.schedule_date).toLocaleDateString()}
+                <div key={schedule.schedule_id} className="flex items-center gap-3 rounded-2xl border p-3">
+                  <ScheduleDateBadge date={schedule.schedule_date} />
+                  <div className="flex-1 min-w-0">
+                    <p className="truncate text-[13.5px] font-semibold">{schedule.course.course_name}</p>
+                    <p className="text-[11.5px] text-muted-foreground">
+                      {schedule.teacher.first_name} {schedule.teacher.last_name} ● {schedule.section.section_name}
                     </p>
                   </div>
                 </div>

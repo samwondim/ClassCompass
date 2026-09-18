@@ -56,9 +56,9 @@ function ScheduleCard({ schedule }: { schedule: Schedule }) {
         )}
 
         {/* Course details */}
-        <div className="border-l-2 border-sky-400 pl-3 space-y-1">
+        <div className="border-l-2 border-primary/40 pl-3 space-y-1">
           <div className="flex items-start gap-2">
-            <BookOpen className="h-4 w-4 mt-0.5 text-sky-600 flex-shrink-0" />
+            <BookOpen className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
             <span className="text-sm font-semibold">{displayName}</span>
           </div>
           {/* Course description (only when different from course_name) */}
@@ -78,7 +78,7 @@ function ScheduleCard({ schedule }: { schedule: Schedule }) {
             <ul className="space-y-1">
               {course.objectives.map((obj) => (
                 <li key={obj.id} className="flex items-start gap-2 text-xs text-foreground">
-                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-sky-500 flex-shrink-0" />
+                  <span className="mt-1 h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
                   {obj.objective}
                 </li>
               ))}

@@ -104,7 +104,7 @@ export function UnitsList({ role, locale }: UnitsListProps) {
   return (
     <div className="container mx-auto py-10 px-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center mb-6">
-        <h1 className="text-2xl font-bold text-primary">ክፍለ-ጊዜዎች</h1>
+        <h1 className="text-2xl text-foreground">ክፍለ-ጊዜዎች</h1>
         <Link href={`${base}/units/new`}>
           <span className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
             <Plus className="h-4 w-4" />

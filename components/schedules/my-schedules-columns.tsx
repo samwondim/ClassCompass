@@ -33,7 +33,7 @@ function CourseDetailDialog({ schedule }: { schedule: Schedule }) {
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-base">
-            <BookOpen className="h-5 w-5 text-sky-600 flex-shrink-0" />
+            <BookOpen className="h-5 w-5 text-primary flex-shrink-0" />
             {displayName}
           </DialogTitle>
         </DialogHeader>
@@ -60,7 +60,7 @@ function CourseDetailDialog({ schedule }: { schedule: Schedule }) {
 
           {/* Verse */}
           {course.verse && (
-            <blockquote className="border-l-2 border-sky-400 pl-3 italic text-sm text-muted-foreground">
+            <blockquote className="border-l-2 border-primary/40 pl-3 italic text-sm text-muted-foreground">
               "{course.verse}"
             </blockquote>
           )}
@@ -84,7 +84,7 @@ function CourseDetailDialog({ schedule }: { schedule: Schedule }) {
               <ul className="space-y-1.5">
                 {course.objectives.map((obj) => (
                   <li key={obj.id} className="flex items-start gap-2 text-sm">
-                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-sky-500 flex-shrink-0" />
+                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
                     {obj.objective}
                   </li>
                 ))}
@@ -112,7 +112,7 @@ export const myScheduleColumns: ColumnDef<Schedule>[] = [
     ),
     cell: ({ row }) => (
       <div className="font-medium">
-        <Calendar className="inline h-4 w-4 mr-1 text-sky-600" />
+        <Calendar className="inline h-4 w-4 mr-1 text-primary" />
         {new Date(row.getValue("schedule_date")).toLocaleDateString("en-US", {
           weekday: "short",
           year: "numeric",
@@ -141,7 +141,7 @@ export const myScheduleColumns: ColumnDef<Schedule>[] = [
       return (
         <div className="max-w-xs">
           <div className="flex items-center font-medium">
-            <BookOpen className="inline h-4 w-4 mr-1 text-sky-600 flex-shrink-0" />
+            <BookOpen className="inline h-4 w-4 mr-1 text-primary flex-shrink-0" />
             <span className="truncate">{displayName}</span>
           </div>
           {course.verse && (

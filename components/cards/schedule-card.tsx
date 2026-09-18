@@ -1,9 +1,8 @@
 "use client"
 
-import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Calendar, BookOpen, User, MoreHorizontal } from "lucide-react"
+import { Calendar, User, Layers, MoreHorizontal } from "lucide-react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { Schedule } from "@/app/models/models"
@@ -22,47 +21,49 @@ export function ScheduleCard({ item: schedule }: { item: Schedule }) {
   }
 
   return (
-    <Card className="mb-3">
-      <CardContent className="p-4">
-        <div className="flex justify-between items-start mb-2">
-          <div className="flex items-center text-sm font-medium">
-            <Calendar className="h-4 w-4 mr-2 text-primary" />
-            {new Date(schedule.schedule_date).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link href={editHref}>Edit</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive">
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+    <div className="mb-3 flex gap-3 rounded-2xl border border-l-[3px] border-l-primary bg-card p-3.5">
+      <div className="flex-1 min-w-0">
+        <div className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-primary">
+          <Calendar className="h-3.5 w-3.5" />
+          {new Date(schedule.schedule_date).toLocaleDateString("en-US", {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+          })}
+          {" ● "}
+          {new Date(schedule.schedule_date).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}
         </div>
-
-        <div className="space-y-2">
-          <div className="flex items-start">
-            <BookOpen className="h-4 w-4 mr-2 mt-0.5 text-muted-foreground flex-shrink-0" />
-            <div className="font-semibold text-sm">
-              {schedule.course.course_name || schedule.course.course_description}
-            </div>
-          </div>
-          <div className="flex items-center">
-            <User className="h-4 w-4 mr-2 text-muted-foreground flex-shrink-0" />
-            <span className="text-sm">{schedule.teacher.first_name} {schedule.teacher.last_name}</span>
-          </div>
+        <p className="mb-1 truncate text-[14.5px] font-bold">
+          {schedule.course.course_name || schedule.course.course_description}
+        </p>
+        <div className="flex items-center gap-3 text-[12.5px] text-muted-foreground">
+          <span className="flex items-center gap-1">
+            <User className="h-3 w-3" />
+            {schedule.teacher.first_name} {schedule.teacher.last_name}
+          </span>
+          {schedule.section?.section_name && (
+            <span className="flex items-center gap-1">
+              <Layers className="h-3 w-3" />
+              {schedule.section.section_name}
+            </span>
+          )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-[30px] w-[30px] flex-shrink-0 p-0 text-muted-foreground">
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem asChild>
+            <Link href={editHref}>Edit</Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive">
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   )
 }
