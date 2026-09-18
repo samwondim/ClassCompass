@@ -12,7 +12,6 @@ import {
   GraduationCap,
   Briefcase,
   CalendarCheck,
-  LayersIcon,
   Sun,
   Moon,
   Settings,
@@ -102,7 +101,6 @@ export function AppLayout({ children, userRole, photoUrl, firstName, lastName }:
     { label: t('Navigation.Schedules'), href: `/${locale}/admin/schedules`, icon: Calendar },
     { label: t('Navigation.MySchedules'), href: `/${locale}/admin/my-schedules`, icon: CalendarCheck },
     { label: t('Navigation.Courses'), href: `/${locale}/admin/courses`, icon: BrainCog },
-    { label: t('Navigation.Units'), href: `/${locale}/admin/units`, icon: LayersIcon },
     { label: t('Navigation.Settings'), href: `/${locale}/admin/settings`, icon: Settings },
   ]
 
@@ -110,7 +108,6 @@ export function AppLayout({ children, userRole, photoUrl, firstName, lastName }:
     { label: t('Navigation.Dashboard'), href: `/${locale}/manager`, icon: LayoutDashboardIcon },
     { label: t('Navigation.Teachers'), href: `/${locale}/manager/teachers`, icon: GraduationCap },
     { label: t('Navigation.Courses'), href: `/${locale}/manager/courses`, icon: BrainCog },
-    { label: t('Navigation.Units'), href: `/${locale}/manager/units`, icon: LayersIcon },
     { label: t('Navigation.Schedules'), href: `/${locale}/manager/schedules`, icon: Calendar },
     { label: t('Navigation.MySchedules'), href: `/${locale}/manager/my-schedules`, icon: CalendarCheck },
   ]
@@ -126,7 +123,7 @@ export function AppLayout({ children, userRole, photoUrl, firstName, lastName }:
   // rest (plus profile/logout) live behind the trailing "More" tab.
   const primaryHrefs =
     userRole === "ADMIN"
-      ? [`/${locale}/admin`, `/${locale}/admin/schedules`, `/${locale}/admin/units`]
+      ? [`/${locale}/admin`, `/${locale}/admin/schedules`, `/${locale}/admin/my-schedules`]
       : userRole === "MANAGER"
         ? [`/${locale}/manager`, `/${locale}/manager/schedules`, `/${locale}/manager/my-schedules`]
         : [`/${locale}/teacher`, `/${locale}/teacher/my-schedules`]

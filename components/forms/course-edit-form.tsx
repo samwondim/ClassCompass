@@ -1,12 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import useToast from '@/hooks/use-toast'
 import { Course, LessonPlan } from '@/app/models/models'
 import { LessonPlanFields } from './lesson-plan-fields'
@@ -21,12 +20,10 @@ export function CourseEditForm({ course, cancelHref, onSuccessHref }: CourseEdit
   const { toast } = useToast()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [units, setUnits] = useState<{ unit_id: string; title: string }[]>([])
   const [formData, setFormData] = useState({
     course_name: course.course_name || '',
     verse: course.verse || '',
     course_description: course.course_description || '',
-    unit_id: course.unit_id || '',
     age_group: course.age_group || '',
     duration_minutes: course.duration_minutes ? String(course.duration_minutes) : '',
   })
@@ -36,22 +33,6 @@ export function CourseEditForm({ course, cancelHref, onSuccessHref }: CourseEdit
       : ['']
   )
   const [lessonPlan, setLessonPlan] = useState<LessonPlan>(course.lesson_plan || {})
-
-  useEffect(() => {
-    const fetchUnits = async () => {
-      if (!course.section_id) return
-      try {
-        const res = await fetch(`/api/units?section_id=${course.section_id}`)
-        if (res.ok) {
-          const data = await res.json()
-          setUnits(data.units || [])
-        }
-      } catch (error) {
-        console.error('Failed to fetch units:', error)
-      }
-    }
-    fetchUnits()
-  }, [course.section_id])
 
   const handleObjectiveChange = (index: number, value: string) => {
     const newObjectives = [...objectives]
@@ -87,7 +68,6 @@ export function CourseEditForm({ course, cancelHref, onSuccessHref }: CourseEdit
           course_description: formData.course_description,
           objectives: validObjectives,
           section_id: course.section_id || null,
-          unit_id: formData.unit_id || null,
           age_group: formData.age_group || null,
           duration_minutes: formData.duration_minutes ? Number(formData.duration_minutes) : null,
           lesson_plan: lessonPlan,
@@ -115,21 +95,6 @@ export function CourseEditForm({ course, cancelHref, onSuccessHref }: CourseEdit
       <div className="px-4 py-3">
         <Label htmlFor="course_name">የትምህርት ዓርዕስ</Label>
         <Input id="course_name" name="course_name" value={formData.course_name} onChange={(e) => setFormData({ ...formData, course_name: e.target.value })} required />
-      </div>
-      <div className="px-4 py-3">
-        <Label>የትምህርት ክፍለ-ጊዜ (Unit)</Label>
-        <Select value={formData.unit_id} onValueChange={(v) => setFormData({ ...formData, unit_id: v })}>
-          <SelectTrigger className="mt-2">
-            <SelectValue placeholder={units.length ? 'Unit ምረጥ' : 'ምንም Unit የለም'} />
-          </SelectTrigger>
-          <SelectContent>
-            {units.map((unit) => (
-              <SelectItem key={unit.unit_id} value={unit.unit_id}>
-                {unit.title}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
       <div className="px-4 py-3">
         <Label htmlFor="verse">ጥቅሥ</Label>

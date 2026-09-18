@@ -90,7 +90,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
           verse: verse || null,
           course_description,
           section_id: targetSectionId,
-          unit_id: unit_id || null,
+          // The course form no longer collects a unit, so only touch unit_id when a
+          // caller explicitly sends one - omitting it must not silently clear an
+          // existing assignment.
+          unit_id: unit_id !== undefined ? (unit_id || null) : undefined,
           duration_minutes: duration_minutes != null ? Number(duration_minutes) : null,
           age_group: age_group || null,
           order: order != null ? Number(order) : 0,

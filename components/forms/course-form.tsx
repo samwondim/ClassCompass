@@ -23,13 +23,11 @@ export function CourseForm({ cancelHref, onSuccessHref }: CourseFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [sections, setSections] = useState<{ section_id: string; section_name: string }[]>([])
-  const [units, setUnits] = useState<{ unit_id: string; title: string }[]>([])
   const [formData, setFormData] = useState({
     course_name: '',
     verse: '',
     course_description: '',
     section_id: '',
-    unit_id: '',
     age_group: '',
     duration_minutes: '',
   })
@@ -51,25 +49,6 @@ export function CourseForm({ cancelHref, onSuccessHref }: CourseFormProps) {
     }
     fetchSections()
   }, [])
-
-  useEffect(() => {
-    const fetchUnits = async () => {
-      if (!formData.section_id) {
-        setUnits([])
-        return
-      }
-      try {
-        const res = await fetch(`/api/units?section_id=${formData.section_id}`)
-        if (res.ok) {
-          const data = await res.json()
-          setUnits(data.units || [])
-        }
-      } catch (error) {
-        console.error('Failed to fetch units:', error)
-      }
-    }
-    fetchUnits()
-  }, [formData.section_id])
 
   const handleImportDocx = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -161,7 +140,6 @@ export function CourseForm({ cancelHref, onSuccessHref }: CourseFormProps) {
           course_description: formData.course_description,
           objectives: validObjectives,
           section_id: formData.section_id,
-          unit_id: formData.unit_id || null,
           age_group: formData.age_group || null,
           duration_minutes: formData.duration_minutes ? Number(formData.duration_minutes) : null,
           lesson_plan: lessonPlan,
@@ -221,7 +199,7 @@ export function CourseForm({ cancelHref, onSuccessHref }: CourseFormProps) {
       </div>
       <div className="px-4 py-3">
         <Label>ክፍል ይምረጡ</Label>
-        <Select value={formData.section_id} onValueChange={(v) => setFormData({ ...formData, section_id: v, unit_id: '' })}>
+        <Select value={formData.section_id} onValueChange={(v) => setFormData({ ...formData, section_id: v })}>
           <SelectTrigger className="mt-2">
             <SelectValue placeholder="ክፍል ምረጥ" />
           </SelectTrigger>
@@ -229,21 +207,6 @@ export function CourseForm({ cancelHref, onSuccessHref }: CourseFormProps) {
             {sections.map((section) => (
               <SelectItem key={section.section_id} value={section.section_id}>
                 {section.section_name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="px-4 py-3">
-        <Label>የትምህርት ክፍለ-ጊዜ (Unit)</Label>
-        <Select value={formData.unit_id} onValueChange={(v) => setFormData({ ...formData, unit_id: v })}>
-          <SelectTrigger className="mt-2">
-            <SelectValue placeholder={units.length ? 'Unit ምረጥ' : 'ክፍል ይምረጡ'} />
-          </SelectTrigger>
-          <SelectContent>
-            {units.map((unit) => (
-              <SelectItem key={unit.unit_id} value={unit.unit_id}>
-                {unit.title}
               </SelectItem>
             ))}
           </SelectContent>
