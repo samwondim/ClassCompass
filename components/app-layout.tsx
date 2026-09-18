@@ -134,7 +134,7 @@ export function AppLayout({ children, userRole, photoUrl, firstName, lastName }:
       <header className="sticky top-0 z-50 flex h-16 items-center justify-between border-b bg-card px-4">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-bold text-primary">{t('Common.Priscila')}</span>
+            <span className="text-2xl font-bold text-primary">{t('Common.AppName')}</span>
           </Link>
         </div>
         <div className="flex items-center gap-4">

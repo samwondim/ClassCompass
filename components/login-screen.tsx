@@ -140,7 +140,7 @@ export function LoginScreen() {
             className="mt-3 text-sm tracking-widest uppercase"
             style={{ color: '#6366f1', letterSpacing: '0.2em' }}
           >
-            ጵርስቅላ
+            Sunday School Reminder
           </p>
         </div>
 
