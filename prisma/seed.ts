@@ -8,8 +8,10 @@ async function main() {
   // Clean existing data (in dependency-safe order)
   await prisma.notification.deleteMany();
   await prisma.schedule.deleteMany();
+  await prisma.resource.deleteMany();
   await prisma.objective.deleteMany();
   await prisma.course.deleteMany();
+  await prisma.curriculumUnit.deleteMany();
   await prisma.teacherSection.deleteMany();
   await prisma.managerSection.deleteMany();
   await prisma.section.deleteMany();
@@ -65,6 +67,18 @@ async function main() {
     data: { teacher_id: teacher.user_id, section_id: section.section_id },
   });
 
+  // Curriculum unit
+  const unit = await prisma.curriculumUnit.create({
+    data: {
+      title: 'The Love of God',
+      description: 'A unit exploring God\'s love shown through Jesus Christ.',
+      order: 1,
+      period: 'Q1 2026',
+      section_id: section.section_id,
+      created_by: admin.user_id,
+    },
+  });
+
   // Course with objectives
   const course = await prisma.course.create({
     data: {
@@ -72,13 +86,37 @@ async function main() {
       verse: 'John 3:16',
       course_description: 'Understanding the love of God shown through Jesus Christ.',
       section_id: section.section_id,
+      unit_id: unit.unit_id,
+      order: 1,
+      duration_minutes: 45,
+      age_group: '6-8',
       created_by: admin.user_id,
+      lesson_plan: {
+        opening: 'Welcome and opening prayer',
+        teaching: 'Read John 3:16 together and discuss what it means',
+        application: 'Share one way we can show love to others this week',
+        activity: 'Draw a picture of something you love',
+        memory_verse: 'John 3:16',
+        closing: 'Closing prayer and summary',
+      },
       objectives: {
         create: [
           { objective: 'Understand the depth of God\'s love' },
           { objective: 'Memorize John 3:16' },
         ],
       },
+    },
+  });
+
+  // Sample lesson resource (link, no blob required)
+  await prisma.resource.create({
+    data: {
+      title: 'John 3:16 coloring page',
+      type: 'LINK',
+      url: 'https://example.com/coloring-page.pdf',
+      course_id: course.course_id,
+      section_id: section.section_id,
+      uploaded_by: admin.user_id,
     },
   });
 

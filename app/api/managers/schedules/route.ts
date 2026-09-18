@@ -45,9 +45,10 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
         const teacherId = searchParams.get('teacherId');
 
-        // Fetch schedules for those sections
+        // Fetch schedules for those sections (future only)
         const whereClause: any = {
-            section_id: { in: sectionIds }
+            section_id: { in: sectionIds },
+            schedule_date: { gte: new Date() }
         };
         if (teacherId) {
             whereClause.teacher_id = teacherId;

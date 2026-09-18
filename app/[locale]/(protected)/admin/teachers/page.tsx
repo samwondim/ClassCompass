@@ -54,6 +54,7 @@ export default async function TeacherMgmtPage({ params }: { params: Promise<{ lo
         addLabel="መምህር መዝግብ"
         editBase="/admin/teachers"
         sectionOptions={sections.map(s => ({ label: s.section_name || 'ክፍል', value: s.section_id }))}
+        canChangeRole
       />
     </div>
   );

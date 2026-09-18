@@ -12,13 +12,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { course_name, verse, course_description, objectives, section_id } = await request.json();
+    const { course_name, verse, course_description, objectives, section_id, unit_id, duration_minutes, age_group, order, lesson_plan } = await request.json();
 
     if (!section_id) {
       return NextResponse.json({ error: "Section is required" }, { status: 400 });
     }
     if (!course_description) {
       return NextResponse.json({ error: "Course description is required" }, { status: 400 });
+    }
+
+    // If the course belongs to a unit, verify the unit is in the same section.
+    if (unit_id) {
+      const unit = await prisma.curriculumUnit.findUnique({ where: { unit_id } });
+      if (!unit) {
+        return NextResponse.json({ error: "Unit not found" }, { status: 400 });
+      }
+      if (unit.section_id !== section_id) {
+        return NextResponse.json({ error: "Unit does not belong to the selected section" }, { status: 400 });
+      }
     }
 
     // Enforce manager access: managers can only assign courses to sections they manage
@@ -42,6 +53,11 @@ export async function POST(request: NextRequest) {
         course_description,
         created_by: user.user_id,
         section_id,
+        unit_id: unit_id || null,
+        duration_minutes: duration_minutes != null ? Number(duration_minutes) : null,
+        age_group: age_group || null,
+        order: order != null ? Number(order) : 0,
+        lesson_plan: lesson_plan ?? undefined,
         objectives: {
           create: safeObjectives.map((obj: string) => ({
             objective: obj,

@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
     }
 
     const schedules = await prisma.schedule.findMany({
-      where: { teacher_id: user.user_id },
+      where: { teacher_id: user.user_id, schedule_date: { gte: new Date() } },
       include: {
         course: true,
         section: true

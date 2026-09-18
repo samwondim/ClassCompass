@@ -1,13 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import useToast from '@/hooks/use-toast'
-import { Course } from '@/app/models/models'
+import { Course, LessonPlan } from '@/app/models/models'
+import { LessonPlanFields } from './lesson-plan-fields'
 
 interface CourseEditFormProps {
   course: Course
@@ -19,16 +21,37 @@ export function CourseEditForm({ course, cancelHref, onSuccessHref }: CourseEdit
   const { toast } = useToast()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [units, setUnits] = useState<{ unit_id: string; title: string }[]>([])
   const [formData, setFormData] = useState({
     course_name: course.course_name || '',
     verse: course.verse || '',
     course_description: course.course_description || '',
+    unit_id: course.unit_id || '',
+    age_group: course.age_group || '',
+    duration_minutes: course.duration_minutes ? String(course.duration_minutes) : '',
   })
   const [objectives, setObjectives] = useState<string[]>(
     course.objectives && course.objectives.length > 0
       ? course.objectives.map((o) => o.objective)
       : ['']
   )
+  const [lessonPlan, setLessonPlan] = useState<LessonPlan>(course.lesson_plan || {})
+
+  useEffect(() => {
+    const fetchUnits = async () => {
+      if (!course.section_id) return
+      try {
+        const res = await fetch(`/api/units?section_id=${course.section_id}`)
+        if (res.ok) {
+          const data = await res.json()
+          setUnits(data.units || [])
+        }
+      } catch (error) {
+        console.error('Failed to fetch units:', error)
+      }
+    }
+    fetchUnits()
+  }, [course.section_id])
 
   const handleObjectiveChange = (index: number, value: string) => {
     const newObjectives = [...objectives]
@@ -63,6 +86,11 @@ export function CourseEditForm({ course, cancelHref, onSuccessHref }: CourseEdit
           verse: formData.verse,
           course_description: formData.course_description,
           objectives: validObjectives,
+          section_id: course.section_id || null,
+          unit_id: formData.unit_id || null,
+          age_group: formData.age_group || null,
+          duration_minutes: formData.duration_minutes ? Number(formData.duration_minutes) : null,
+          lesson_plan: lessonPlan,
         }),
       })
 
@@ -89,8 +117,33 @@ export function CourseEditForm({ course, cancelHref, onSuccessHref }: CourseEdit
         <Input id="course_name" name="course_name" value={formData.course_name} onChange={(e) => setFormData({ ...formData, course_name: e.target.value })} required />
       </div>
       <div className="px-4 py-3">
+        <Label>የትምህርት ክፍለ-ጊዜ (Unit)</Label>
+        <Select value={formData.unit_id} onValueChange={(v) => setFormData({ ...formData, unit_id: v })}>
+          <SelectTrigger className="mt-2">
+            <SelectValue placeholder={units.length ? 'Unit ምረጥ' : 'ምንም Unit የለም'} />
+          </SelectTrigger>
+          <SelectContent>
+            {units.map((unit) => (
+              <SelectItem key={unit.unit_id} value={unit.unit_id}>
+                {unit.title}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="px-4 py-3">
         <Label htmlFor="verse">ጥቅሥ</Label>
         <Input id="verse" name="verse" value={formData.verse} onChange={(e) => setFormData({ ...formData, verse: e.target.value })} />
+      </div>
+      <div className="grid grid-cols-2 gap-3 px-4 py-3">
+        <div>
+          <Label htmlFor="age_group">የእድሜ ክልል</Label>
+          <Input id="age_group" name="age_group" value={formData.age_group} onChange={(e) => setFormData({ ...formData, age_group: e.target.value })} placeholder="ለምሳሌ 6-8" className="mt-1" />
+        </div>
+        <div>
+          <Label htmlFor="duration_minutes">የቆይታ (ደቂቃ)</Label>
+          <Input id="duration_minutes" name="duration_minutes" type="number" value={formData.duration_minutes} onChange={(e) => setFormData({ ...formData, duration_minutes: e.target.value })} placeholder="45" className="mt-1" />
+        </div>
       </div>
       <div className="px-4 py-3">
         <Label htmlFor="course_description">ስለ ትምህርቱ አጭር ማብራርያ</Label>
@@ -113,6 +166,10 @@ export function CourseEditForm({ course, cancelHref, onSuccessHref }: CourseEdit
             አዲስ አላማ ጨምር
           </Button>
         </div>
+      </div>
+      <div className="px-4 py-3">
+        <Label>የትምህርቱ እቅድ</Label>
+        <LessonPlanFields value={lessonPlan} onChange={setLessonPlan} />
       </div>
       <div className="flex items-center justify-end gap-2 px-4 py-3">
         <Button type="button" variant="ghost" onClick={() => router.push(cancelHref)}>

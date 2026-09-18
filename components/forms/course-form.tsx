@@ -8,6 +8,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import useToast from '@/hooks/use-toast'
+import { LessonPlanFields } from './lesson-plan-fields'
+import { LessonPlan } from '@/app/models/models'
 
 interface CourseFormProps {
   cancelHref: string
@@ -19,13 +21,18 @@ export function CourseForm({ cancelHref, onSuccessHref }: CourseFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [sections, setSections] = useState<{ section_id: string; section_name: string }[]>([])
+  const [units, setUnits] = useState<{ unit_id: string; title: string }[]>([])
   const [formData, setFormData] = useState({
     course_name: '',
     verse: '',
     course_description: '',
     section_id: '',
+    unit_id: '',
+    age_group: '',
+    duration_minutes: '',
   })
   const [objectives, setObjectives] = useState<string[]>([''])
+  const [lessonPlan, setLessonPlan] = useState<LessonPlan>({})
 
   useEffect(() => {
     const fetchSections = async () => {
@@ -41,6 +48,25 @@ export function CourseForm({ cancelHref, onSuccessHref }: CourseFormProps) {
     }
     fetchSections()
   }, [])
+
+  useEffect(() => {
+    const fetchUnits = async () => {
+      if (!formData.section_id) {
+        setUnits([])
+        return
+      }
+      try {
+        const res = await fetch(`/api/units?section_id=${formData.section_id}`)
+        if (res.ok) {
+          const data = await res.json()
+          setUnits(data.units || [])
+        }
+      } catch (error) {
+        console.error('Failed to fetch units:', error)
+      }
+    }
+    fetchUnits()
+  }, [formData.section_id])
 
   const handleObjectiveChange = (index: number, value: string) => {
     const newObjectives = [...objectives]
@@ -82,6 +108,10 @@ export function CourseForm({ cancelHref, onSuccessHref }: CourseFormProps) {
           course_description: formData.course_description,
           objectives: validObjectives,
           section_id: formData.section_id,
+          unit_id: formData.unit_id || null,
+          age_group: formData.age_group || null,
+          duration_minutes: formData.duration_minutes ? Number(formData.duration_minutes) : null,
+          lesson_plan: lessonPlan,
         }),
       })
 
@@ -112,7 +142,7 @@ export function CourseForm({ cancelHref, onSuccessHref }: CourseFormProps) {
       </div>
       <div className="px-4 py-3">
         <Label>ክፍል ይምረጡ</Label>
-        <Select value={formData.section_id} onValueChange={(v) => setFormData({ ...formData, section_id: v })}>
+        <Select value={formData.section_id} onValueChange={(v) => setFormData({ ...formData, section_id: v, unit_id: '' })}>
           <SelectTrigger className="mt-2">
             <SelectValue placeholder="ክፍል ምረጥ" />
           </SelectTrigger>
@@ -126,8 +156,33 @@ export function CourseForm({ cancelHref, onSuccessHref }: CourseFormProps) {
         </Select>
       </div>
       <div className="px-4 py-3">
+        <Label>የትምህርት ክፍለ-ጊዜ (Unit)</Label>
+        <Select value={formData.unit_id} onValueChange={(v) => setFormData({ ...formData, unit_id: v })}>
+          <SelectTrigger className="mt-2">
+            <SelectValue placeholder={units.length ? 'Unit ምረጥ' : 'ክፍል ይምረጡ'} />
+          </SelectTrigger>
+          <SelectContent>
+            {units.map((unit) => (
+              <SelectItem key={unit.unit_id} value={unit.unit_id}>
+                {unit.title}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="px-4 py-3">
         <Label htmlFor="verse">ጥቅሥ</Label>
         <Input id="verse" name="verse" value={formData.verse} onChange={(e) => setFormData({ ...formData, verse: e.target.value })} />
+      </div>
+      <div className="grid grid-cols-2 gap-3 px-4 py-3">
+        <div>
+          <Label htmlFor="age_group">የእድሜ ክልል</Label>
+          <Input id="age_group" name="age_group" value={formData.age_group} onChange={(e) => setFormData({ ...formData, age_group: e.target.value })} placeholder="ለምሳሌ 6-8" className="mt-1" />
+        </div>
+        <div>
+          <Label htmlFor="duration_minutes">የቆይታ (ደቂቃ)</Label>
+          <Input id="duration_minutes" name="duration_minutes" type="number" value={formData.duration_minutes} onChange={(e) => setFormData({ ...formData, duration_minutes: e.target.value })} placeholder="45" className="mt-1" />
+        </div>
       </div>
       <div className="px-4 py-3">
         <Label htmlFor="course_description">ስለ ትምህርቱ አጭር ማብራርያ</Label>
@@ -150,6 +205,10 @@ export function CourseForm({ cancelHref, onSuccessHref }: CourseFormProps) {
             አዲስ አላማ ጨምር
           </Button>
         </div>
+      </div>
+      <div className="px-4 py-3">
+        <Label>የትምህርቱ እቅድ</Label>
+        <LessonPlanFields value={lessonPlan} onChange={setLessonPlan} />
       </div>
       <div className="flex items-center justify-end gap-2 px-4 py-3">
         <Button type="button" variant="ghost" onClick={() => router.push(cancelHref)}>

@@ -19,7 +19,6 @@ const nextConfig = {
     "https://snooty-sherwood-ophicleidean.ngrok-free.dev",
     "'https://<new>.ngrok-free.dev'",
   ],
-  target: 'server',
   webpack: (config, { isServer }) => {
     if (isServer) {
       config.externals.push({

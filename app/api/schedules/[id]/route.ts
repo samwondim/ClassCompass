@@ -21,7 +21,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
                         course_name: true,
                         verse: true,
                         course_description: true,
+                        age_group: true,
+                        duration_minutes: true,
+                        lesson_plan: true,
                         objectives: { select: { id: true, objective: true } },
+                        unit: { select: { unit_id: true, title: true } },
+                        resources: { select: { resource_id: true, title: true, type: true, url: true, mime_type: true } },
                     }
                 },
                 teacher: { select: { user_id: true, first_name: true, last_name: true } },

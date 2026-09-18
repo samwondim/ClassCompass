@@ -65,6 +65,14 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       );
     }
 
+    // Prevent admins from changing their own role (lockout protection).
+    if (body.user_role !== undefined && id === user.user_id) {
+      return NextResponse.json(
+        { error: 'You cannot change your own role' },
+        { status: 400 }
+      );
+    }
+
     const data: any = {};
     if (body.first_name !== undefined) data.first_name = body.first_name;
     if (body.last_name !== undefined) data.last_name = body.last_name;
@@ -72,13 +80,43 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     if (body.photo_url !== undefined) data.photo_url = body.photo_url;
     if (body.tg_username !== undefined) data.tg_username = body.tg_username.replace(/^@/, '').trim();
 
-    const updatedUser = await prisma.user.update({
-      where: { user_id: id },
-      data,
+    const VALID_ROLES = ['TEACHER', 'MANAGER', 'ADMIN'];
+    if (body.user_role !== undefined) {
+      if (!VALID_ROLES.includes(body.user_role)) {
+        return NextResponse.json({ error: 'Invalid role' }, { status: 400 });
+      }
+      data.user_role = body.user_role;
+    }
+
+    const updatedUser = await prisma.$transaction(async (tx) => {
+      // When changing role, remove stale section assignments for the old role.
+      if (body.user_role !== undefined) {
+        if (body.user_role === 'TEACHER') {
+          await tx.managerSection.deleteMany({ where: { manager_id: id } });
+          await tx.section.updateMany({ where: { manager_id: id }, data: { manager_id: null } });
+        } else if (body.user_role === 'MANAGER') {
+          await tx.teacherSection.deleteMany({ where: { teacher_id: id } });
+        } else if (body.user_role === 'ADMIN') {
+          await tx.managerSection.deleteMany({ where: { manager_id: id } });
+          await tx.section.updateMany({ where: { manager_id: id }, data: { manager_id: null } });
+          await tx.teacherSection.deleteMany({ where: { teacher_id: id } });
+        }
+      }
+
+      return tx.user.update({
+        where: { user_id: id },
+        data,
+      });
     });
 
     return NextResponse.json(updatedUser, { status: 200 });
   } catch (error: any) {
+    if (error?.code === 'P2002') {
+      return NextResponse.json(
+        { error: 'A user with that value already exists' },
+        { status: 409 }
+      );
+    }
     console.error('Error updating user:', error);
 
     return NextResponse.json(

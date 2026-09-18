@@ -26,6 +26,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Phone, MoreHorizontal, Search, ChevronLeft, ChevronRight, UserPlus } from "lucide-react"
+import { RoleSelect } from "@/components/users/role-select"
 
 const PAGE_SIZE = 4
 
@@ -42,9 +43,10 @@ interface UsersTableProps {
   editBase: string // e.g. "/admin/teachers" or "/admin/managers"
   sectionOptions?: SectionOption[]
   searchPlaceholder?: string
+  canChangeRole?: boolean
 }
 
-function UserCard({ user, editBase }: { user: any; editBase: string }) {
+function UserCard({ user, editBase, canChangeRole }: { user: any; editBase: string; canChangeRole?: boolean }) {
   const pathname = usePathname()
   const locale = pathname?.split("/")[1] || "am"
   const editHref = `/${locale}${editBase}/${user.user_id}/edit`
@@ -91,6 +93,12 @@ function UserCard({ user, editBase }: { user: any; editBase: string }) {
         </div>
 
         <div className="space-y-2">
+          {canChangeRole && (
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">ሚና</span>
+              <RoleSelect userId={user.user_id} currentRole={user.user_role || 'TEACHER'} />
+            </div>
+          )}
           {user.phone_number && (
             <div className="flex items-center text-sm">
               <Phone className="h-4 w-4 mr-2 text-muted-foreground flex-shrink-0" />
@@ -111,9 +119,24 @@ export function UsersTable({
   editBase,
   sectionOptions,
   searchPlaceholder = "ፈልግ በስም፣ ስልክ ወይም ዩዘርኔም...",
+  canChangeRole,
 }: UsersTableProps) {
   const [search, setSearch] = useState("")
   const [section, setSection] = useState("all")
+
+  const tableColumns = useMemo<ColumnDef<any, any>[]>(() => {
+    if (!canChangeRole) return columns
+    return [
+      ...columns,
+      {
+        id: "role",
+        header: "ሚና",
+        cell: ({ row }: { row: any }) => (
+          <RoleSelect userId={row.original.user_id} currentRole={row.original.user_role || 'TEACHER'} />
+        ),
+      },
+    ]
+  }, [columns, canChangeRole])
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase()
@@ -132,7 +155,7 @@ export function UsersTable({
 
   const table = useReactTable({
     data: filtered,
-    columns,
+    columns: tableColumns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     initialState: { pagination: { pageSize: PAGE_SIZE } },
@@ -195,7 +218,7 @@ export function UsersTable({
           </Card>
         ) : (
           table.getRowModel().rows.map((row) => (
-            <UserCard key={row.original.user_id} user={row.original} editBase={editBase} />
+            <UserCard key={row.original.user_id} user={row.original} editBase={editBase} canChangeRole={canChangeRole} />
           ))
         )}
       </div>
@@ -225,7 +248,7 @@ export function UsersTable({
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
+                <TableCell colSpan={tableColumns.length} className="h-24 text-center">
                   No results.
                 </TableCell>
               </TableRow>

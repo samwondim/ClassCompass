@@ -20,6 +20,13 @@ enum UserRole {
   TEACHER
 }
 
+enum ResourceType {
+  FILE
+  LINK
+  IMAGE
+  VIDEO
+}
+
 // ---------- MODELS ----------
 model User {
   user_id          String           @id @default(uuid())
@@ -39,6 +46,8 @@ model User {
   courses_created  Course[]         @relation("CreatedCourses")
   ManagerSection   ManagerSection[]
   notifications    Notification[]
+  units_created    CurriculumUnit[] @relation("UnitCreator")
+  resources        Resource[]       @relation("ResourceUploader")
 }
 
 model Notification {
@@ -63,6 +72,8 @@ model Section {
   ManagerSection   ManagerSection[]
   schedules        Schedule[]
   courses          Course[]
+  units            CurriculumUnit[]
+  resources        Resource[]
 }
 
 model TeacherSection {
@@ -112,6 +123,55 @@ model Course {
   created_by_user    User        @relation("CreatedCourses", fields: [created_by], references: [user_id], onDelete: Cascade)
   objectives         Objective[]
   schedules          Schedule[]
+
+  // Curriculum fields
+  unit_id          String?
+  unit             CurriculumUnit? @relation(fields: [unit_id], references: [unit_id], onDelete: SetNull)
+  order            Int?            @default(0)
+  duration_minutes Int?
+  age_group        String?
+  lesson_plan      Json?
+  resources        Resource[]
+
+  @@index([unit_id])
+}
+
+model CurriculumUnit {
+  unit_id     String   @id @default(uuid())
+  title       String
+  description String?
+  order       Int      @default(0)
+  period      String?
+  section_id  String
+  created_by  String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  section         Section  @relation(fields: [section_id], references: [section_id], onDelete: Cascade)
+  created_by_user User     @relation("UnitCreator", fields: [created_by], references: [user_id], onDelete: Cascade)
+  courses         Course[]
+
+  @@index([section_id])
+}
+
+model Resource {
+  resource_id  String       @id @default(uuid())
+  title        String
+  type         ResourceType @default(FILE)
+  url          String
+  mime_type    String?
+  size         Int?
+  course_id    String?
+  section_id   String?
+  uploaded_by  String
+  created_at   DateTime     @default(now())
+
+  course           Course?  @relation(fields: [course_id], references: [course_id], onDelete: Cascade)
+  section          Section? @relation(fields: [section_id], references: [section_id], onDelete: Cascade)
+  uploaded_by_user User     @relation("ResourceUploader", fields: [uploaded_by], references: [user_id], onDelete: Cascade)
+
+  @@index([course_id])
+  @@index([section_id])
 }
 
 model Objective {

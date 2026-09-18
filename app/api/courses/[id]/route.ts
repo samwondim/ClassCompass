@@ -55,10 +55,28 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     }
 
     const body = await request.json();
-    const { course_name, verse, course_description, objectives } = body;
+    const { course_name, verse, course_description, objectives, section_id, unit_id, duration_minutes, age_group, order, lesson_plan } = body;
 
     if (course_description === undefined || course_description === null || course_description === '') {
       return NextResponse.json({ error: 'Course description is required' }, { status: 400 });
+    }
+
+    // If reassigning to a different section or unit, verify ownership.
+    const targetSectionId = section_id || existing.section_id;
+    if (user.user_role === 'MANAGER' && targetSectionId) {
+      if (!(await managerCanAccessSection(user.user_id, targetSectionId))) {
+        return NextResponse.json({ error: 'Unauthorized: You do not manage this section' }, { status: 403 });
+      }
+    }
+
+    if (unit_id) {
+      const unit = await prisma.curriculumUnit.findUnique({ where: { unit_id } });
+      if (!unit) {
+        return NextResponse.json({ error: 'Unit not found' }, { status: 400 });
+      }
+      if (unit.section_id !== targetSectionId) {
+        return NextResponse.json({ error: 'Unit does not belong to the selected section' }, { status: 400 });
+      }
     }
 
     const safeObjectives = Array.isArray(objectives) ? objectives.map((o: unknown) => String(o)) : [];
@@ -71,6 +89,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
           course_name: course_name || null,
           verse: verse || null,
           course_description,
+          section_id: targetSectionId,
+          unit_id: unit_id || null,
+          duration_minutes: duration_minutes != null ? Number(duration_minutes) : null,
+          age_group: age_group || null,
+          order: order != null ? Number(order) : 0,
+          lesson_plan: lesson_plan ?? undefined,
           objectives: {
             create: safeObjectives.map((obj: string) => ({ objective: obj })),
           },

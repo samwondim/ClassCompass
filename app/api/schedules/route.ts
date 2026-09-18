@@ -15,7 +15,8 @@ export async function GET(request: NextRequest) {
 
     if (user.user_role === 'TEACHER') {
       const schedules = await prisma.schedule.findMany({
-        where: { teacher_id: user.user_id },
+        where: { teacher_id: user.user_id, schedule_date: { gte: new Date() } },
+        orderBy: { schedule_date: 'asc' },
         include: {
           course: { select: { course_id: true, course_name: true, verse: true, course_description: true, objectives: { select: { id: true, objective: true } } } },
           section: { select: { section_name: true, section_id: true } },
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
-    const whereClause: any = {};
+    const whereClause: any = { schedule_date: { gte: new Date() } };
 
     if (user.user_role === 'MANAGER') {
       const sectionIds = await getManagerSectionIds(user.user_id);
@@ -43,6 +44,7 @@ export async function GET(request: NextRequest) {
 
     const schedules = await prisma.schedule.findMany({
       where: whereClause,
+      orderBy: { schedule_date: 'asc' },
       include: {
         course: { select: { course_id: true, course_name: true, verse: true, course_description: true } },
         teacher: { select: { user_id: true, first_name: true, last_name: true } },

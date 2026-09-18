@@ -50,7 +50,7 @@ describe("CARD-101: x-phone-number spoofing is rejected", () => {
 
     expect(res.status).toBe(200);
     expect(prismaMock.schedule.findMany).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { teacher_id: "teacher-1" } })
+      expect.objectContaining({ where: expect.objectContaining({ teacher_id: "teacher-1" }) })
     );
   });
 });

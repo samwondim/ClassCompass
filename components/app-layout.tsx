@@ -12,6 +12,7 @@ import {
   GraduationCap,
   Briefcase,
   CalendarCheck,
+  LayersIcon,
   Menu,
   X,
   Sun,
@@ -82,12 +83,14 @@ export function AppLayout({ children, userRole, photoUrl, firstName, lastName }:
     { label: t('Navigation.Schedules'), href: `/${locale}/admin/schedules`, icon: Calendar },
     { label: t('Navigation.MySchedules'), href: `/${locale}/admin/my-schedules`, icon: CalendarCheck },
     { label: t('Navigation.Courses'), href: `/${locale}/admin/courses`, icon: BrainCog },
+    { label: t('Navigation.Units'), href: `/${locale}/admin/units`, icon: LayersIcon },
   ]
 
   const managerNavItems = [
     { label: t('Navigation.Dashboard'), href: `/${locale}/manager`, icon: LayoutDashboardIcon },
     { label: t('Navigation.Teachers'), href: `/${locale}/manager/teachers`, icon: GraduationCap },
     { label: t('Navigation.Courses'), href: `/${locale}/manager/courses`, icon: BrainCog },
+    { label: t('Navigation.Units'), href: `/${locale}/manager/units`, icon: LayersIcon },
     { label: t('Navigation.Schedules'), href: `/${locale}/manager/schedules`, icon: Calendar },
     { label: t('Navigation.MySchedules'), href: `/${locale}/manager/my-schedules`, icon: CalendarCheck },
   ]

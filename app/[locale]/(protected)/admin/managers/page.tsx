@@ -59,6 +59,7 @@ export default async function ManagersPage({ params }: { params: Promise<{ local
         addLabel="አዲስ ማናጀር"
         editBase="/admin/managers"
         sectionOptions={sections.map(s => ({ label: s.section_name || 'ክፍል', value: s.section_id }))}
+        canChangeRole
       />
     </div>
   );

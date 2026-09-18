@@ -37,7 +37,12 @@ export type Schedule = {
     course_name?: string | null;
     verse?: string | null;
     course_description: string;
+    age_group?: string | null;
+    duration_minutes?: number | null;
+    lesson_plan?: LessonPlan | null;
     objectives?: { id: string; objective: string }[];
+    unit?: { unit_id: string; title: string } | null;
+    resources?: ResourceSummary[];
   },
   teacher: {
     user_id: string;
@@ -48,6 +53,23 @@ export type Schedule = {
     section_id: string;
     section_name: string;
   }
+}
+
+export interface LessonPlan {
+  opening?: string;
+  teaching?: string;
+  application?: string;
+  activity?: string;
+  memory_verse?: string;
+  closing?: string;
+}
+
+export interface ResourceSummary {
+  resource_id: string;
+  title: string;
+  type: string;
+  url: string;
+  mime_type?: string | null;
 }
 
 export interface Objective {
@@ -68,6 +90,12 @@ export interface Course {
   course_name?: string | null;
   verse?: string | null;
   course_description: string;
+  section_id?: string | null;
+  unit_id?: string | null;
+  age_group?: string | null;
+  duration_minutes?: number | null;
+  order?: number | null;
+  lesson_plan?: LessonPlan | null;
   created_at: string; // ISO date string
   updated_at: string; // ISO date string
   created_by: string; // user_id of creator

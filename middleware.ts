@@ -3,7 +3,53 @@ import type { NextRequest } from 'next/server';
 
 import createMiddleware from 'next-intl/middleware';
 import { getSession } from './utils/session';
-// import { getSession, getUserRole } from '@/utils/session'; // Commented out due to Prisma incompatibility in Edge Runtime
+
+// -------------------------
+// CORS allowlist
+// -------------------------
+// The Mini App makes same-origin requests, so CORS is only needed for dev
+// (ngrok/localhost) or when the app origin differs from the request origin.
+// We reflect only explicitly-allowed origins instead of a wildcard.
+function getAllowedOrigins(): string[] {
+  const origins = new Set<string>();
+
+  if (process.env.NODE_ENV !== 'production') {
+    origins.add('http://localhost:3000');
+    origins.add('http://127.0.0.1:3000');
+  }
+
+  for (const value of [process.env.NEXT_PUBLIC_APP_URL, process.env.NEXT_PUBLIC_BASE_URL]) {
+    if (!value) continue;
+    try {
+      origins.add(new URL(value).origin);
+    } catch {
+      // ignore malformed URLs
+    }
+  }
+
+  return Array.from(origins);
+}
+
+function isAllowedOrigin(origin: string | null): boolean {
+  if (!origin) return false;
+  if (getAllowedOrigins().includes(origin)) return true;
+  // Allow ngrok tunnels during development.
+  if (process.env.NODE_ENV !== 'production' && /^https:\/\/[a-z0-9-]+\.ngrok[a-z0-9-]*\.(app|dev)$/.test(origin)) {
+    return true;
+  }
+  return false;
+}
+
+function applyCors(request: NextRequest, response: NextResponse): void {
+  const origin = request.headers.get('origin');
+  if (isAllowedOrigin(origin)) {
+    response.headers.set('Access-Control-Allow-Origin', origin as string);
+    response.headers.set('Vary', 'Origin');
+  }
+  response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+}
+
 // -------------------------
 // 1. next-intl middleware
 // -------------------------
@@ -87,15 +133,10 @@ async function authMiddleware(request: NextRequest) {
 export default async function middleware(request: NextRequest) {
   // Handle CORS preflight requests
   if (request.method === 'OPTIONS') {
-    return new NextResponse(null, {
-      status: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-phone-number',
-        'Access-Control-Max-Age': '86400',
-      },
-    });
+    const preflight = new NextResponse(null, { status: 200 });
+    applyCors(request, preflight);
+    preflight.headers.set('Access-Control-Max-Age', '86400');
+    return preflight;
   }
 
   // Handle root path redirect manually to ensure it goes to /am
@@ -113,9 +154,7 @@ export default async function middleware(request: NextRequest) {
   const authResponse = await authMiddleware(request);
 
   // Add CORS headers to all responses
-  authResponse.headers.set('Access-Control-Allow-Origin', '*');
-  authResponse.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-  authResponse.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-phone-number');
+  applyCors(request, authResponse);
 
   return authResponse;
 }

@@ -56,9 +56,9 @@ describe("GET /api/managers/schedules", () => {
 
     expect(prismaMock.schedule.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
-        where: {
+        where: expect.objectContaining({
           section_id: { in: ["section-a", "section-b", "section-c"] },
-        },
+        }),
       })
     );
   });

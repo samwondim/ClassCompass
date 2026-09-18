@@ -3,8 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, BookOpen, Layers, Quote, Target, ChevronLeft } from "lucide-react";
-import { Schedule } from "@/app/models/models";
+import { Calendar, BookOpen, Layers, Quote, Target, ChevronLeft, Clock, Users, Paperclip, ExternalLink, FileText } from "lucide-react";
+import { Schedule, LessonPlan } from "@/app/models/models";
 
 async function getSchedule(id: string): Promise<Schedule | null> {
   try {
@@ -41,6 +41,16 @@ export default async function TeacherScheduleDetailsPage({ params }: { params: P
   const title = course.course_name || course.course_description || "ስም የሌለው ትምህርት";
   const showDescription = course.course_name && course.course_description && course.course_name !== course.course_description;
 
+  const planSections: { key: keyof LessonPlan; label: string }[] = [
+    { key: "opening", label: "መግቢያ" },
+    { key: "teaching", label: "ትምህርት" },
+    { key: "application", label: "ተግባራዊ አተገባበር" },
+    { key: "activity", label: "እንቅስቃሴ" },
+    { key: "memory_verse", label: "የማስታወስ ጥቅስ" },
+    { key: "closing", label: "መደምደሚያ" },
+  ];
+  const planEntries = planSections.filter((s) => course.lesson_plan?.[s.key]);
+
   return (
     <div className="container mx-auto py-10 px-4 max-w-3xl">
       <Link
@@ -73,6 +83,24 @@ export default async function TeacherScheduleDetailsPage({ params }: { params: P
                 <Layers className="h-3 w-3" />
                 {schedule.section.section_name}
               </Badge>
+            )}
+            {course.unit?.title && (
+              <Badge variant="outline" className="gap-1">
+                <BookOpen className="h-3 w-3" />
+                {course.unit.title}
+              </Badge>
+            )}
+            {course.age_group && (
+              <span className="inline-flex items-center gap-1">
+                <Users className="h-4 w-4" />
+                {course.age_group}
+              </span>
+            )}
+            {course.duration_minutes && (
+              <span className="inline-flex items-center gap-1">
+                <Clock className="h-4 w-4" />
+                {course.duration_minutes} ደቂቃ
+              </span>
             )}
           </div>
         </div>
@@ -121,6 +149,63 @@ export default async function TeacherScheduleDetailsPage({ params }: { params: P
                   <li key={obj.id} className="flex items-start gap-2 text-sm">
                     <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
                     <span>{obj.objective}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Lesson plan */}
+        {planEntries.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <BookOpen className="h-5 w-5 text-primary" />
+                የትምህርቱ እቅድ
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <dl className="space-y-4">
+                {planEntries.map((section) => (
+                  <div key={section.key}>
+                    <dt className="text-sm font-semibold text-primary">{section.label}</dt>
+                    <dd className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                      {course.lesson_plan?.[section.key]}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Resources / materials */}
+        {course.resources && course.resources.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Paperclip className="h-5 w-5 text-primary" />
+                መማሪያዎች
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ul className="space-y-2">
+                {course.resources.map((resource) => (
+                  <li key={resource.resource_id}>
+                    <a
+                      href={resource.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
+                    >
+                      {resource.type === "LINK" ? (
+                        <ExternalLink className="h-4 w-4" />
+                      ) : (
+                        <FileText className="h-4 w-4" />
+                      )}
+                      {resource.title}
+                    </a>
                   </li>
                 ))}
               </ul>
