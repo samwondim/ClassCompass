@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Class Compass is a Telegram Mini App for Sunday school class management: managers/admins build curricula, schedule classes, and assign teachers; teachers view their schedules and receive Telegram notifications. It's a Next.js 16 (App Router) application backed by PostgreSQL via Prisma, embedded in Telegram as a Mini App (login is via Telegram `initData`, not a standalone web login).
+Sunday School Reminder (package name `sunday-school-reminder`; repo/directory still named `ClassCompass`) is a Telegram Mini App for Sunday school class management: managers/admins build curricula, schedule classes, and assign teachers; teachers view their schedules and receive Telegram notifications. It's a Next.js 16 (App Router) application backed by PostgreSQL via Prisma, embedded in Telegram as a Mini App (login is via Telegram `initData`, not a standalone web login).
 
 ## Commands
 

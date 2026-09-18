@@ -5,9 +5,9 @@ import { Providers } from '@/components/providers';
 import { ReactNode } from 'react';
 
 export const metadata: Metadata = {
-  title: 'ClassCompass',
+  title: 'Sunday School Reminder',
   description: 'Sunday School Schedule Management',
-  generator: 'ClassCompass',
+  generator: 'Sunday School Reminder',
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {

@@ -2,7 +2,7 @@
   "lockfileVersion": 1,
   "workspaces": {
     "": {
-      "name": "classcompass",
+      "name": "sunday-school-reminder",
       "dependencies": {
         "@grammyjs/conversations": "^1.2.0",
         "@grammyjs/i18n": "^1.1.2",
