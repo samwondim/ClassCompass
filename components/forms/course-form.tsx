@@ -37,7 +37,7 @@ export function CourseForm({ cancelHref, onSuccessHref }: CourseFormProps) {
   useEffect(() => {
     const fetchSections = async () => {
       try {
-        const res = await fetch('/api/managers/sections')
+        const res = await fetch('/api/sections')
         if (res.ok) {
           const data = await res.json()
           setSections(data.sections || [])
