@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { FileText } from 'lucide-react'
 import useToast from '@/hooks/use-toast'
 import { LessonPlanFields } from './lesson-plan-fields'
 import { LessonPlan } from '@/app/models/models'
@@ -33,6 +35,7 @@ export function CourseForm({ cancelHref, onSuccessHref }: CourseFormProps) {
   })
   const [objectives, setObjectives] = useState<string[]>([''])
   const [lessonPlan, setLessonPlan] = useState<LessonPlan>({})
+  const [importing, setImporting] = useState(false)
 
   useEffect(() => {
     const fetchSections = async () => {
@@ -67,6 +70,56 @@ export function CourseForm({ cancelHref, onSuccessHref }: CourseFormProps) {
     }
     fetchUnits()
   }, [formData.section_id])
+
+  const handleImportDocx = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = ''
+    if (!file) return
+
+    if (!file.name.toLowerCase().endsWith('.docx')) {
+      toast({ title: 'Error', description: 'Only .docx files are supported.', variant: 'destructive' })
+      return
+    }
+
+    setImporting(true)
+    try {
+      const body = new FormData()
+      body.append('file', file)
+
+      const res = await fetch('/api/courses/extract-docx', {
+        method: 'POST',
+        credentials: 'include',
+        body,
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to read the document.')
+      }
+
+      const draft = data.draft
+      setFormData((prev) => ({
+        ...prev,
+        course_name: draft.course_name || prev.course_name,
+        verse: draft.verse || prev.verse,
+        course_description: draft.course_description || prev.course_description,
+        age_group: draft.age_group || prev.age_group,
+        duration_minutes: draft.duration_minutes != null ? String(draft.duration_minutes) : prev.duration_minutes,
+      }))
+      if (draft.objectives?.length) setObjectives(draft.objectives)
+      if (draft.lesson_plan) setLessonPlan(draft.lesson_plan)
+
+      toast({ title: 'ተጨምሯል', description: 'ከሰነዱ የተገኘውን መረጃ ከማስቀመጥዎ በፊት ያረጋግጡ።' })
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to import document.',
+        variant: 'destructive',
+      })
+    } finally {
+      setImporting(false)
+    }
+  }
 
   const handleObjectiveChange = (index: number, value: string) => {
     const newObjectives = [...objectives]
@@ -136,6 +189,32 @@ export function CourseForm({ cancelHref, onSuccessHref }: CourseFormProps) {
 
   return (
     <form onSubmit={handleSubmit}>
+      <div className="px-4 py-3">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <FileText className="h-4 w-4" />
+              ከ Word ሰነድ (.docx) አስመጣ
+            </CardTitle>
+            <CardDescription>
+              ትምህርቱን የያዘ .docx ሰነድ ይስቀሉ፤ መረጃውን በራስ-ሰር ወደ ታችኛው ቅጽ ያስገባል። ከማስቀመጥዎ በፊት መረጃውን ማረጋገጥ ያስፈልጋል።
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Label htmlFor="docx_import" className="cursor-pointer">
+              <span className="text-primary hover:underline">{importing ? 'በማንበብ ላይ...' : 'ፋይል ይምረጡ'}</span>
+              <input
+                id="docx_import"
+                type="file"
+                accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                className="hidden"
+                onChange={handleImportDocx}
+                disabled={importing}
+              />
+            </Label>
+          </CardContent>
+        </Card>
+      </div>
       <div className="px-4 py-3">
         <Label htmlFor="course_name">የትምህርት ዓርዕስ</Label>
         <Input id="course_name" name="course_name" value={formData.course_name} onChange={(e) => setFormData({ ...formData, course_name: e.target.value })} required />

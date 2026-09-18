@@ -34,3 +34,7 @@ export function conflict(message = 'Conflict') {
 export function serverError(message = 'Internal server error') {
   return NextResponse.json({ error: message }, { status: 500 });
 }
+
+export function serviceUnavailable(message = 'Service temporarily unavailable') {
+  return NextResponse.json({ error: message }, { status: 503 });
+}
