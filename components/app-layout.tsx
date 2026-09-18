@@ -24,6 +24,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useTranslations } from 'next-intl'
 import { useTheme } from "@/components/theme-provider"
 
+// Logging out just bounces a real user back to Telegram auth with nothing to
+// switch to, so only show it where dev login is enabled (to swap between
+// seeded roles while testing).
+const DEV_LOGIN_ENABLED = process.env.NEXT_PUBLIC_DEV_LOGIN === 'true'
 
 interface AppLayoutProps {
   children: React.ReactNode
@@ -238,17 +242,21 @@ export function AppLayout({ children, userRole, photoUrl, firstName, lastName }:
                 </>
               )}
 
-              <div className="my-3 border-t" />
+              {DEV_LOGIN_ENABLED && (
+                <>
+                  <div className="my-3 border-t" />
 
-              {/* Logout */}
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-base font-medium text-destructive transition hover:bg-muted"
-              >
-                <LogOut className="h-6 w-6 shrink-0" />
-                <span>{t('Navigation.LogOut')}</span>
-              </button>
+                  {/* Logout */}
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-3 text-base font-medium text-destructive transition hover:bg-muted"
+                  >
+                    <LogOut className="h-6 w-6 shrink-0" />
+                    <span>{t('Navigation.LogOut')}</span>
+                  </button>
+                </>
+              )}
             </div>
           </nav>
         </>
